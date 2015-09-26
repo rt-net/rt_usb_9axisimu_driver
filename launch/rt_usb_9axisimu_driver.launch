@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="rt_usb_9axisimu_driver" type="rt_usb_9axisimu_driver" name="rt_usb_9axisimu_driver">
+    <param name="port" value="/dev/ttyACM0" />
+  </node>
+</launch>
