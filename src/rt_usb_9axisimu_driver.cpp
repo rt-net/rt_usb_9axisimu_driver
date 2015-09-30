@@ -100,6 +100,7 @@ class RtUsb9axisimuDriverForROS : public SerialPort
     ImuData<signed short> ExtractSensorData(unsigned char* imu_data_buf){
       ImuData<signed short> imu_rawdata; 
 
+      imu_rawdata.firmware_ver = imu_data_buf[consts.IMU_FIRMWARE];
       imu_rawdata.timestamp = imu_data_buf[consts.IMU_TIMESTAMP];
       imu_rawdata.temperature = CombineByteData(imu_data_buf[consts.IMU_TEMP_H], imu_data_buf[consts.IMU_TEMP_L]);
       imu_rawdata.ax = CombineByteData(imu_data_buf[consts.IMU_ACC_X_H], imu_data_buf[consts.IMU_ACC_X_L]);
@@ -120,15 +121,26 @@ class RtUsb9axisimuDriverForROS : public SerialPort
       unsigned char imu_data_buf[consts.IMU_DATA_SIZE];
       ImuData<signed short> imu_rawdata; 
       ImuData<double> imu; 
+      bool change_convertor = true;
       while(ros::ok()){
 
         if(Read(imu_data_buf, consts.IMU_DATA_SIZE) != consts.IMU_DATA_SIZE)  //Wait until data comes
           return false;  //Communication error
 
         imu_rawdata = ExtractSensorData(imu_data_buf);  //Extract sensor data
-        sensor_data_.update_imu_raw(imu_rawdata);       //Update raw data
-        sensor_data_.convert_rawdata();                 //Convert raw data to physical quantity
-        imu = sensor_data_.output_imu_data();           //Get phisical quantity
+
+        consts.ChangeConvertor(imu_rawdata.firmware_ver);  //Adjust convertors to firmware version
+        if(change_convertor){
+          //Update standard deviations
+          nh_priv_.param("linear_acceleration_stddev", linear_acceleration_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
+          nh_priv_.param("angular_velocity_stddev", angular_velocity_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
+          nh_priv_.param("magnetic_field_stddev", magnetic_field_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
+          change_convertor = false;
+        }
+
+        sensor_data_.UpdateImuRaw(imu_rawdata);       //Update raw data
+        sensor_data_.ConvertRawdata();                 //Convert raw data to physical quantity
+        imu = sensor_data_.OutputImuData();           //Get phisical quantity
 
         sensor_msgs::Imu imu_data_raw_msg;
         sensor_msgs::MagneticField imu_magnetic_msg;

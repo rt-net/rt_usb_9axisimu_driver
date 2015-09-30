@@ -50,6 +50,7 @@ namespace RtUsbImu
     public:
       //IMU Data table constants
       enum{
+        IMU_FIRMWARE = 6,
         IMU_TIMESTAMP = 7,
         IMU_ACC_X_L = 8,
         IMU_ACC_X_H = 9,
@@ -76,9 +77,9 @@ namespace RtUsbImu
       //Convertor
       const double CONVERTOR_RAW2G;
       const double CONVERTOR_RAW2DPS;
-      const double CONVERTOR_RAW2UT;
-      const double CONVERTOR_RAW2C_1;
-      const double CONVERTOR_RAW2C_2;
+      double CONVERTOR_RAW2UT;
+      double CONVERTOR_RAW2C_1;
+      double CONVERTOR_RAW2C_2;
       const double CONVERTOR_G2A;    
       const double CONVERTOR_D2R;
       const double CONVERTOR_UT2T;
@@ -101,6 +102,20 @@ namespace RtUsbImu
       {}
 
       ~Consts(){
+      }
+
+      //Method to adjust convertors to firmware version
+      void ChangeConvertor(const int firmware_ver) {
+        if(firmware_ver == 5) {
+          CONVERTOR_RAW2UT = 0.3;
+          CONVERTOR_RAW2C_1 = 340;
+          CONVERTOR_RAW2C_2 = 35;
+        }
+        else if(firmware_ver >= 6) {
+          CONVERTOR_RAW2UT = 0.15;
+          CONVERTOR_RAW2C_1 = 333.87;
+          CONVERTOR_RAW2C_2 = 21;
+        }
       }
   };
 
@@ -182,6 +197,7 @@ namespace RtUsbImu
   template <typename Type> class ImuData 
   {
     public:
+      int firmware_ver;
       int timestamp;
       Type ax, ay, az, gx, gy, gz, mx, my, mz, temperature;
 
@@ -193,6 +209,7 @@ namespace RtUsbImu
       }
 
       inline void Reset() {
+        firmware_ver = 5;
         timestamp = -1;
         ax = ay = az = gx = gy = gz = mx = my = mz = temperature = 0;
       }
@@ -218,12 +235,16 @@ namespace RtUsbImu
         imu.Reset();
       }
 
-      void update_imu_raw(ImuData<signed short>& i) {
+      void UpdateImuRaw(ImuData<signed short>& i) {
         imu_rawdata = i;
       }
 
       //Method to convert raw integer imu data to physical quantity
-      void convert_rawdata() {  
+      void ConvertRawdata() {  
+        //Adjust convertors to firmware version
+        consts.ChangeConvertor(imu_rawdata.firmware_ver);
+
+        imu.firmware_ver = imu_rawdata.firmware_ver;
         imu.timestamp = imu_rawdata.timestamp;
 
         // Convert raw data to [g]
@@ -245,7 +266,7 @@ namespace RtUsbImu
         imu.temperature = imu_rawdata.temperature/consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2;
       }
       
-      ImuData<double> output_imu_data() {
+      ImuData<double> OutputImuData() {
         return imu;
       }
   };
