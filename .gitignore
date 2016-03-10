@@ -1,0 +1,11 @@
+*.py[cod]
+
+*.swp
+*~
+
+# Emacs
+.#*
+
+build/
+bin/
+lib/
