@@ -15,7 +15,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rt_usb_9axisimu_driver
   CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
   DEPENDS system_lib
 )
