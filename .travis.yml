@@ -1,0 +1,52 @@
+# Based on https://github.com/felixduvallet/ros-travis-integration
+# and https://github.com/mavlink/mavros
+
+dist: trusty
+sudo: required
+language: generic
+cache:
+  - apt
+
+env:
+  global:
+    - ROS_CI_DESKTOP="`lsb_release -cs`"
+    - CI_SOURCE_PATH=$(pwd)
+    - ROSINSTALL_FILE=$CI_SOURCE_PATH/.travis.rosinstall
+    - ROS_PARALLEL_JOBS='-j8 -l6'
+
+  matrix:
+    - ROS_DISTRO=indigo
+
+before_install:
+  - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
+  - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+  - sudo apt-get update -qq
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-$ROS_DISTRO-catkin
+  - source /opt/ros/$ROS_DISTRO/setup.bash
+  - sudo rosdep init
+  - rosdep update
+
+install:
+  - mkdir -p ~/catkin_ws/src
+  - cd ~/catkin_ws/src
+  - catkin_init_workspace
+  - cd ~/catkin_ws
+  - catkin_make
+  - source devel/setup.bash
+  - cd ~/catkin_ws/src
+  - ln -s $CI_SOURCE_PATH .
+
+before_script:
+  - cd ~/catkin_ws/src
+  - wstool init
+  - if [[ -f $ROSINSTALL_FILE ]] ; then wstool merge $ROSINSTALL_FILE ; fi
+  - wstool up
+  - cd ~/catkin_ws
+  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+
+script:
+  - source /opt/ros/$ROS_DISTRO/setup.bash
+  - cd ~/catkin_ws
+  - catkin_make
+  - source devel/setup.bash
+  - catkin_make run_tests && catkin_make test
