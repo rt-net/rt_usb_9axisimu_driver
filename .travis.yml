@@ -3,7 +3,7 @@
 
 dist: trusty
 sudo: required
-language: generic
+language: c++ # to avoid using /opt/python from travis
 cache:
   - apt
 
