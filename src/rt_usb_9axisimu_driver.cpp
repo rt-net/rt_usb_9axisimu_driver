@@ -68,8 +68,8 @@ class RtUsb9axisimuDriverForROS : public SerialPort
       nh_priv_.param("frame_id", frame_id_, std::string("imu_link"));
       // defaults obtained experimentally from device
       nh_priv_.param("linear_acceleration_stddev", linear_acceleration_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
-      nh_priv_.param("angular_velocity_stddev", angular_velocity_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
-      nh_priv_.param("magnetic_field_stddev", magnetic_field_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
+      nh_priv_.param("angular_velocity_stddev", angular_velocity_stddev_, consts.DEFAULT_ANGULAR_VELOCITY_STDDEV);
+      nh_priv_.param("magnetic_field_stddev", magnetic_field_stddev_, consts.DEFAULT_MAGNETIC_FIELD_STDDEV);
       // publisher for streaming
       imu_data_raw_pub_   = nh_.advertise<sensor_msgs::Imu>("imu/data_raw", 1);
       imu_mag_pub_        = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
@@ -133,8 +133,8 @@ class RtUsb9axisimuDriverForROS : public SerialPort
         if(change_stddev){
           //Update standard deviations
           nh_priv_.param("linear_acceleration_stddev", linear_acceleration_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
-          nh_priv_.param("angular_velocity_stddev", angular_velocity_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
-          nh_priv_.param("magnetic_field_stddev", magnetic_field_stddev_, consts.DEFAULT_LINEAR_ACCELERATION_STDDEV);
+          nh_priv_.param("angular_velocity_stddev", angular_velocity_stddev_, consts.DEFAULT_ANGULAR_VELOCITY_STDDEV);
+          nh_priv_.param("magnetic_field_stddev", magnetic_field_stddev_, consts.DEFAULT_MAGNETIC_FIELD_STDDEV);
           change_stddev = false;
         }
 
