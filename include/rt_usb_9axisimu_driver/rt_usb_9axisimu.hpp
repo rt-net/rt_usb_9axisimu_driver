@@ -174,8 +174,19 @@ namespace RtUsbImu
           return -1;
         }
 
-        return read(port_fd, buf, buf_len);  //Read device file and put the data into buf (max size is (buf_len) bytes)
-                                             //Process stops here until data comes
+        unsigned int left_len = buf_len;
+        unsigned char* p = buf;
+        while(left_len > 0) {
+          //Read device file and put the data into buf (max size is (buf_len) bytes)
+          int size = read(port_fd, p, left_len);
+          if(size < 0) {
+            return -1;
+          }
+          p += size;
+          left_len -= size;
+        }
+
+        return (buf_len - left_len);
       }
 
       int Write(unsigned char* data, unsigned int data_len) {
