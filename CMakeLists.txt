@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
-  DEPENDS system_lib
+  # DEPENDS system_lib
 )
 
 ###########
@@ -36,7 +36,7 @@ add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver.cpp)
 target_link_libraries(rt_usb_9axisimu_driver ${catkin_LIBRARIES})
 
 # Add cmake target dependencies of the library
-add_dependencies(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_generate_messages_cpp)
+# add_dependencies(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_generate_messages_cpp)
 
 #############
 ## Install ##
