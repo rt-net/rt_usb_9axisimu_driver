@@ -161,17 +161,11 @@ namespace RtUsbImu
         }
 
         struct termios settings;
-        settings.c_cflag += CREAD; //Enable receiving
-        settings.c_cflag += CLOCAL;//Local line
-        settings.c_cflag += CS8;   //DataBit : 8bit
-        settings.c_cflag += 0;     //StopBit : 1bit
-        settings.c_cflag += 0;     //Parity  : None
 
         cfsetispeed(&settings, B57600);
         cfmakeraw(&settings);
 
         tcsetattr(fd, TCSANOW, &settings);
-        ioctl(fd, TCSETS, &settings);
 
         port_fd = fd;
 
