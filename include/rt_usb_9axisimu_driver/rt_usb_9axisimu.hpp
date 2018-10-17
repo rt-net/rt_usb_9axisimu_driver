@@ -32,6 +32,10 @@
 #include <math.h>
 
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -155,6 +159,19 @@ namespace RtUsbImu
         if(fd < 0) {
           return false;  //Port open error
         }
+
+        struct termios settings;
+        settings.c_cflag += CREAD; //Enable receiving
+        settings.c_cflag += CLOCAL;//Local line
+        settings.c_cflag += CS8;   //DataBit : 8bit
+        settings.c_cflag += 0;     //StopBit : 1bit
+        settings.c_cflag += 0;     //Parity  : None
+
+        cfsetispeed(&settings, B57600);
+        cfmakeraw(&settings);
+
+        tcsetattr(fd, TCSANOW, &settings);
+        ioctl(fd, TCSETS, &settings);
 
         port_fd = fd;
 
