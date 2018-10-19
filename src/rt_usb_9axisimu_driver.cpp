@@ -116,17 +116,34 @@ class RtUsb9axisimuDriverForROS : public SerialPort
       return imu_rawdata;
     }
 
+    bool isCorrectData(unsigned char* imu_data_buf){
+      if(imu_data_buf[consts.IMU_HEADER_R] == 'R' && 
+              imu_data_buf[consts.IMU_HEADER_T] == 'T'){
+        return true;
+      }else{
+        return false;
+      }
+    }
+
     //Method to receive IMU data, convert those units to SI, and publish to ROS topic 
     bool GetAndPublishData(){
-      unsigned char imu_data_buf[consts.IMU_DATA_SIZE];
+      unsigned char imu_data_buf[256];
       ImuData<signed short> imu_rawdata; 
       ImuData<double> imu; 
       bool change_stddev = true;
       while(ros::ok()){
 
-        if(Read(imu_data_buf, consts.IMU_DATA_SIZE) != consts.IMU_DATA_SIZE)  //Wait until data comes
-          return false;  //Communication error
+        int readDataSize = Read(imu_data_buf, consts.IMU_DATA_SIZE);
+        if(readDataSize < consts.IMU_DATA_SIZE){
+          if(readDataSize == -1){
+            return false;  //Communication error
+          }
+          continue;
+        }
 
+        if(isCorrectData(imu_data_buf) == false){
+          continue;
+        }
         imu_rawdata = ExtractSensorData(imu_data_buf);  //Extract sensor data
 
         consts.ChangeConvertor(imu_rawdata.firmware_ver);  //Adjust convertors to firmware version

@@ -54,6 +54,12 @@ namespace RtUsbImu
     public:
       //IMU Data table constants
       enum{
+        IMU_HEADER_FF0 = 0,
+        IMU_HEADER_FF1 = 1,
+        IMU_HEADER_R = 2,
+        IMU_HEADER_T = 3,
+        IMU_HEADER_ID0 = 4,
+        IMU_HEADER_ID1 = 5,
         IMU_FIRMWARE = 6,
         IMU_TIMESTAMP = 7,
         IMU_ACC_X_L = 8,
@@ -133,6 +139,7 @@ namespace RtUsbImu
   {
     private:
       std::string port_name; // ex) "/dev/ttyACM0"
+      struct termios oldSettings;
       int port_fd;
 
     public:
@@ -162,6 +169,8 @@ namespace RtUsbImu
 
         struct termios settings;
 
+        tcgetattr(fd, &oldSettings);
+
         cfsetispeed(&settings, B57600);
         cfmakeraw(&settings);
 
@@ -175,6 +184,7 @@ namespace RtUsbImu
 
       void Close() {
         if(port_fd > 0) {
+          tcsetattr(port_fd, TCSANOW, &oldSettings);
           close(port_fd);  //Close serial port
           port_fd = -1;
         }
@@ -185,19 +195,7 @@ namespace RtUsbImu
           return -1;
         }
 
-        unsigned int left_len = buf_len;
-        unsigned char* p = buf;
-        while(left_len > 0) {
-          //Read device file and put the data into buf (max size is (buf_len) bytes)
-          int size = read(port_fd, p, left_len);
-          if(size < 0) {
-            return -1;
-          }
-          p += size;
-          left_len -= size;
-        }
-
-        return (buf_len - left_len);
+        return  read(port_fd, buf, buf_len);
       }
 
       int Write(unsigned char* data, unsigned int data_len) {
