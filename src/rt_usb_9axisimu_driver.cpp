@@ -135,7 +135,7 @@ class RtUsb9axisimuDriverForROS : public SerialPort
 
         int readDataSize = Read(imu_data_buf, consts.IMU_DATA_SIZE);
         if(readDataSize < consts.IMU_DATA_SIZE){
-          if(readDataSize == -1){
+          if(readDataSize <= 0){
             return false;  //Communication error
           }
           continue;
