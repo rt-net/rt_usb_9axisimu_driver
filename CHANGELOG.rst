@@ -2,8 +2,8 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2019-12-21)
+------------------
 * Close node & port at device plugout
 * Fix wrong data output
 * Fix serial port attributes
