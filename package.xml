@@ -4,9 +4,14 @@
   <version>0.2.0</version>
   <description>The rt_usb_9axisimu_driver package</description>
 
-  <maintainer email="dev@rt-net.jp">Noriaki Nakagawa</maintainer>
+  <maintainer email="shop@rt-net.jp">RT Corporation</maintainer>
+  <author email="shop@rt-net.jp">RT Corporation</author>
 
   <license>BSD</license>
+
+  <url type="website">https://github.com/rt-net/rt_usb_9axisimu_driver/wiki</url>
+  <url type="bugtracker">https://github.com/rt-net/rt_usb_9axisimu_driver/issues</url>
+  <url type="repository">https://github.com/rt-net/rt_usb_9axisimu_driver</url>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
