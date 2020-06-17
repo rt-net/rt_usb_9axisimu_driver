@@ -31,15 +31,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-// #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
-
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "std_msgs/Float64.h"
-
-#include <sstream>
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
 RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string port = "")
   : rt_usb_9axisimu::SerialPort(port.c_str())

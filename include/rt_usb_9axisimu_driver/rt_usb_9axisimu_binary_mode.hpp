@@ -1,5 +1,5 @@
 /*
- * rt_usb_9axisimu_driver.hpp
+ * rt_usb_9axisimu_binary_mode.hpp
  *
  * License: BSD-3-Clause
  *
@@ -31,17 +31,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RT_USB_9AXISIMU_DRIVER_H_
-#define RT_USB_9AXISIMU_DRIVER_H_
-
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
+#ifndef RT_USB_9AXISIMU_BINARY_MODE_H_
+#define RT_USB_9AXISIMU_BINARY_MODE_H_
 
 #include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/MagneticField.h"
-#include "std_msgs/Float64.h"
-
-#include <sstream>
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
 
 class RtUsb9axisimuBinaryModeRosDriver : public rt_usb_9axisimu::SerialPort
 {
