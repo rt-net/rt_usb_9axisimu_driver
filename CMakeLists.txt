@@ -4,7 +4,6 @@ project(rt_usb_9axisimu_driver)
 # Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   sensor_msgs
   std_msgs
 )
@@ -15,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
+  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
   # DEPENDS system_lib
 )
 
