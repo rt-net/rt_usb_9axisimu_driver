@@ -1,6 +1,5 @@
-
 /*
- * rt_usb_9axisimu_driver.cpp
+ * rt_usb_9axisimu_driver.hpp
  *
  * License: BSD-3-Clause
  *
@@ -32,57 +31,52 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
+#ifndef RT_USB_9AXISIMU_DRIVER_H_
+#define RT_USB_9AXISIMU_DRIVER_H_
+
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
 
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "std_msgs/Float64.h"
 
-// #include <sstream>
+#include <sstream>
 
-int main(int argc, char** argv)
+class RtUsb9axisimuBinaryModeRosDriver : public rt_usb_9axisimu::SerialPort
 {
-  // init ROS node
-  ros::init(argc, argv, "rt_usb_9axisimu_driver");
+private:
+  ros::NodeHandle nh_;
 
-  std::string imu_port = std::string("/dev/ttyACM0");
-  ros::param::get("~port", imu_port);
-  std::string imu_frame_id = std::string("imu_link");
-  ros::param::get("~frame_id", imu_frame_id);
-  rt_usb_9axisimu::Consts imu_consts;
-  double imu_stddev_linear_acceleration = imu_consts.DEFAULT_LINEAR_ACCELERATION_STDDEV;
-  ros::param::get("~linear_acceleration_stddev", imu_stddev_linear_acceleration);
-  double imu_stddev_angular_velocity = imu_consts.DEFAULT_ANGULAR_VELOCITY_STDDEV;
-  ros::param::get("~angular_velocity_stddev", imu_stddev_angular_velocity);
-  double imu_stddev_magnetic_field = imu_consts.DEFAULT_MAGNETIC_FIELD_STDDEV;
-  ros::param::get("~magnetic_field_stddev", imu_stddev_magnetic_field);
+  ros::Publisher imu_data_raw_pub_;
+  ros::Publisher imu_mag_pub_;
+  ros::Publisher imu_temperature_pub_;
 
-  RtUsb9axisimuBinaryModeRosDriver sensor(imu_port);
-  sensor.setImuFrameIdName(imu_frame_id);
-  sensor.setImuStdDev(imu_stddev_linear_acceleration, imu_stddev_angular_velocity, imu_stddev_magnetic_field);
+  rt_usb_9axisimu::SensorData sensor_data_;
 
-  if (sensor.startCommunication())
-  {
-    ROS_INFO("RT imu driver initialization OK.\n");
-    while (ros::ok())
-    {
-      if (sensor.readSensorData())
-      {
-        sensor.publishSensorData();
-      }
-      else
-      {
-        ROS_ERROR("GetSensorData() returns false, please check your devices.\n");
-      }
-    }
-  }
-  else
-  {
-    ROS_ERROR("Error opening sensor device, please re-check your devices.\n");
-  }
+  std::string frame_id_;
+  double linear_acceleration_stddev_;
+  double angular_velocity_stddev_;
+  double magnetic_field_stddev_;
+  rt_usb_9axisimu::Consts consts;
 
-  ROS_INFO("Shutting down RT imu driver complete.\n");
+public:
+  RtUsb9axisimuBinaryModeRosDriver(std::string serialport);
+  ~RtUsb9axisimuBinaryModeRosDriver();
 
-  return 0;
-}
+  void setImuFrameIdName(std::string frame_id);
+  void setImuPortName(std::string serialport);
+  void setImuStdDev(double linear_acceleration, double angular_velocity, double magnetic_field);
+
+  bool isBinarySensorData(unsigned char* imu_data_buf);
+
+  bool startCommunication();
+  // Method to combine two separate one-byte data into one two-byte data
+  signed short combineByteData(unsigned char data_h, unsigned char data_l);
+  // Method to extract binary sensor data from communication buffer
+  rt_usb_9axisimu::ImuData<signed short> extractBinarySensorData(unsigned char* imu_data_buf);
+  bool publishSensorData();
+  bool readSensorData();
+};
+
+#endif
