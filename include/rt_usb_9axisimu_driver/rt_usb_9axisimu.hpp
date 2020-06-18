@@ -294,6 +294,11 @@ public:
     imu_raw_data_ = i;
   }
 
+  void setImuData(ImuData<double>& i)
+  {
+    imu_ = i;
+  }
+
   // Method to convert raw integer imu_ data to physical quantity
   void convertRawDataUnit()
   {
