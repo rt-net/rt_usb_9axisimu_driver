@@ -4,7 +4,6 @@ project(rt_usb_9axisimu_driver)
 # Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   sensor_msgs
   std_msgs
 )
@@ -15,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp rospy sensor_msgs std_msgs
+  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
   # DEPENDS system_lib
 )
 
@@ -30,7 +29,7 @@ include_directories(
 )
 
 # Declare a C++ executable
-add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver.cpp)
+add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver.cpp src/rt_usb_9axisimu_binary_mode.cpp)
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(rt_usb_9axisimu_driver ${catkin_LIBRARIES})

@@ -72,7 +72,7 @@ $ roslaunch rt_usb_9axisimu_driver rt_usb_9axisimu_driver.launch
 
 と入力することにより、ドライバを起動できます。
 
-### [ERROR] Start() returns false, please check your devices. が発生する場合。
+### [ERROR] Error opening sensor device, please re-check your devices. が発生する場合
 
 ポートの権限を変更してください。
 
@@ -97,6 +97,9 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
     - センサの温度データ
 
 #### 4.1.2 パラメータ
+
+- ~frame_id (string, default: imu_link)
+    - IMUデータのヘッダーにセットされるフレーム名
 
 - ~port (string, default: /dev/ttyACM0)
     - モジュールが接続されているポート名
