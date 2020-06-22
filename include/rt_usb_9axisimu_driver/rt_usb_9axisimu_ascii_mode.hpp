@@ -53,6 +53,7 @@ private:
   double angular_velocity_stddev_;
   double magnetic_field_stddev_;
   rt_usb_9axisimu::Consts consts;
+  bool imu_data_are_refreshed_;
 
 public:
   RtUsb9axisimuAsciiModeRosDriver(std::string serialport);
@@ -71,6 +72,7 @@ public:
   rt_usb_9axisimu::ImuData<signed short> extractBinarySensorData(unsigned char* imu_data_buf);
   bool publishSensorData();
   bool readSensorData();
+  bool imuDataAreRefreshed();
 };
 
 #endif

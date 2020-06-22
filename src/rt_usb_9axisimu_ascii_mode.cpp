@@ -45,6 +45,7 @@ RtUsb9axisimuAsciiModeRosDriver::RtUsb9axisimuAsciiModeRosDriver(std::string por
   imu_data_raw_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data_raw", 1);
   imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
   imu_temperature_pub_ = nh_.advertise<std_msgs::Float64>("imu/temperature", 1);
+  imu_data_are_refreshed_ = false;
 }
 
 RtUsb9axisimuAsciiModeRosDriver::~RtUsb9axisimuAsciiModeRosDriver()
@@ -189,6 +190,7 @@ bool RtUsb9axisimuAsciiModeRosDriver::readSensorData()
   rt_usb_9axisimu::ImuData<double> imu_data;
   std::string imu_data_oneline_buf;
 
+  imu_data_are_refreshed_ = false;
   imu_data_oneline_buf.clear();
 
   int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
@@ -237,15 +239,22 @@ bool RtUsb9axisimuAsciiModeRosDriver::readSensorData()
         std::cout << std::endl;
       }
       imu_data_vector_buf.clear();
-    }else if(imu_data_vector_buf.size() > 11){
-      //TODO ERROR HANDLING
+      sensor_data_.setImuData(imu_data);
+      imu_data_are_refreshed_ = true;
+    }
+    else if (imu_data_vector_buf.size() > 11)
+    {
+      // TODO ERROR HANDLING
       imu_data_vector_buf.clear();
     }
   }
 
-  sensor_data_.setImuData(imu_data);
-
   return true;
+}
+
+bool RtUsb9axisimuAsciiModeRosDriver::imuDataAreRefreshed()
+{
+  return imu_data_are_refreshed_;
 }
 
 int main(int argc, char** argv)
@@ -276,7 +285,10 @@ int main(int argc, char** argv)
     {
       if (sensor.readSensorData())
       {
-        sensor.publishSensorData();
+        if (sensor.imuDataAreRefreshed())
+        {
+          sensor.publishSensorData();
+        }
       }
       else
       {
