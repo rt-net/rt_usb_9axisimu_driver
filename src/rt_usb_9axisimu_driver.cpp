@@ -67,7 +67,7 @@ int main(int argc, char** argv)
       }
       else
       {
-        ROS_ERROR("GetSensorData() returns false, please check your devices.\n");
+        ROS_ERROR("readSensorData() returns false, please check your devices.\n");
       }
     }
   }

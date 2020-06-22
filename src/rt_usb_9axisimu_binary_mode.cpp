@@ -192,7 +192,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readSensorData()
   {
     if (data_size_of_buf <= 0)
     {
-      return false;  // Raize communication error
+      return false;  // Raise communication error
     }
     return false;
   }
