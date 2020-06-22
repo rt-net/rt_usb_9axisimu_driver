@@ -204,8 +204,6 @@ bool RtUsb9axisimuBinaryModeRosDriver::readSensorData()
 
   imu_rawdata = extractBinarySensorData(imu_data_buf);  // Extract sensor data
 
-  consts.ChangeConvertor(imu_rawdata.firmware_ver);  // Adjust convertors to firmware version
-
   sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
   sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
 
