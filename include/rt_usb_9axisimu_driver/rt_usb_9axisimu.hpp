@@ -240,7 +240,7 @@ public:
  *
  **************************************************************************/
 
-// Class to store either raw integer imu_ data or converted physical quantity
+// Class to store either raw integer imu data or converted physical quantity
 template <typename Type>
 class ImuData
 {
