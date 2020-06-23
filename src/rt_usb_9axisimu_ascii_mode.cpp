@@ -230,14 +230,7 @@ bool RtUsb9axisimuAsciiModeRosDriver::readSensorData()
       imu_data.my = stof(imu_data_vector_buf[8]);
       imu_data.mz = stof(imu_data_vector_buf[9]);
       imu_data.temperature = stof(imu_data_vector_buf[10]);
-      if (imu_data_vector_buf.size() > 0)
-      {
-        for (int i = 0; i < imu_data_vector_buf.size(); i++)
-        {
-          std::cout << imu_data_vector_buf[i] << ",";
-        }
-        std::cout << std::endl;
-      }
+
       imu_data_vector_buf.clear();
       sensor_data_.setImuData(imu_data);
       imu_data_are_refreshed_ = true;
