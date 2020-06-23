@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rt_usb_9axisimu_driver)
 
+add_compile_options(-std=c++11)
+
 # Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -30,12 +32,15 @@ include_directories(
 
 # Declare a C++ executable
 add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver.cpp src/rt_usb_9axisimu_binary_mode.cpp)
+add_executable(rt_usb_9axisimu_ascii_driver src/rt_usb_9axisimu_ascii_mode.cpp)
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(rt_usb_9axisimu_driver ${catkin_LIBRARIES})
+target_link_libraries(rt_usb_9axisimu_ascii_driver ${catkin_LIBRARIES})
 
 # Add cmake target dependencies of the library
 # add_dependencies(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_generate_messages_cpp)
+# add_dependencies(rt_usb_9axisimu_ascii_driver rt_usb_9axisimu_driver_generate_messages_cpp)
 
 #############
 ## Install ##
