@@ -159,10 +159,10 @@ bool RtUsb9axisimuAsciiModeRosDriver::publishSensorData()
   imu_data_raw_msg.linear_acceleration.y = imu.ay * consts.CONVERTOR_G2A;
   imu_data_raw_msg.linear_acceleration.z = imu.az * consts.CONVERTOR_G2A;
 
-  // original data used the degree/s unit, convert to radian/s
-  imu_data_raw_msg.angular_velocity.x = imu.gx * consts.CONVERTOR_D2R;
-  imu_data_raw_msg.angular_velocity.y = imu.gy * consts.CONVERTOR_D2R;
-  imu_data_raw_msg.angular_velocity.z = imu.gz * consts.CONVERTOR_D2R;
+  // original data used the radian/s unit
+  imu_data_raw_msg.angular_velocity.x = imu.gx;
+  imu_data_raw_msg.angular_velocity.y = imu.gy;
+  imu_data_raw_msg.angular_velocity.z = imu.gz;
 
   // original data used the uTesla unit, convert to Tesla
   imu_magnetic_msg.magnetic_field.x = imu.mx / consts.CONVERTOR_UT2T;
@@ -220,12 +220,12 @@ bool RtUsb9axisimuAsciiModeRosDriver::readSensorData()
     if (imu_data_buf[char_count] == '\n' && imu_data_vector_buf.size() == 11 &&
         imu_data_vector_buf[0].find(".") == std::string::npos)
     {
-      imu_data.ax = stof(imu_data_vector_buf[1]);
-      imu_data.ay = stof(imu_data_vector_buf[2]);
-      imu_data.az = stof(imu_data_vector_buf[3]);
-      imu_data.gx = stof(imu_data_vector_buf[4]);
-      imu_data.gy = stof(imu_data_vector_buf[5]);
-      imu_data.gz = stof(imu_data_vector_buf[6]);
+      imu_data.gx = stof(imu_data_vector_buf[1]);
+      imu_data.gy = stof(imu_data_vector_buf[2]);
+      imu_data.gz = stof(imu_data_vector_buf[3]);
+      imu_data.ax = stof(imu_data_vector_buf[4]);
+      imu_data.ay = stof(imu_data_vector_buf[5]);
+      imu_data.az = stof(imu_data_vector_buf[6]);
       imu_data.mx = stof(imu_data_vector_buf[7]);
       imu_data.my = stof(imu_data_vector_buf[8]);
       imu_data.mz = stof(imu_data_vector_buf[9]);
