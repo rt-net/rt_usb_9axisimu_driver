@@ -54,6 +54,18 @@ private:
   double magnetic_field_stddev_;
   rt_usb_9axisimu::Consts consts;
 
+  enum DataFormat
+  {
+    NONE = 0,
+    NOT_BINARY,
+    BINARY,
+    NOT_ASCII,
+    ASCII,
+    INCORRECT
+  };
+  bool format_check_has_completed_;
+  DataFormat data_format_;
+
 public:
   RtUsb9axisimuBinaryModeRosDriver(std::string serialport);
   ~RtUsb9axisimuBinaryModeRosDriver();
@@ -65,6 +77,13 @@ public:
   bool isBinarySensorData(unsigned char* imu_data_buf);
 
   bool startCommunication();
+  void stopCommunication(void);
+  void checkDataFormat(void);
+  bool formatCheckHasCompleted(void);
+  bool hasCorrectDataFormat(void);
+  bool hasAsciiDataFormat(void);
+  bool hasBinaryDataFormat(void);
+
   // Method to combine two separate one-byte data into one two-byte data
   signed short combineByteData(unsigned char data_h, unsigned char data_l);
   // Method to extract binary sensor data from communication buffer

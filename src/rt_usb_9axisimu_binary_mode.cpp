@@ -45,6 +45,9 @@ RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string p
   imu_data_raw_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data_raw", 1);
   imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
   imu_temperature_pub_ = nh_.advertise<std_msgs::Float64>("imu/temperature", 1);
+
+  format_check_has_completed_ = false;
+  data_format_ = DataFormat::NONE;
 }
 
 RtUsb9axisimuBinaryModeRosDriver::~RtUsb9axisimuBinaryModeRosDriver()
@@ -73,6 +76,55 @@ bool RtUsb9axisimuBinaryModeRosDriver::startCommunication()
 {
   // returns serial port open status
   return openSerialPort();
+}
+
+void RtUsb9axisimuBinaryModeRosDriver::stopCommunication(void)
+{
+  closeSerialPort();
+}
+
+void RtUsb9axisimuBinaryModeRosDriver::checkDataFormat(void)
+{
+  if (data_format_ == DataFormat::NONE)
+  {
+    // binary format check
+    // if isBinaryFormat() == True : data_format_ = DataFormat::BINARY
+    // else data_format_ = DataFormat::NOT_BINARY
+  }
+  else if (data_format_ == DataFormat::NOT_BINARY)
+  {
+    // ascii format check
+    // if isAsciiFormat() == True : data_format_ = DataFormat::ASCII
+    // else data_format_ = DataFormat::INCORRECT
+  }
+  data_format_ = DataFormat::BINARY;
+  format_check_has_completed_ = true;
+}
+
+bool RtUsb9axisimuBinaryModeRosDriver::formatCheckHasCompleted(void)
+{
+  return format_check_has_completed_;
+}
+
+bool RtUsb9axisimuBinaryModeRosDriver::hasCorrectDataFormat(void)
+{
+  bool output = true;
+  if (data_format_ == DataFormat::INCORRECT || data_format_ == DataFormat::NOT_ASCII ||
+      data_format_ == DataFormat::NOT_BINARY)
+  {
+    output = false;
+  }
+  return output;
+}
+
+bool RtUsb9axisimuBinaryModeRosDriver::hasAsciiDataFormat(void)
+{
+  return data_format_ == DataFormat::ASCII;
+}
+
+bool RtUsb9axisimuBinaryModeRosDriver::hasBinaryDataFormat(void)
+{
+  return data_format_ == DataFormat::BINARY;
 }
 
 // Method to combine two separate one-byte data into one two-byte data
