@@ -220,16 +220,16 @@ bool RtUsb9axisimuAsciiModeRosDriver::readSensorData()
     if (imu_data_buf[char_count] == '\n' && imu_data_vector_buf.size() == 11 &&
         imu_data_vector_buf[0].find(".") == std::string::npos)
     {
-      imu_data.gx = stof(imu_data_vector_buf[1]);
-      imu_data.gy = stof(imu_data_vector_buf[2]);
-      imu_data.gz = stof(imu_data_vector_buf[3]);
-      imu_data.ax = stof(imu_data_vector_buf[4]);
-      imu_data.ay = stof(imu_data_vector_buf[5]);
-      imu_data.az = stof(imu_data_vector_buf[6]);
-      imu_data.mx = stof(imu_data_vector_buf[7]);
-      imu_data.my = stof(imu_data_vector_buf[8]);
-      imu_data.mz = stof(imu_data_vector_buf[9]);
-      imu_data.temperature = stof(imu_data_vector_buf[10]);
+      imu_data.gx = std::stof(imu_data_vector_buf[1]);
+      imu_data.gy = std::stof(imu_data_vector_buf[2]);
+      imu_data.gz = std::stof(imu_data_vector_buf[3]);
+      imu_data.ax = std::stof(imu_data_vector_buf[4]);
+      imu_data.ay = std::stof(imu_data_vector_buf[5]);
+      imu_data.az = std::stof(imu_data_vector_buf[6]);
+      imu_data.mx = std::stof(imu_data_vector_buf[7]);
+      imu_data.my = std::stof(imu_data_vector_buf[8]);
+      imu_data.mz = std::stof(imu_data_vector_buf[9]);
+      imu_data.temperature = std::stof(imu_data_vector_buf[10]);
 
       imu_data_vector_buf.clear();
       sensor_data_.setImuData(imu_data);
