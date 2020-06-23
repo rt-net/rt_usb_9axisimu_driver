@@ -87,18 +87,26 @@ void RtUsb9axisimuBinaryModeRosDriver::checkDataFormat(void)
 {
   if (data_format_ == DataFormat::NONE)
   {
-    // binary format check
-    // if isBinaryFormat() == True : data_format_ = DataFormat::BINARY
-    // else data_format_ = DataFormat::NOT_BINARY
+    unsigned char data_buf[256];
+    int data_size_of_buf = readFromDevice(data_buf, consts.IMU_DATA_SIZE);
+    if (data_size_of_buf == consts.IMU_DATA_SIZE)
+    {
+      if (isBinarySensorData(data_buf))
+      {
+        data_format_ = DataFormat::BINARY;
+        format_check_has_completed_ = true;
+      }
+      else
+      {
+        data_format_ = DataFormat::NOT_BINARY;
+      }
+    }
   }
   else if (data_format_ == DataFormat::NOT_BINARY)
   {
-    // ascii format check
-    // if isAsciiFormat() == True : data_format_ = DataFormat::ASCII
-    // else data_format_ = DataFormat::INCORRECT
+    data_format_ = DataFormat::ASCII;
+    format_check_has_completed_ = true;
   }
-  data_format_ = DataFormat::BINARY;
-  format_check_has_completed_ = true;
 }
 
 bool RtUsb9axisimuBinaryModeRosDriver::formatCheckHasCompleted(void)
