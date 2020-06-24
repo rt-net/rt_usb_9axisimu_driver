@@ -119,7 +119,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
     else if (imu_data_vector_buf.size() > 11)
     {
       imu_data_vector_buf.clear();
-      return false;
+      ROS_WARN("ASCII data size is incorrect.");
     }
   }
 
