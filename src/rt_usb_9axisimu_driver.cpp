@@ -88,7 +88,10 @@ int main(int argc, char** argv)
     {
       if (sensor.readSensorData())
       {
-        sensor.publishSensorData();
+        if (sensor.imuDataHasRefreshed())
+        {
+          sensor.publishSensorData();
+        }
       }
       else
       {

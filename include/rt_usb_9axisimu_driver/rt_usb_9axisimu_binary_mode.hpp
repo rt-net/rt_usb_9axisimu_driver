@@ -65,6 +65,7 @@ private:
   };
   bool format_check_has_completed_;
   DataFormat data_format_;
+  bool imu_data_has_refreshed_;
 
   bool readBinaryData(void);
   bool readAsciiData(void);
@@ -86,6 +87,7 @@ public:
   bool hasCorrectDataFormat(void);
   bool hasAsciiDataFormat(void);
   bool hasBinaryDataFormat(void);
+  bool imuDataHasRefreshed(void);
 
   // Method to combine two separate one-byte data into one two-byte data
   signed short combineByteData(unsigned char data_h, unsigned char data_l);

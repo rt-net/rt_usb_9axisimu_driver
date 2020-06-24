@@ -42,6 +42,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
   unsigned char imu_data_buf[256];
   rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
 
+  imu_data_has_refreshed_ = false;
   int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_DATA_SIZE);
 
   if (data_size_of_buf < consts.IMU_DATA_SIZE)
@@ -62,13 +63,67 @@ bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
 
   sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
   sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
+  imu_data_has_refreshed_ = true;
 
   return true;
 }
 
 bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
 {
-  ROS_ERROR("readAsciiData is not implemented.");
+  static std::vector<std::string> imu_data_vector_buf;
+
+  unsigned char imu_data_buf[256];
+  rt_usb_9axisimu::ImuData<double> imu_data;
+  std::string imu_data_oneline_buf;
+
+  imu_data_has_refreshed_ = false;
+  imu_data_oneline_buf.clear();
+
+  int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
+
+  if (data_size_of_buf <= 0)
+  {
+    return false;  // Raise communication error
+  }
+
+  for (int char_count = 0; char_count < data_size_of_buf; char_count++)
+  {
+    if (imu_data_buf[char_count] == ',' || imu_data_buf[char_count] == '\n')
+    {
+      imu_data_vector_buf.push_back(imu_data_oneline_buf);
+      imu_data_oneline_buf.clear();
+    }
+    else
+    {
+      imu_data_oneline_buf += imu_data_buf[char_count];
+    }
+
+    if (imu_data_buf[char_count] == '\n' && imu_data_vector_buf.size() == 11 &&
+        imu_data_vector_buf[0].find(".") == std::string::npos)
+    {
+      imu_data.gx = std::stof(imu_data_vector_buf[1]);
+      imu_data.gy = std::stof(imu_data_vector_buf[2]);
+      imu_data.gz = std::stof(imu_data_vector_buf[3]);
+      imu_data.ax = std::stof(imu_data_vector_buf[4]);
+      imu_data.ay = std::stof(imu_data_vector_buf[5]);
+      imu_data.az = std::stof(imu_data_vector_buf[6]);
+      imu_data.mx = std::stof(imu_data_vector_buf[7]);
+      imu_data.my = std::stof(imu_data_vector_buf[8]);
+      imu_data.mz = std::stof(imu_data_vector_buf[9]);
+      imu_data.temperature = std::stof(imu_data_vector_buf[10]);
+
+      imu_data_vector_buf.clear();
+      sensor_data_.setImuData(imu_data);
+      imu_data_has_refreshed_ = true;
+    }
+    else if (imu_data_vector_buf.size() > 11)
+    {
+      // TODO ERROR HANDLING
+      imu_data_vector_buf.clear();
+    }
+  }
+
+  return true;
 }
 
 RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string port = "")
@@ -82,6 +137,7 @@ RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string p
 
   format_check_has_completed_ = false;
   data_format_ = DataFormat::NONE;
+  imu_data_has_refreshed_ = false;
 }
 
 RtUsb9axisimuBinaryModeRosDriver::~RtUsb9axisimuBinaryModeRosDriver()
@@ -169,6 +225,11 @@ bool RtUsb9axisimuBinaryModeRosDriver::hasBinaryDataFormat(void)
   return data_format_ == DataFormat::BINARY;
 }
 
+bool RtUsb9axisimuBinaryModeRosDriver::imuDataHasRefreshed(void)
+{
+  return imu_data_has_refreshed_;
+}
+
 // Method to combine two separate one-byte data into one two-byte data
 signed short RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
 {
@@ -252,10 +313,20 @@ bool RtUsb9axisimuBinaryModeRosDriver::publishSensorData()
   imu_data_raw_msg.linear_acceleration.y = imu.ay * consts.CONVERTOR_G2A;
   imu_data_raw_msg.linear_acceleration.z = imu.az * consts.CONVERTOR_G2A;
 
-  // original data used the degree/s unit, convert to radian/s
-  imu_data_raw_msg.angular_velocity.x = imu.gx * consts.CONVERTOR_D2R;
-  imu_data_raw_msg.angular_velocity.y = imu.gy * consts.CONVERTOR_D2R;
-  imu_data_raw_msg.angular_velocity.z = imu.gz * consts.CONVERTOR_D2R;
+  if (data_format_ == DataFormat::BINARY)
+  {
+    // original binary data used the degree/s unit, convert to radian/s
+    imu_data_raw_msg.angular_velocity.x = imu.gx * consts.CONVERTOR_D2R;
+    imu_data_raw_msg.angular_velocity.y = imu.gy * consts.CONVERTOR_D2R;
+    imu_data_raw_msg.angular_velocity.z = imu.gz * consts.CONVERTOR_D2R;
+  }
+  else if (data_format_ == DataFormat::ASCII)
+  {
+    // original ascii data used the radian/s
+    imu_data_raw_msg.angular_velocity.x = imu.gx;
+    imu_data_raw_msg.angular_velocity.y = imu.gy;
+    imu_data_raw_msg.angular_velocity.z = imu.gz;
+  }
 
   // original data used the uTesla unit, convert to Tesla
   imu_magnetic_msg.magnetic_field.x = imu.mx / consts.CONVERTOR_UT2T;
