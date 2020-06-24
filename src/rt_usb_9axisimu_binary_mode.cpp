@@ -118,8 +118,8 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
     }
     else if (imu_data_vector_buf.size() > 11)
     {
-      // TODO ERROR HANDLING
       imu_data_vector_buf.clear();
+      return false;
     }
   }
 
