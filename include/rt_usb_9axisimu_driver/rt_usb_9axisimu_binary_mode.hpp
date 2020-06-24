@@ -66,6 +66,9 @@ private:
   bool format_check_has_completed_;
   DataFormat data_format_;
 
+  bool readBinaryData(void);
+  bool readAsciiData(void);
+
 public:
   RtUsb9axisimuBinaryModeRosDriver(std::string serialport);
   ~RtUsb9axisimuBinaryModeRosDriver();

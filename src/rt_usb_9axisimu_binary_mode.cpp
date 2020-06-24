@@ -37,6 +37,40 @@
 #include "std_msgs/Float64.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
+bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
+{
+  unsigned char imu_data_buf[256];
+  rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
+
+  int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_DATA_SIZE);
+
+  if (data_size_of_buf < consts.IMU_DATA_SIZE)
+  {
+    if (data_size_of_buf <= 0)
+    {
+      return false;  // Raise communication error
+    }
+    return false;
+  }
+
+  if (isBinarySensorData(imu_data_buf) == false)
+  {
+    return false;
+  }
+
+  imu_rawdata = extractBinarySensorData(imu_data_buf);  // Extract sensor data
+
+  sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
+  sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
+
+  return true;
+}
+
+bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
+{
+  ROS_ERROR("readAsciiData is not implemented.");
+}
+
 RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string port = "")
   : rt_usb_9axisimu::SerialPort(port.c_str())
 {
@@ -243,29 +277,15 @@ bool RtUsb9axisimuBinaryModeRosDriver::publishSensorData()
 // topic
 bool RtUsb9axisimuBinaryModeRosDriver::readSensorData()
 {
-  unsigned char imu_data_buf[256];
-  rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
-
-  int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_DATA_SIZE);
-
-  if (data_size_of_buf < consts.IMU_DATA_SIZE)
+  bool result = false;
+  if (data_format_ == DataFormat::BINARY)
   {
-    if (data_size_of_buf <= 0)
-    {
-      return false;  // Raise communication error
-    }
-    return false;
+    result = readBinaryData();
+  }
+  else if (data_format_ == DataFormat::ASCII)
+  {
+    result = readAsciiData();
   }
 
-  if (isBinarySensorData(imu_data_buf) == false)
-  {
-    return false;
-  }
-
-  imu_rawdata = extractBinarySensorData(imu_data_buf);  // Extract sensor data
-
-  sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
-  sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
-
-  return true;
+  return result;
 }
