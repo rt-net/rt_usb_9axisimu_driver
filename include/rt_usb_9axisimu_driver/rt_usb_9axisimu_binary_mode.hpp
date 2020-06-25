@@ -67,6 +67,7 @@ private:
   DataFormat data_format_;
   bool imu_data_has_refreshed_;
 
+  bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
   bool readBinaryData(void);
   bool readAsciiData(void);
 
