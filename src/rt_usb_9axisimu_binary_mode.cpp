@@ -68,6 +68,19 @@ bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
   return true;
 }
 
+bool RtUsb9axisimuBinaryModeRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
+{
+  bool ret = true;
+  for (int i = 1; i <= 10; i++)
+  {
+    if (strspn(str_vector[i].c_str(), "-.0123456789") != str_vector[i].size())
+    {
+      ret = false;
+    }
+  }
+  return ret;
+}
+
 bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
 {
   static std::vector<std::string> imu_data_vector_buf;
@@ -99,7 +112,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
     }
 
     if (imu_data_buf[char_count] == '\n' && imu_data_vector_buf.size() == 11 &&
-        imu_data_vector_buf[0].find(".") == std::string::npos)
+        imu_data_vector_buf[0].find(".") == std::string::npos && isValidAsciiSensorData(imu_data_vector_buf))
     {
       imu_data.gx = std::stof(imu_data_vector_buf[1]);
       imu_data.gy = std::stof(imu_data_vector_buf[2]);
@@ -129,7 +142,6 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
 RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string port = "")
   : rt_usb_9axisimu::SerialPort(port.c_str())
 {
-  // nh_priv_("~");
   // publisher for streaming
   imu_data_raw_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data_raw", 1);
   imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
