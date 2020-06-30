@@ -58,18 +58,48 @@ int main(int argc, char** argv)
 
   if (sensor.startCommunication())
   {
-    ROS_INFO("RT imu driver initialization OK.\n");
     while (ros::ok())
+    {
+      if (sensor.formatCheckHasCompleted() == false)
+      {
+        sensor.checkDataFormat();
+        continue;
+      }
+      else
+      {
+        ROS_INFO("Format check has completed.");
+        if (sensor.hasCorrectDataFormat() == false)
+        {
+          ROS_ERROR("Data format is neither binary nor ascii.");
+        }
+        else if (sensor.hasAsciiDataFormat())
+        {
+          ROS_INFO("Data format is ascii.");
+        }
+        else if (sensor.hasBinaryDataFormat())
+        {
+          ROS_INFO("Data format is binary.");
+        }
+        break;
+      }
+    }
+
+    while (ros::ok() && sensor.hasCorrectDataFormat())
     {
       if (sensor.readSensorData())
       {
-        sensor.publishSensorData();
+        if (sensor.imuDataHasRefreshed())
+        {
+          sensor.publishSensorData();
+        }
       }
       else
       {
         ROS_ERROR("readSensorData() returns false, please check your devices.\n");
       }
     }
+
+    sensor.stopCommunication();
   }
   else
   {
