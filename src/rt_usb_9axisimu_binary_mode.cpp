@@ -297,7 +297,7 @@ bool RtUsb9axisimuRosDriver::publishSensorData()
   sensor_msgs::MagneticField imu_magnetic_msg;
   std_msgs::Float64 imu_temperature_msg;
 
-  imu = sensor_data_.getImuData();  // Get phisical quantity
+  imu = sensor_data_.getImuData();  // Get physical quantity
 
   // Calculate linear_acceleration_covariance diagonal elements
   double linear_acceleration_cov = linear_acceleration_stddev_ * linear_acceleration_stddev_;
