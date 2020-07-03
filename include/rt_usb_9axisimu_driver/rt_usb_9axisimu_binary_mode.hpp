@@ -91,9 +91,9 @@ public:
   bool imuDataHasRefreshed(void);
 
   // Method to combine two separate one-byte data into one two-byte data
-  signed short combineByteData(unsigned char data_h, unsigned char data_l);
+  int16_t combineByteData(unsigned char data_h, unsigned char data_l);
   // Method to extract binary sensor data from communication buffer
-  rt_usb_9axisimu::ImuData<signed short> extractBinarySensorData(unsigned char* imu_data_buf);
+  rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char* imu_data_buf);
   bool publishSensorData();
   bool readSensorData();
 };

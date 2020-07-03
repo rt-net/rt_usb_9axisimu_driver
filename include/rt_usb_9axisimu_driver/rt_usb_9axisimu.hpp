@@ -269,7 +269,7 @@ public:
 class SensorData
 {
 private:
-  ImuData<signed short> imu_raw_data_;
+  ImuData<int16_t> imu_raw_data_;
   ImuData<double> imu_;
   Consts consts_;
 
@@ -289,7 +289,7 @@ public:
     imu_.reset();
   }
 
-  void setImuRawData(ImuData<signed short>& i)
+  void setImuRawData(ImuData<int16_t>& i)
   {
     imu_raw_data_ = i;
   }

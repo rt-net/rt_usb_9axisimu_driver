@@ -40,7 +40,7 @@
 bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
 {
   unsigned char imu_data_buf[256];
-  rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
+  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
 
   imu_data_has_refreshed_ = false;
   int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_DATA_SIZE);
@@ -243,9 +243,9 @@ bool RtUsb9axisimuBinaryModeRosDriver::imuDataHasRefreshed(void)
 }
 
 // Method to combine two separate one-byte data into one two-byte data
-signed short RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
+int16_t RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
 {
-  signed short short_data = 0;
+  int16_t short_data = 0;
 
   short_data = data_h;
   short_data = short_data << 8;
@@ -255,10 +255,10 @@ signed short RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char dat
 }
 
 // Method to extract binary sensor data from communication buffer
-rt_usb_9axisimu::ImuData<signed short>
+rt_usb_9axisimu::ImuData<int16_t>
 RtUsb9axisimuBinaryModeRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
 {
-  rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
+  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
 
   imu_rawdata.firmware_ver = imu_data_buf[consts.IMU_FIRMWARE];
   imu_rawdata.timestamp = imu_data_buf[consts.IMU_TIMESTAMP];
