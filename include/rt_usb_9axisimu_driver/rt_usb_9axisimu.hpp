@@ -56,39 +56,55 @@ namespace rt_usb_9axisimu
 class Consts
 {
 public:
-  // IMU Data table constants
-  enum
+  enum IMU_BINARY_DATA_TABLE
   {
-    IMU_HEADER_FF0 = 0,
-    IMU_HEADER_FF1 = 1,
-    IMU_HEADER_R = 2,
-    IMU_HEADER_T = 3,
-    IMU_HEADER_ID0 = 4,
-    IMU_HEADER_ID1 = 5,
-    IMU_FIRMWARE = 6,
-    IMU_TIMESTAMP = 7,
-    IMU_ACC_X_L = 8,
-    IMU_ACC_X_H = 9,
-    IMU_ACC_Y_L = 10,
-    IMU_ACC_Y_H = 11,
-    IMU_ACC_Z_L = 12,
-    IMU_ACC_Z_H = 13,
-    IMU_TEMP_L = 14,
-    IMU_TEMP_H = 15,
-    IMU_GYRO_X_L = 16,
-    IMU_GYRO_X_H = 17,
-    IMU_GYRO_Y_L = 18,
-    IMU_GYRO_Y_H = 19,
-    IMU_GYRO_Z_L = 20,
-    IMU_GYRO_Z_H = 21,
-    IMU_MAG_X_L = 22,
-    IMU_MAG_X_H = 23,
-    IMU_MAG_Y_L = 24,
-    IMU_MAG_Y_H = 25,
-    IMU_MAG_Z_L = 26,
-    IMU_MAG_Z_H = 27,
-    IMU_DATA_SIZE = 28,
+    IMU_BIN_HEADER_FF0 = 0,
+    IMU_BIN_HEADER_FF1 = 1,
+    IMU_BIN_HEADER_R = 2,
+    IMU_BIN_HEADER_T = 3,
+    IMU_BIN_HEADER_ID0 = 4,
+    IMU_BIN_HEADER_ID1 = 5,
+    IMU_BIN_FIRMWARE = 6,
+    IMU_BIN_TIMESTAMP = 7,
+    IMU_BIN_ACC_X_L = 8,
+    IMU_BIN_ACC_X_H = 9,
+    IMU_BIN_ACC_Y_L = 10,
+    IMU_BIN_ACC_Y_H = 11,
+    IMU_BIN_ACC_Z_L = 12,
+    IMU_BIN_ACC_Z_H = 13,
+    IMU_BIN_TEMP_L = 14,
+    IMU_BIN_TEMP_H = 15,
+    IMU_BIN_GYRO_X_L = 16,
+    IMU_BIN_GYRO_X_H = 17,
+    IMU_BIN_GYRO_Y_L = 18,
+    IMU_BIN_GYRO_Y_H = 19,
+    IMU_BIN_GYRO_Z_L = 20,
+    IMU_BIN_GYRO_Z_H = 21,
+    IMU_BIN_MAG_X_L = 22,
+    IMU_BIN_MAG_X_H = 23,
+    IMU_BIN_MAG_Y_L = 24,
+    IMU_BIN_MAG_Y_H = 25,
+    IMU_BIN_MAG_Z_L = 26,
+    IMU_BIN_MAG_Z_H = 27,
+    IMU_BIN_DATA_SIZE = 28,
   };
+
+  enum IMU_ASCII_DATA_TABLE
+  {
+    IMU_ASCII_TIMESTAMP = 0,
+    IMU_ASCII_GYRO_X,
+    IMU_ASCII_GYRO_Y,
+    IMU_ASCII_GYRO_Z,
+    IMU_ASCII_ACC_X,
+    IMU_ASCII_ACC_Y,
+    IMU_ASCII_ACC_Z,
+    IMU_ASCII_MAG_X,
+    IMU_ASCII_MAG_Y,
+    IMU_ASCII_MAG_Z,
+    IMU_ASCII_TEMP,
+    IMU_ASCII_DATA_SIZE
+  };
+
   // Convertor
   const double CONVERTOR_RAW2G;
   const double CONVERTOR_RAW2DPS;
