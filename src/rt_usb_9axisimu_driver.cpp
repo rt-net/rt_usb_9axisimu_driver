@@ -32,6 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+
 #include "ros/ros.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
