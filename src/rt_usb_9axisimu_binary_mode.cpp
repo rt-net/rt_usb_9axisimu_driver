@@ -90,7 +90,7 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
   unsigned char imu_data_buf[256];
   rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
 
-  imu_data_has_refreshed_ = false;
+  has_refreshed_imu_data_ = false;
   int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_BIN_DATA_SIZE);
 
   if (data_size_of_buf < consts.IMU_BIN_DATA_SIZE)
@@ -111,7 +111,7 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
 
   sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
   sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
-  imu_data_has_refreshed_ = true;
+  has_refreshed_imu_data_ = true;
 
   return true;
 }
@@ -137,7 +137,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
   rt_usb_9axisimu::ImuData<double> imu_data;
   std::string imu_data_oneline_buf;
 
-  imu_data_has_refreshed_ = false;
+  has_refreshed_imu_data_ = false;
   imu_data_oneline_buf.clear();
 
   int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
@@ -175,7 +175,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
 
       imu_data_vector_buf.clear();
       sensor_data_.setImuData(imu_data);
-      imu_data_has_refreshed_ = true;
+      has_refreshed_imu_data_ = true;
     }
     else if (imu_data_vector_buf.size() > consts.IMU_ASCII_DATA_SIZE)
     {
@@ -195,9 +195,9 @@ RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
   imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
   imu_temperature_pub_ = nh_.advertise<std_msgs::Float64>("imu/temperature", 1);
 
-  format_check_has_completed_ = false;
+  has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
-  imu_data_has_refreshed_ = false;
+  has_refreshed_imu_data_ = false;
 }
 
 RtUsb9axisimuRosDriver::~RtUsb9axisimuRosDriver()
@@ -244,7 +244,7 @@ void RtUsb9axisimuRosDriver::checkDataFormat(void)
       if (isBinarySensorData(data_buf))
       {
         data_format_ = DataFormat::BINARY;
-        format_check_has_completed_ = true;
+        has_completed_format_check_ = true;
       }
       else
       {
@@ -255,13 +255,13 @@ void RtUsb9axisimuRosDriver::checkDataFormat(void)
   else if (data_format_ == DataFormat::NOT_BINARY)
   {
     data_format_ = DataFormat::ASCII;
-    format_check_has_completed_ = true;
+    has_completed_format_check_ = true;
   }
 }
 
-bool RtUsb9axisimuRosDriver::formatCheckHasCompleted(void)
+bool RtUsb9axisimuRosDriver::hasCompletedFormatCheck(void)
 {
-  return format_check_has_completed_;
+  return has_completed_format_check_;
 }
 
 bool RtUsb9axisimuRosDriver::hasCorrectDataFormat(void)
@@ -285,12 +285,12 @@ bool RtUsb9axisimuRosDriver::hasBinaryDataFormat(void)
   return data_format_ == DataFormat::BINARY;
 }
 
-bool RtUsb9axisimuRosDriver::imuDataHasRefreshed(void)
+bool RtUsb9axisimuRosDriver::hasRefreshedImuData(void)
 {
-  return imu_data_has_refreshed_;
+  return has_refreshed_imu_data_;
 }
 
-bool RtUsb9axisimuRosDriver::publishSensorData()
+bool RtUsb9axisimuRosDriver::publishImuData()
 {
   rt_usb_9axisimu::ImuData<double> imu;
   sensor_msgs::Imu imu_data_raw_msg;

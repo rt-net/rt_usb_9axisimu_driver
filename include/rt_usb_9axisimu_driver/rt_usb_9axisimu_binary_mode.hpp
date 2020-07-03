@@ -63,9 +63,9 @@ private:
     ASCII,
     INCORRECT
   };
-  bool format_check_has_completed_;
+  bool has_completed_format_check_;
   DataFormat data_format_;
-  bool imu_data_has_refreshed_;
+  bool has_refreshed_imu_data_;
 
   // Method to combine two separate one-byte data into one two-byte data
   int16_t combineByteData(unsigned char data_h, unsigned char data_l);
@@ -87,13 +87,13 @@ public:
   bool startCommunication();
   void stopCommunication(void);
   void checkDataFormat(void);
-  bool formatCheckHasCompleted(void);
+  bool hasCompletedFormatCheck(void);
   bool hasCorrectDataFormat(void);
   bool hasAsciiDataFormat(void);
   bool hasBinaryDataFormat(void);
-  bool imuDataHasRefreshed(void);
+  bool hasRefreshedImuData(void);
 
-  bool publishSensorData();
+  bool publishImuData();
   bool readSensorData();
 };
 

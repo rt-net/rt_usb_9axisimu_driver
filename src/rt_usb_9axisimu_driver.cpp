@@ -62,7 +62,7 @@ int main(int argc, char** argv)
   {
     while (ros::ok())
     {
-      if (driver.formatCheckHasCompleted() == false)
+      if (driver.hasCompletedFormatCheck() == false)
       {
         driver.checkDataFormat();
         continue;
@@ -90,9 +90,9 @@ int main(int argc, char** argv)
     {
       if (driver.readSensorData())
       {
-        if (driver.imuDataHasRefreshed())
+        if (driver.hasRefreshedImuData())
         {
-          driver.publishSensorData();
+          driver.publishImuData();
         }
       }
       else
