@@ -37,7 +37,7 @@
 #include "ros/ros.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
 
-class RtUsb9axisimuBinaryModeRosDriver : public rt_usb_9axisimu::SerialPort
+class RtUsb9axisimuRosDriver : public rt_usb_9axisimu::SerialPort
 {
 private:
   ros::NodeHandle nh_;
@@ -67,19 +67,22 @@ private:
   DataFormat data_format_;
   bool imu_data_has_refreshed_;
 
-  bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
+  // Method to combine two separate one-byte data into one two-byte data
+  int16_t combineByteData(unsigned char data_h, unsigned char data_l);
+  // Method to extract binary sensor data from communication buffer
+  rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char* imu_data_buf);
+  bool isBinarySensorData(unsigned char* imu_data_buf);
   bool readBinaryData(void);
+  bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
   bool readAsciiData(void);
 
 public:
-  RtUsb9axisimuBinaryModeRosDriver(std::string serialport);
-  ~RtUsb9axisimuBinaryModeRosDriver();
+  RtUsb9axisimuRosDriver(std::string serialport);
+  ~RtUsb9axisimuRosDriver();
 
   void setImuFrameIdName(std::string frame_id);
   void setImuPortName(std::string serialport);
   void setImuStdDev(double linear_acceleration, double angular_velocity, double magnetic_field);
-
-  bool isBinarySensorData(unsigned char* imu_data_buf);
 
   bool startCommunication();
   void stopCommunication(void);
@@ -90,10 +93,6 @@ public:
   bool hasBinaryDataFormat(void);
   bool imuDataHasRefreshed(void);
 
-  // Method to combine two separate one-byte data into one two-byte data
-  int16_t combineByteData(unsigned char data_h, unsigned char data_l);
-  // Method to extract binary sensor data from communication buffer
-  rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char* imu_data_buf);
   bool publishSensorData();
   bool readSensorData();
 };

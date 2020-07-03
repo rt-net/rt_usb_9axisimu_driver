@@ -40,6 +40,51 @@
 #include "std_msgs/Float64.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
+
+// Method to combine two separate one-byte data into one two-byte data
+int16_t RtUsb9axisimuRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
+{
+  int16_t short_data = 0;
+
+  short_data = data_h;
+  short_data = short_data << 8;
+  short_data |= data_l;
+
+  return short_data;
+}
+
+// Method to extract binary sensor data from communication buffer
+rt_usb_9axisimu::ImuData<int16_t>
+RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
+{
+  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
+
+  imu_rawdata.firmware_ver = imu_data_buf[consts.IMU_FIRMWARE];
+  imu_rawdata.timestamp = imu_data_buf[consts.IMU_TIMESTAMP];
+  imu_rawdata.temperature = combineByteData(imu_data_buf[consts.IMU_TEMP_H], imu_data_buf[consts.IMU_TEMP_L]);
+  imu_rawdata.ax = combineByteData(imu_data_buf[consts.IMU_ACC_X_H], imu_data_buf[consts.IMU_ACC_X_L]);
+  imu_rawdata.ay = combineByteData(imu_data_buf[consts.IMU_ACC_Y_H], imu_data_buf[consts.IMU_ACC_Y_L]);
+  imu_rawdata.az = combineByteData(imu_data_buf[consts.IMU_ACC_Z_H], imu_data_buf[consts.IMU_ACC_Z_L]);
+  imu_rawdata.gx = combineByteData(imu_data_buf[consts.IMU_GYRO_X_H], imu_data_buf[consts.IMU_GYRO_X_L]);
+  imu_rawdata.gy = combineByteData(imu_data_buf[consts.IMU_GYRO_Y_H], imu_data_buf[consts.IMU_GYRO_Y_L]);
+  imu_rawdata.gz = combineByteData(imu_data_buf[consts.IMU_GYRO_Z_H], imu_data_buf[consts.IMU_GYRO_Z_L]);
+  imu_rawdata.mx = combineByteData(imu_data_buf[consts.IMU_MAG_X_H], imu_data_buf[consts.IMU_MAG_X_L]);
+  imu_rawdata.my = combineByteData(imu_data_buf[consts.IMU_MAG_Y_H], imu_data_buf[consts.IMU_MAG_Y_L]);
+  imu_rawdata.mz = combineByteData(imu_data_buf[consts.IMU_MAG_Z_H], imu_data_buf[consts.IMU_MAG_Z_L]);
+
+  return imu_rawdata;
+}
+
+bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
+{
+  bool is_binary_sensor_data = false;
+  if (imu_data_buf[consts.IMU_HEADER_R] == 'R' && imu_data_buf[consts.IMU_HEADER_T] == 'T')
+  {
+    is_binary_sensor_data = true;
+  }
+  return is_binary_sensor_data;
+}
+
 bool RtUsb9axisimuRosDriver::readBinaryData(void)
 {
   unsigned char imu_data_buf[256];
@@ -243,50 +288,6 @@ bool RtUsb9axisimuRosDriver::hasBinaryDataFormat(void)
 bool RtUsb9axisimuRosDriver::imuDataHasRefreshed(void)
 {
   return imu_data_has_refreshed_;
-}
-
-// Method to combine two separate one-byte data into one two-byte data
-int16_t RtUsb9axisimuRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
-{
-  int16_t short_data = 0;
-
-  short_data = data_h;
-  short_data = short_data << 8;
-  short_data |= data_l;
-
-  return short_data;
-}
-
-// Method to extract binary sensor data from communication buffer
-rt_usb_9axisimu::ImuData<int16_t>
-RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
-{
-  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
-
-  imu_rawdata.firmware_ver = imu_data_buf[consts.IMU_FIRMWARE];
-  imu_rawdata.timestamp = imu_data_buf[consts.IMU_TIMESTAMP];
-  imu_rawdata.temperature = combineByteData(imu_data_buf[consts.IMU_TEMP_H], imu_data_buf[consts.IMU_TEMP_L]);
-  imu_rawdata.ax = combineByteData(imu_data_buf[consts.IMU_ACC_X_H], imu_data_buf[consts.IMU_ACC_X_L]);
-  imu_rawdata.ay = combineByteData(imu_data_buf[consts.IMU_ACC_Y_H], imu_data_buf[consts.IMU_ACC_Y_L]);
-  imu_rawdata.az = combineByteData(imu_data_buf[consts.IMU_ACC_Z_H], imu_data_buf[consts.IMU_ACC_Z_L]);
-  imu_rawdata.gx = combineByteData(imu_data_buf[consts.IMU_GYRO_X_H], imu_data_buf[consts.IMU_GYRO_X_L]);
-  imu_rawdata.gy = combineByteData(imu_data_buf[consts.IMU_GYRO_Y_H], imu_data_buf[consts.IMU_GYRO_Y_L]);
-  imu_rawdata.gz = combineByteData(imu_data_buf[consts.IMU_GYRO_Z_H], imu_data_buf[consts.IMU_GYRO_Z_L]);
-  imu_rawdata.mx = combineByteData(imu_data_buf[consts.IMU_MAG_X_H], imu_data_buf[consts.IMU_MAG_X_L]);
-  imu_rawdata.my = combineByteData(imu_data_buf[consts.IMU_MAG_Y_H], imu_data_buf[consts.IMU_MAG_Y_L]);
-  imu_rawdata.mz = combineByteData(imu_data_buf[consts.IMU_MAG_Z_H], imu_data_buf[consts.IMU_MAG_Z_L]);
-
-  return imu_rawdata;
-}
-
-bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
-{
-  bool is_binary_sensor_data = false;
-  if (imu_data_buf[consts.IMU_HEADER_R] == 'R' && imu_data_buf[consts.IMU_HEADER_T] == 'T')
-  {
-    is_binary_sensor_data = true;
-  }
-  return is_binary_sensor_data;
 }
 
 bool RtUsb9axisimuRosDriver::publishSensorData()
