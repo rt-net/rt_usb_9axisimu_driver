@@ -40,7 +40,7 @@
 #include "std_msgs/Float64.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
-bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
+bool RtUsb9axisimuRosDriver::readBinaryData(void)
 {
   unsigned char imu_data_buf[256];
   rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
@@ -71,7 +71,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
   return true;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
+bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
 {
   bool ret = true;
   for (int i = 1; i <= 10; i++)
@@ -84,7 +84,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::isValidAsciiSensorData(std::vector<std::s
   return ret;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
+bool RtUsb9axisimuRosDriver::readAsciiData(void)
 {
   static std::vector<std::string> imu_data_vector_buf;
 
@@ -142,7 +142,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
   return true;
 }
 
-RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string port = "")
+RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
   : rt_usb_9axisimu::SerialPort(port.c_str())
 {
   // publisher for streaming
@@ -155,21 +155,21 @@ RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string p
   imu_data_has_refreshed_ = false;
 }
 
-RtUsb9axisimuBinaryModeRosDriver::~RtUsb9axisimuBinaryModeRosDriver()
+RtUsb9axisimuRosDriver::~RtUsb9axisimuRosDriver()
 {
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::setImuFrameIdName(std::string frame_id)
+void RtUsb9axisimuRosDriver::setImuFrameIdName(std::string frame_id)
 {
   frame_id_ = frame_id;
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::setImuPortName(std::string serialport)
+void RtUsb9axisimuRosDriver::setImuPortName(std::string serialport)
 {
   rt_usb_9axisimu::SerialPort(serialport.c_str());
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::setImuStdDev(double linear_acceleration, double angular_velocity,
+void RtUsb9axisimuRosDriver::setImuStdDev(double linear_acceleration, double angular_velocity,
                                                     double magnetic_field)
 {
   linear_acceleration_stddev_ = linear_acceleration;
@@ -177,18 +177,18 @@ void RtUsb9axisimuBinaryModeRosDriver::setImuStdDev(double linear_acceleration, 
   magnetic_field_stddev_ = magnetic_field;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::startCommunication()
+bool RtUsb9axisimuRosDriver::startCommunication()
 {
   // returns serial port open status
   return openSerialPort();
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::stopCommunication(void)
+void RtUsb9axisimuRosDriver::stopCommunication(void)
 {
   closeSerialPort();
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::checkDataFormat(void)
+void RtUsb9axisimuRosDriver::checkDataFormat(void)
 {
   if (data_format_ == DataFormat::NONE)
   {
@@ -214,12 +214,12 @@ void RtUsb9axisimuBinaryModeRosDriver::checkDataFormat(void)
   }
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::formatCheckHasCompleted(void)
+bool RtUsb9axisimuRosDriver::formatCheckHasCompleted(void)
 {
   return format_check_has_completed_;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::hasCorrectDataFormat(void)
+bool RtUsb9axisimuRosDriver::hasCorrectDataFormat(void)
 {
   bool output = true;
   if (data_format_ == DataFormat::INCORRECT || data_format_ == DataFormat::NOT_ASCII ||
@@ -230,23 +230,23 @@ bool RtUsb9axisimuBinaryModeRosDriver::hasCorrectDataFormat(void)
   return output;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::hasAsciiDataFormat(void)
+bool RtUsb9axisimuRosDriver::hasAsciiDataFormat(void)
 {
   return data_format_ == DataFormat::ASCII;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::hasBinaryDataFormat(void)
+bool RtUsb9axisimuRosDriver::hasBinaryDataFormat(void)
 {
   return data_format_ == DataFormat::BINARY;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::imuDataHasRefreshed(void)
+bool RtUsb9axisimuRosDriver::imuDataHasRefreshed(void)
 {
   return imu_data_has_refreshed_;
 }
 
 // Method to combine two separate one-byte data into one two-byte data
-int16_t RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
+int16_t RtUsb9axisimuRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
 {
   int16_t short_data = 0;
 
@@ -259,7 +259,7 @@ int16_t RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char data_h, 
 
 // Method to extract binary sensor data from communication buffer
 rt_usb_9axisimu::ImuData<int16_t>
-RtUsb9axisimuBinaryModeRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
+RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
 {
   rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
 
@@ -279,7 +279,7 @@ RtUsb9axisimuBinaryModeRosDriver::extractBinarySensorData(unsigned char* imu_dat
   return imu_rawdata;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
+bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
 {
   bool is_binary_sensor_data = false;
   if (imu_data_buf[consts.IMU_HEADER_R] == 'R' && imu_data_buf[consts.IMU_HEADER_T] == 'T')
@@ -289,7 +289,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::isBinarySensorData(unsigned char* imu_dat
   return is_binary_sensor_data;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::publishSensorData()
+bool RtUsb9axisimuRosDriver::publishSensorData()
 {
   rt_usb_9axisimu::ImuData<double> imu;
   sensor_msgs::Imu imu_data_raw_msg;
@@ -361,7 +361,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::publishSensorData()
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS
 // topic
-bool RtUsb9axisimuBinaryModeRosDriver::readSensorData()
+bool RtUsb9axisimuRosDriver::readSensorData()
 {
   bool result = false;
   if (data_format_ == DataFormat::BINARY)

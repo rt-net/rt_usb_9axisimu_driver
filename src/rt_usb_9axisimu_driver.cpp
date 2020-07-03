@@ -54,31 +54,31 @@ int main(int argc, char** argv)
   double imu_stddev_magnetic_field = imu_consts.DEFAULT_MAGNETIC_FIELD_STDDEV;
   ros::param::get("~magnetic_field_stddev", imu_stddev_magnetic_field);
 
-  RtUsb9axisimuBinaryModeRosDriver sensor(imu_port);
-  sensor.setImuFrameIdName(imu_frame_id);
-  sensor.setImuStdDev(imu_stddev_linear_acceleration, imu_stddev_angular_velocity, imu_stddev_magnetic_field);
+  RtUsb9axisimuRosDriver driver(imu_port);
+  driver.setImuFrameIdName(imu_frame_id);
+  driver.setImuStdDev(imu_stddev_linear_acceleration, imu_stddev_angular_velocity, imu_stddev_magnetic_field);
 
-  if (sensor.startCommunication())
+  if (driver.startCommunication())
   {
     while (ros::ok())
     {
-      if (sensor.formatCheckHasCompleted() == false)
+      if (driver.formatCheckHasCompleted() == false)
       {
-        sensor.checkDataFormat();
+        driver.checkDataFormat();
         continue;
       }
       else
       {
         ROS_INFO("Format check has completed.");
-        if (sensor.hasCorrectDataFormat() == false)
+        if (driver.hasCorrectDataFormat() == false)
         {
           ROS_ERROR("Data format is neither binary nor ascii.");
         }
-        else if (sensor.hasAsciiDataFormat())
+        else if (driver.hasAsciiDataFormat())
         {
           ROS_INFO("Data format is ascii.");
         }
-        else if (sensor.hasBinaryDataFormat())
+        else if (driver.hasBinaryDataFormat())
         {
           ROS_INFO("Data format is binary.");
         }
@@ -86,13 +86,13 @@ int main(int argc, char** argv)
       }
     }
 
-    while (ros::ok() && sensor.hasCorrectDataFormat())
+    while (ros::ok() && driver.hasCorrectDataFormat())
     {
-      if (sensor.readSensorData())
+      if (driver.readSensorData())
       {
-        if (sensor.imuDataHasRefreshed())
+        if (driver.imuDataHasRefreshed())
         {
-          sensor.publishSensorData();
+          driver.publishSensorData();
         }
       }
       else
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
       }
     }
 
-    sensor.stopCommunication();
+    driver.stopCommunication();
   }
   else
   {
