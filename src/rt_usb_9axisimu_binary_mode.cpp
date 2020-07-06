@@ -81,7 +81,7 @@ bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
   {
     return true;
   }
-  return is_binary_sensor_data;
+  return false;
 }
 
 bool RtUsb9axisimuRosDriver::readBinaryData(void)
