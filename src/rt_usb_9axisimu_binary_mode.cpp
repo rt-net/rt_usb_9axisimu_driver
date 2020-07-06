@@ -79,7 +79,7 @@ bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
 {
   if (imu_data_buf[consts.IMU_BIN_HEADER_R] == 'R' && imu_data_buf[consts.IMU_BIN_HEADER_T] == 'T')
   {
-    is_binary_sensor_data = true;
+    return true;
   }
   return is_binary_sensor_data;
 }
