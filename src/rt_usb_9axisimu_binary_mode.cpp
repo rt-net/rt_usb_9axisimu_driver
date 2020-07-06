@@ -362,15 +362,14 @@ bool RtUsb9axisimuRosDriver::publishImuData()
 // topic
 bool RtUsb9axisimuRosDriver::readSensorData()
 {
-  bool result = false;
   if (data_format_ == DataFormat::BINARY)
   {
-    result = readBinaryData();
+    return readBinaryData();
   }
   else if (data_format_ == DataFormat::ASCII)
   {
-    result = readAsciiData();
+    return readAsciiData();
   }
 
-  return result;
+  return false;
 }
