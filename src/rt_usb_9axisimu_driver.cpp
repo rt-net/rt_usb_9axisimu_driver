@@ -60,47 +60,45 @@ int main(int argc, char** argv)
 
   if (driver.startCommunication())
   {
-    while (ros::ok())
+    while (ros::ok() && driver.hasCompletedFormatCheck() == false)
     {
-      if (driver.hasCompletedFormatCheck() == false)
+      driver.checkDataFormat();
+    }
+
+    if (ros::ok() && driver.hasCompletedFormatCheck())
+    {
+      ROS_INFO("Format check has completed.");
+      if (driver.hasAsciiDataFormat())
       {
-        driver.checkDataFormat();
-        continue;
+        ROS_INFO("Data format is ascii.");
+      }
+      else if (driver.hasBinaryDataFormat())
+      {
+        ROS_INFO("Data format is binary.");
       }
       else
       {
-        ROS_INFO("Format check has completed.");
-        if (driver.hasCorrectDataFormat() == false)
-        {
-          ROS_ERROR("Data format is neither binary nor ascii.");
-        }
-        else if (driver.hasAsciiDataFormat())
-        {
-          ROS_INFO("Data format is ascii.");
-        }
-        else if (driver.hasBinaryDataFormat())
-        {
-          ROS_INFO("Data format is binary.");
-        }
-        break;
+        ROS_ERROR("Data format is neither binary nor ascii.");
       }
     }
 
-    while (ros::ok() && driver.hasCorrectDataFormat())
+    if (driver.hasAsciiDataFormat() || driver.hasBinaryDataFormat())
     {
-      if (driver.readSensorData())
+      while (ros::ok())
       {
-        if (driver.hasRefreshedImuData())
+        if (driver.readSensorData())
         {
-          driver.publishImuData();
+          if (driver.hasRefreshedImuData())
+          {
+            driver.publishImuData();
+          }
+        }
+        else
+        {
+          ROS_ERROR("readSensorData() returns false, please check your devices.\n");
         }
       }
-      else
-      {
-        ROS_ERROR("readSensorData() returns false, please check your devices.\n");
-      }
     }
-
     driver.stopCommunication();
   }
   else
