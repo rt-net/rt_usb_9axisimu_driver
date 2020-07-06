@@ -262,17 +262,6 @@ bool RtUsb9axisimuRosDriver::hasCompletedFormatCheck(void)
   return has_completed_format_check_;
 }
 
-bool RtUsb9axisimuRosDriver::hasCorrectDataFormat(void)
-{
-  bool output = true;
-  if (data_format_ == DataFormat::INCORRECT || data_format_ == DataFormat::NOT_ASCII ||
-      data_format_ == DataFormat::NOT_BINARY)
-  {
-    output = false;
-  }
-  return output;
-}
-
 bool RtUsb9axisimuRosDriver::hasAsciiDataFormat(void)
 {
   return data_format_ == DataFormat::ASCII;

@@ -88,7 +88,6 @@ public:
   void stopCommunication(void);
   void checkDataFormat(void);
   bool hasCompletedFormatCheck(void);
-  bool hasCorrectDataFormat(void);
   bool hasAsciiDataFormat(void);
   bool hasBinaryDataFormat(void);
   bool hasRefreshedImuData(void);
