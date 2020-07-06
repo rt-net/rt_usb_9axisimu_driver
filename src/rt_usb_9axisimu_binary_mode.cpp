@@ -117,15 +117,14 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
 
 bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
 {
-  bool ret = true;
   for (int i = 1; i < consts.IMU_ASCII_DATA_SIZE; i++)
   {
     if (strspn(str_vector[i].c_str(), "-.0123456789") != str_vector[i].size())
     {
-      ret = false;
+      return false;
     }
   }
-  return ret;
+  return true;
 }
 
 bool RtUsb9axisimuRosDriver::readAsciiData(void)
