@@ -32,6 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+
 #include "ros/ros.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
@@ -52,54 +54,52 @@ int main(int argc, char** argv)
   double imu_stddev_magnetic_field = imu_consts.DEFAULT_MAGNETIC_FIELD_STDDEV;
   ros::param::get("~magnetic_field_stddev", imu_stddev_magnetic_field);
 
-  RtUsb9axisimuBinaryModeRosDriver sensor(imu_port);
-  sensor.setImuFrameIdName(imu_frame_id);
-  sensor.setImuStdDev(imu_stddev_linear_acceleration, imu_stddev_angular_velocity, imu_stddev_magnetic_field);
+  RtUsb9axisimuRosDriver driver(imu_port);
+  driver.setImuFrameIdName(imu_frame_id);
+  driver.setImuStdDev(imu_stddev_linear_acceleration, imu_stddev_angular_velocity, imu_stddev_magnetic_field);
 
-  if (sensor.startCommunication())
+  if (driver.startCommunication())
   {
-    while (ros::ok())
+    while (ros::ok() && driver.hasCompletedFormatCheck() == false)
     {
-      if (sensor.formatCheckHasCompleted() == false)
+      driver.checkDataFormat();
+    }
+
+    if (ros::ok() && driver.hasCompletedFormatCheck())
+    {
+      ROS_INFO("Format check has completed.");
+      if (driver.hasAsciiDataFormat())
       {
-        sensor.checkDataFormat();
-        continue;
+        ROS_INFO("Data format is ascii.");
+      }
+      else if (driver.hasBinaryDataFormat())
+      {
+        ROS_INFO("Data format is binary.");
       }
       else
       {
-        ROS_INFO("Format check has completed.");
-        if (sensor.hasCorrectDataFormat() == false)
-        {
-          ROS_ERROR("Data format is neither binary nor ascii.");
-        }
-        else if (sensor.hasAsciiDataFormat())
-        {
-          ROS_INFO("Data format is ascii.");
-        }
-        else if (sensor.hasBinaryDataFormat())
-        {
-          ROS_INFO("Data format is binary.");
-        }
-        break;
+        ROS_ERROR("Data format is neither binary nor ascii.");
       }
     }
 
-    while (ros::ok() && sensor.hasCorrectDataFormat())
+    if (driver.hasAsciiDataFormat() || driver.hasBinaryDataFormat())
     {
-      if (sensor.readSensorData())
+      while (ros::ok())
       {
-        if (sensor.imuDataHasRefreshed())
+        if (driver.readSensorData())
         {
-          sensor.publishSensorData();
+          if (driver.hasRefreshedImuData())
+          {
+            driver.publishImuData();
+          }
+        }
+        else
+        {
+          ROS_ERROR("readSensorData() returns false, please check your devices.\n");
         }
       }
-      else
-      {
-        ROS_ERROR("readSensorData() returns false, please check your devices.\n");
-      }
     }
-
-    sensor.stopCommunication();
+    driver.stopCommunication();
   }
   else
   {

@@ -31,21 +31,68 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <string>
+#include <vector>
+
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/MagneticField.h"
 #include "std_msgs/Float64.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
-bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
+
+// Method to combine two separate one-byte data into one two-byte data
+int16_t RtUsb9axisimuRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
+{
+  int16_t short_data = 0;
+
+  short_data = data_h;
+  short_data = short_data << 8;
+  short_data |= data_l;
+
+  return short_data;
+}
+
+// Method to extract binary sensor data from communication buffer
+rt_usb_9axisimu::ImuData<int16_t>
+RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
+{
+  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
+
+  imu_rawdata.firmware_ver = imu_data_buf[consts.IMU_BIN_FIRMWARE];
+  imu_rawdata.timestamp = imu_data_buf[consts.IMU_BIN_TIMESTAMP];
+  imu_rawdata.temperature = combineByteData(imu_data_buf[consts.IMU_BIN_TEMP_H], imu_data_buf[consts.IMU_BIN_TEMP_L]);
+  imu_rawdata.ax = combineByteData(imu_data_buf[consts.IMU_BIN_ACC_X_H], imu_data_buf[consts.IMU_BIN_ACC_X_L]);
+  imu_rawdata.ay = combineByteData(imu_data_buf[consts.IMU_BIN_ACC_Y_H], imu_data_buf[consts.IMU_BIN_ACC_Y_L]);
+  imu_rawdata.az = combineByteData(imu_data_buf[consts.IMU_BIN_ACC_Z_H], imu_data_buf[consts.IMU_BIN_ACC_Z_L]);
+  imu_rawdata.gx = combineByteData(imu_data_buf[consts.IMU_BIN_GYRO_X_H], imu_data_buf[consts.IMU_BIN_GYRO_X_L]);
+  imu_rawdata.gy = combineByteData(imu_data_buf[consts.IMU_BIN_GYRO_Y_H], imu_data_buf[consts.IMU_BIN_GYRO_Y_L]);
+  imu_rawdata.gz = combineByteData(imu_data_buf[consts.IMU_BIN_GYRO_Z_H], imu_data_buf[consts.IMU_BIN_GYRO_Z_L]);
+  imu_rawdata.mx = combineByteData(imu_data_buf[consts.IMU_BIN_MAG_X_H], imu_data_buf[consts.IMU_BIN_MAG_X_L]);
+  imu_rawdata.my = combineByteData(imu_data_buf[consts.IMU_BIN_MAG_Y_H], imu_data_buf[consts.IMU_BIN_MAG_Y_L]);
+  imu_rawdata.mz = combineByteData(imu_data_buf[consts.IMU_BIN_MAG_Z_H], imu_data_buf[consts.IMU_BIN_MAG_Z_L]);
+
+  return imu_rawdata;
+}
+
+bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
+{
+  if (imu_data_buf[consts.IMU_BIN_HEADER_R] == 'R' && imu_data_buf[consts.IMU_BIN_HEADER_T] == 'T')
+  {
+    return true;
+  }
+  return false;
+}
+
+bool RtUsb9axisimuRosDriver::readBinaryData(void)
 {
   unsigned char imu_data_buf[256];
-  rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
+  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
 
-  imu_data_has_refreshed_ = false;
-  int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_DATA_SIZE);
+  has_refreshed_imu_data_ = false;
+  int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_BIN_DATA_SIZE);
 
-  if (data_size_of_buf < consts.IMU_DATA_SIZE)
+  if (data_size_of_buf < consts.IMU_BIN_DATA_SIZE)
   {
     if (data_size_of_buf <= 0)
     {
@@ -63,25 +110,24 @@ bool RtUsb9axisimuBinaryModeRosDriver::readBinaryData(void)
 
   sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
   sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
-  imu_data_has_refreshed_ = true;
+  has_refreshed_imu_data_ = true;
 
   return true;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
+bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
 {
-  bool ret = true;
-  for (int i = 1; i <= 10; i++)
+  for (int i = 1; i < consts.IMU_ASCII_DATA_SIZE; i++)
   {
     if (strspn(str_vector[i].c_str(), "-.0123456789") != str_vector[i].size())
     {
-      ret = false;
+      return false;
     }
   }
-  return ret;
+  return true;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
+bool RtUsb9axisimuRosDriver::readAsciiData(void)
 {
   static std::vector<std::string> imu_data_vector_buf;
 
@@ -89,7 +135,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
   rt_usb_9axisimu::ImuData<double> imu_data;
   std::string imu_data_oneline_buf;
 
-  imu_data_has_refreshed_ = false;
+  has_refreshed_imu_data_ = false;
   imu_data_oneline_buf.clear();
 
   int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
@@ -111,25 +157,25 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
       imu_data_oneline_buf += imu_data_buf[char_count];
     }
 
-    if (imu_data_buf[char_count] == '\n' && imu_data_vector_buf.size() == 11 &&
+    if (imu_data_buf[char_count] == '\n' && imu_data_vector_buf.size() == consts.IMU_ASCII_DATA_SIZE &&
         imu_data_vector_buf[0].find(".") == std::string::npos && isValidAsciiSensorData(imu_data_vector_buf))
     {
-      imu_data.gx = std::stof(imu_data_vector_buf[1]);
-      imu_data.gy = std::stof(imu_data_vector_buf[2]);
-      imu_data.gz = std::stof(imu_data_vector_buf[3]);
-      imu_data.ax = std::stof(imu_data_vector_buf[4]);
-      imu_data.ay = std::stof(imu_data_vector_buf[5]);
-      imu_data.az = std::stof(imu_data_vector_buf[6]);
-      imu_data.mx = std::stof(imu_data_vector_buf[7]);
-      imu_data.my = std::stof(imu_data_vector_buf[8]);
-      imu_data.mz = std::stof(imu_data_vector_buf[9]);
-      imu_data.temperature = std::stof(imu_data_vector_buf[10]);
+      imu_data.gx = std::stof(imu_data_vector_buf[consts.IMU_ASCII_GYRO_X]);
+      imu_data.gy = std::stof(imu_data_vector_buf[consts.IMU_ASCII_GYRO_Y]);
+      imu_data.gz = std::stof(imu_data_vector_buf[consts.IMU_ASCII_GYRO_Z]);
+      imu_data.ax = std::stof(imu_data_vector_buf[consts.IMU_ASCII_ACC_X]);
+      imu_data.ay = std::stof(imu_data_vector_buf[consts.IMU_ASCII_ACC_Y]);
+      imu_data.az = std::stof(imu_data_vector_buf[consts.IMU_ASCII_ACC_Z]);
+      imu_data.mx = std::stof(imu_data_vector_buf[consts.IMU_ASCII_MAG_X]);
+      imu_data.my = std::stof(imu_data_vector_buf[consts.IMU_ASCII_MAG_Y]);
+      imu_data.mz = std::stof(imu_data_vector_buf[consts.IMU_ASCII_MAG_Z]);
+      imu_data.temperature = std::stof(imu_data_vector_buf[consts.IMU_ASCII_TEMP]);
 
       imu_data_vector_buf.clear();
       sensor_data_.setImuData(imu_data);
-      imu_data_has_refreshed_ = true;
+      has_refreshed_imu_data_ = true;
     }
-    else if (imu_data_vector_buf.size() > 11)
+    else if (imu_data_vector_buf.size() > consts.IMU_ASCII_DATA_SIZE)
     {
       imu_data_vector_buf.clear();
       ROS_WARN("ASCII data size is incorrect.");
@@ -139,7 +185,7 @@ bool RtUsb9axisimuBinaryModeRosDriver::readAsciiData(void)
   return true;
 }
 
-RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string port = "")
+RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
   : rt_usb_9axisimu::SerialPort(port.c_str())
 {
   // publisher for streaming
@@ -147,26 +193,26 @@ RtUsb9axisimuBinaryModeRosDriver::RtUsb9axisimuBinaryModeRosDriver(std::string p
   imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
   imu_temperature_pub_ = nh_.advertise<std_msgs::Float64>("imu/temperature", 1);
 
-  format_check_has_completed_ = false;
+  has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
-  imu_data_has_refreshed_ = false;
+  has_refreshed_imu_data_ = false;
 }
 
-RtUsb9axisimuBinaryModeRosDriver::~RtUsb9axisimuBinaryModeRosDriver()
+RtUsb9axisimuRosDriver::~RtUsb9axisimuRosDriver()
 {
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::setImuFrameIdName(std::string frame_id)
+void RtUsb9axisimuRosDriver::setImuFrameIdName(std::string frame_id)
 {
   frame_id_ = frame_id;
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::setImuPortName(std::string serialport)
+void RtUsb9axisimuRosDriver::setImuPortName(std::string serialport)
 {
   rt_usb_9axisimu::SerialPort(serialport.c_str());
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::setImuStdDev(double linear_acceleration, double angular_velocity,
+void RtUsb9axisimuRosDriver::setImuStdDev(double linear_acceleration, double angular_velocity,
                                                     double magnetic_field)
 {
   linear_acceleration_stddev_ = linear_acceleration;
@@ -174,29 +220,29 @@ void RtUsb9axisimuBinaryModeRosDriver::setImuStdDev(double linear_acceleration, 
   magnetic_field_stddev_ = magnetic_field;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::startCommunication()
+bool RtUsb9axisimuRosDriver::startCommunication()
 {
   // returns serial port open status
   return openSerialPort();
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::stopCommunication(void)
+void RtUsb9axisimuRosDriver::stopCommunication(void)
 {
   closeSerialPort();
 }
 
-void RtUsb9axisimuBinaryModeRosDriver::checkDataFormat(void)
+void RtUsb9axisimuRosDriver::checkDataFormat(void)
 {
   if (data_format_ == DataFormat::NONE)
   {
     unsigned char data_buf[256];
-    int data_size_of_buf = readFromDevice(data_buf, consts.IMU_DATA_SIZE);
-    if (data_size_of_buf == consts.IMU_DATA_SIZE)
+    int data_size_of_buf = readFromDevice(data_buf, consts.IMU_BIN_DATA_SIZE);
+    if (data_size_of_buf == consts.IMU_BIN_DATA_SIZE)
     {
       if (isBinarySensorData(data_buf))
       {
         data_format_ = DataFormat::BINARY;
-        format_check_has_completed_ = true;
+        has_completed_format_check_ = true;
       }
       else
       {
@@ -207,93 +253,38 @@ void RtUsb9axisimuBinaryModeRosDriver::checkDataFormat(void)
   else if (data_format_ == DataFormat::NOT_BINARY)
   {
     data_format_ = DataFormat::ASCII;
-    format_check_has_completed_ = true;
+    has_completed_format_check_ = true;
   }
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::formatCheckHasCompleted(void)
+bool RtUsb9axisimuRosDriver::hasCompletedFormatCheck(void)
 {
-  return format_check_has_completed_;
+  return has_completed_format_check_;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::hasCorrectDataFormat(void)
-{
-  bool output = true;
-  if (data_format_ == DataFormat::INCORRECT || data_format_ == DataFormat::NOT_ASCII ||
-      data_format_ == DataFormat::NOT_BINARY)
-  {
-    output = false;
-  }
-  return output;
-}
-
-bool RtUsb9axisimuBinaryModeRosDriver::hasAsciiDataFormat(void)
+bool RtUsb9axisimuRosDriver::hasAsciiDataFormat(void)
 {
   return data_format_ == DataFormat::ASCII;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::hasBinaryDataFormat(void)
+bool RtUsb9axisimuRosDriver::hasBinaryDataFormat(void)
 {
   return data_format_ == DataFormat::BINARY;
 }
 
-bool RtUsb9axisimuBinaryModeRosDriver::imuDataHasRefreshed(void)
+bool RtUsb9axisimuRosDriver::hasRefreshedImuData(void)
 {
-  return imu_data_has_refreshed_;
+  return has_refreshed_imu_data_;
 }
 
-// Method to combine two separate one-byte data into one two-byte data
-signed short RtUsb9axisimuBinaryModeRosDriver::combineByteData(unsigned char data_h, unsigned char data_l)
-{
-  signed short short_data = 0;
-
-  short_data = data_h;
-  short_data = short_data << 8;
-  short_data |= data_l;
-
-  return short_data;
-}
-
-// Method to extract binary sensor data from communication buffer
-rt_usb_9axisimu::ImuData<signed short>
-RtUsb9axisimuBinaryModeRosDriver::extractBinarySensorData(unsigned char* imu_data_buf)
-{
-  rt_usb_9axisimu::ImuData<signed short> imu_rawdata;
-
-  imu_rawdata.firmware_ver = imu_data_buf[consts.IMU_FIRMWARE];
-  imu_rawdata.timestamp = imu_data_buf[consts.IMU_TIMESTAMP];
-  imu_rawdata.temperature = combineByteData(imu_data_buf[consts.IMU_TEMP_H], imu_data_buf[consts.IMU_TEMP_L]);
-  imu_rawdata.ax = combineByteData(imu_data_buf[consts.IMU_ACC_X_H], imu_data_buf[consts.IMU_ACC_X_L]);
-  imu_rawdata.ay = combineByteData(imu_data_buf[consts.IMU_ACC_Y_H], imu_data_buf[consts.IMU_ACC_Y_L]);
-  imu_rawdata.az = combineByteData(imu_data_buf[consts.IMU_ACC_Z_H], imu_data_buf[consts.IMU_ACC_Z_L]);
-  imu_rawdata.gx = combineByteData(imu_data_buf[consts.IMU_GYRO_X_H], imu_data_buf[consts.IMU_GYRO_X_L]);
-  imu_rawdata.gy = combineByteData(imu_data_buf[consts.IMU_GYRO_Y_H], imu_data_buf[consts.IMU_GYRO_Y_L]);
-  imu_rawdata.gz = combineByteData(imu_data_buf[consts.IMU_GYRO_Z_H], imu_data_buf[consts.IMU_GYRO_Z_L]);
-  imu_rawdata.mx = combineByteData(imu_data_buf[consts.IMU_MAG_X_H], imu_data_buf[consts.IMU_MAG_X_L]);
-  imu_rawdata.my = combineByteData(imu_data_buf[consts.IMU_MAG_Y_H], imu_data_buf[consts.IMU_MAG_Y_L]);
-  imu_rawdata.mz = combineByteData(imu_data_buf[consts.IMU_MAG_Z_H], imu_data_buf[consts.IMU_MAG_Z_L]);
-
-  return imu_rawdata;
-}
-
-bool RtUsb9axisimuBinaryModeRosDriver::isBinarySensorData(unsigned char* imu_data_buf)
-{
-  bool is_binary_sensor_data = false;
-  if (imu_data_buf[consts.IMU_HEADER_R] == 'R' && imu_data_buf[consts.IMU_HEADER_T] == 'T')
-  {
-    is_binary_sensor_data = true;
-  }
-  return is_binary_sensor_data;
-}
-
-bool RtUsb9axisimuBinaryModeRosDriver::publishSensorData()
+bool RtUsb9axisimuRosDriver::publishImuData()
 {
   rt_usb_9axisimu::ImuData<double> imu;
   sensor_msgs::Imu imu_data_raw_msg;
   sensor_msgs::MagneticField imu_magnetic_msg;
   std_msgs::Float64 imu_temperature_msg;
 
-  imu = sensor_data_.getImuData();  // Get phisical quantity
+  imu = sensor_data_.getImuData();  // Get physical quantity
 
   // Calculate linear_acceleration_covariance diagonal elements
   double linear_acceleration_cov = linear_acceleration_stddev_ * linear_acceleration_stddev_;
@@ -358,17 +349,16 @@ bool RtUsb9axisimuBinaryModeRosDriver::publishSensorData()
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS
 // topic
-bool RtUsb9axisimuBinaryModeRosDriver::readSensorData()
+bool RtUsb9axisimuRosDriver::readSensorData()
 {
-  bool result = false;
   if (data_format_ == DataFormat::BINARY)
   {
-    result = readBinaryData();
+    return readBinaryData();
   }
   else if (data_format_ == DataFormat::ASCII)
   {
-    result = readAsciiData();
+    return readAsciiData();
   }
 
-  return result;
+  return false;
 }
