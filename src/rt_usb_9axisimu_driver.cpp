@@ -1,5 +1,5 @@
 /*
- * rt_usb_9axisimu_binary_mode.cpp
+ * rt_usb_9axisimu_driver.cpp
  *
  * License: BSD-3-Clause
  *
