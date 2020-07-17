@@ -32,7 +32,7 @@ include_directories(
 )
 
 # Declare a C++ executable
-add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver.cpp src/rt_usb_9axisimu_binary_mode.cpp)
+add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver_node.cpp src/rt_usb_9axisimu_driver.cpp)
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(rt_usb_9axisimu_driver ${catkin_LIBRARIES})
