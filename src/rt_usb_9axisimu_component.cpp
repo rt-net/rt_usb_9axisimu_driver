@@ -32,20 +32,59 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
-#include "rclcpp/rclcpp.hpp"
-
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
 
-// #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-int main(int argc, char * argv[])
+using namespace std::chrono_literals;
+using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
+namespace rt_usb_9axisimu
 {
-  rclcpp::init(argc, argv);
-  rclcpp::executors::SingleThreadedExecutor exec;
-  rclcpp::NodeOptions options;
-  auto driver = std::make_shared<rt_usb_9axisimu::Driver>(options);
-  exec.add_node(driver->get_node_base_interface());
-  exec.spin();
-  rclcpp::shutdown();
+
+Driver::Driver(const rclcpp::NodeOptions & options)
+: rclcpp_lifecycle::LifecycleNode("rt_usb_9axisimu_driver", options)
+{
 }
+
+CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(this->get_logger(), "on_configure() is called.");
+
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
+
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn Driver::on_deactivate(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(this->get_logger(), "on_deactivate() is called.");
+
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn Driver::on_cleanup(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(this->get_logger(), "on_cleanup() is called.");
+
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn Driver::on_shutdown(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(this->get_logger(), "on_shutdown() is called.");
+
+  return CallbackReturn::SUCCESS;
+}
+
+
+}  // namespace rt_usb_9axisimu
+
+#include "rclcpp_components/register_node_macro.hpp"
+
+RCLCPP_COMPONENTS_REGISTER_NODE(rt_usb_9axisimu::Driver)

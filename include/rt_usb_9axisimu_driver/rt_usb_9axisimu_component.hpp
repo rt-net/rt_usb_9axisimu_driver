@@ -32,20 +32,38 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_COMPONENT_HPP_
+#define RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_COMPONENT_HPP_
+
 #include <memory>
+#include <string>
+#include <vector>
+
+#include "rt_usb_9axisimu_driver/visibility_control.h"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
-
-// #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
-
-int main(int argc, char * argv[])
+namespace rt_usb_9axisimu
 {
-  rclcpp::init(argc, argv);
-  rclcpp::executors::SingleThreadedExecutor exec;
-  rclcpp::NodeOptions options;
-  auto driver = std::make_shared<rt_usb_9axisimu::Driver>(options);
-  exec.add_node(driver->get_node_base_interface());
-  exec.spin();
-  rclcpp::shutdown();
-}
+class Driver : public rclcpp_lifecycle::LifecycleNode
+{
+public:
+  RT_USB_9AXISIMU_DRIVER_PUBLIC
+  explicit Driver(const rclcpp::NodeOptions& options);
+
+private:
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_configure(const rclcpp_lifecycle::State&);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_activate(const rclcpp_lifecycle::State&);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_deactivate(const rclcpp_lifecycle::State&);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_cleanup(const rclcpp_lifecycle::State&);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_shutdown(const rclcpp_lifecycle::State&);
+};
+
+}  // namespace rt_usb_9axisimu
+
+#endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_COMPONENT_HPP_
