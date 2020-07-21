@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
   rclcpp::NodeOptions options;
-  auto driver = std::make_shared<rt_usb_9axisimu::Driver>(options);
+  auto driver = std::make_shared<rt_usb_9axisimu_driver::Driver>(options);
   exec.add_node(driver->get_node_base_interface());
   exec.spin();
   rclcpp::shutdown();

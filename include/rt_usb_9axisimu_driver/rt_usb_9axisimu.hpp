@@ -348,6 +348,6 @@ public:
     return imu_;
   }
 };
-};  // namespace rt_usb_9axisimu
+}  // namespace rt_usb_9axisimu
 
 #endif

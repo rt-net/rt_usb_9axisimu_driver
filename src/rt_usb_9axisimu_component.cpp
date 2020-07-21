@@ -39,12 +39,13 @@
 using namespace std::chrono_literals;
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
-namespace rt_usb_9axisimu
+namespace rt_usb_9axisimu_driver
 {
 
 Driver::Driver(const rclcpp::NodeOptions & options)
 : rclcpp_lifecycle::LifecycleNode("rt_usb_9axisimu_driver", options)
 {
+  auto driver = std::make_unique<RtUsb9axisimuRosDriver>("/dev/ttyACM0");
 }
 
 CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
@@ -83,8 +84,8 @@ CallbackReturn Driver::on_shutdown(const rclcpp_lifecycle::State &)
 }
 
 
-}  // namespace rt_usb_9axisimu
+}  // namespace rt_usb_9axisimu_driver
 
 #include "rclcpp_components/register_node_macro.hpp"
 
-RCLCPP_COMPONENTS_REGISTER_NODE(rt_usb_9axisimu::Driver)
+RCLCPP_COMPONENTS_REGISTER_NODE(rt_usb_9axisimu_driver::Driver)

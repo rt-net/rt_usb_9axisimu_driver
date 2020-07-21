@@ -31,13 +31,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cstring>
 #include <string>
 #include <vector>
 
-#include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/MagneticField.h"
-#include "std_msgs/Float64.h"
+#include "sensor_msgs/msg/imu.hpp"
+#include "sensor_msgs/msg/magnetic_field.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 
 
@@ -178,7 +178,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
     else if (imu_data_vector_buf.size() > consts.IMU_ASCII_DATA_SIZE)
     {
       imu_data_vector_buf.clear();
-      ROS_WARN("ASCII data size is incorrect.");
+      // ROS_WARN("ASCII data size is incorrect.");
     }
   }
 
@@ -189,9 +189,9 @@ RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
   : rt_usb_9axisimu::SerialPort(port.c_str())
 {
   // publisher for streaming
-  imu_data_raw_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data_raw", 1);
-  imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
-  imu_temperature_pub_ = nh_.advertise<std_msgs::Float64>("imu/temperature", 1);
+  // imu_data_raw_pub_ = nh_.advertise<sensor_msgs::Imu>("imu/data_raw", 1);
+  // imu_mag_pub_ = nh_.advertise<sensor_msgs::MagneticField>("imu/mag", 1);
+  // imu_temperature_pub_ = nh_.advertise<std_msgs::Float64>("imu/temperature", 1);
 
   has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
@@ -280,9 +280,9 @@ bool RtUsb9axisimuRosDriver::hasRefreshedImuData(void)
 bool RtUsb9axisimuRosDriver::publishImuData()
 {
   rt_usb_9axisimu::ImuData<double> imu;
-  sensor_msgs::Imu imu_data_raw_msg;
-  sensor_msgs::MagneticField imu_magnetic_msg;
-  std_msgs::Float64 imu_temperature_msg;
+  sensor_msgs::msg::Imu imu_data_raw_msg;
+  sensor_msgs::msg::MagneticField imu_magnetic_msg;
+  std_msgs::msg::Float64 imu_temperature_msg;
 
   imu = sensor_data_.getImuData();  // Get physical quantity
 
@@ -305,9 +305,9 @@ bool RtUsb9axisimuRosDriver::publishImuData()
   imu_magnetic_msg.magnetic_field_covariance[0] = imu_magnetic_msg.magnetic_field_covariance[4] =
       imu_magnetic_msg.magnetic_field_covariance[8] = magnetic_field_cov;
 
-  ros::Time now = ros::Time::now();
+  // ros::Time now = ros::Time::now();
 
-  imu_data_raw_msg.header.stamp = imu_magnetic_msg.header.stamp = now;
+  // imu_data_raw_msg.header.stamp = imu_magnetic_msg.header.stamp = now;
 
   imu_data_raw_msg.header.frame_id = imu_magnetic_msg.header.frame_id = frame_id_;
 
@@ -340,9 +340,9 @@ bool RtUsb9axisimuRosDriver::publishImuData()
   imu_temperature_msg.data = imu.temperature;
 
   // publish the IMU data
-  imu_data_raw_pub_.publish(imu_data_raw_msg);
-  imu_mag_pub_.publish(imu_magnetic_msg);
-  imu_temperature_pub_.publish(imu_temperature_msg);
+  // imu_data_raw_pub_.publish(imu_data_raw_msg);
+  // imu_mag_pub_.publish(imu_magnetic_msg);
+  // imu_temperature_pub_.publish(imu_temperature_msg);
 
   return true;
 }

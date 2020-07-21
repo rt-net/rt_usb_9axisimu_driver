@@ -34,17 +34,16 @@
 #ifndef RT_USB_9AXISIMU_BINARY_MODE_H_
 #define RT_USB_9AXISIMU_BINARY_MODE_H_
 
-#include "ros/ros.h"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
 
 class RtUsb9axisimuRosDriver : public rt_usb_9axisimu::SerialPort
 {
 private:
-  ros::NodeHandle nh_;
+  // ros::NodeHandle nh_;
 
-  ros::Publisher imu_data_raw_pub_;
-  ros::Publisher imu_mag_pub_;
-  ros::Publisher imu_temperature_pub_;
+  // ros::Publisher imu_data_raw_pub_;
+  // ros::Publisher imu_mag_pub_;
+  // ros::Publisher imu_temperature_pub_;
 
   rt_usb_9axisimu::SensorData sensor_data_;
 

@@ -40,10 +40,11 @@
 #include <vector>
 
 #include "rt_usb_9axisimu_driver/visibility_control.h"
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-namespace rt_usb_9axisimu
+namespace rt_usb_9axisimu_driver
 {
 class Driver : public rclcpp_lifecycle::LifecycleNode
 {
@@ -52,6 +53,8 @@ public:
   explicit Driver(const rclcpp::NodeOptions& options);
 
 private:
+  std::unique_ptr<RtUsb9axisimuRosDriver> driver;
+
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State&);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -64,6 +67,6 @@ private:
   on_shutdown(const rclcpp_lifecycle::State&);
 };
 
-}  // namespace rt_usb_9axisimu
+}  // namespace rt_usb_9axisimu_driver
 
 #endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_COMPONENT_HPP_

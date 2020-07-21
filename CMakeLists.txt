@@ -28,7 +28,8 @@ find_package(std_srvs REQUIRED)
 include_directories(include)
 
 add_library(rt_usb_9axisimu_component SHARED
-  src/rt_usb_9axisimu_component.cpp)
+  src/rt_usb_9axisimu_component.cpp
+  src/rt_usb_9axisimu_driver.cpp)
 target_compile_definitions(rt_usb_9axisimu_component
   PRIVATE "RT_USB_9AXISIMU_DRIVER_BUILDING_DLL")
 ament_target_dependencies(rt_usb_9axisimu_component
@@ -38,7 +39,7 @@ ament_target_dependencies(rt_usb_9axisimu_component
   sensor_msgs
   std_msgs
   std_srvs)
-rclcpp_components_register_nodes(rt_usb_9axisimu_component "rt_usb_9axisimu::Driver")
+rclcpp_components_register_nodes(rt_usb_9axisimu_component "rt_usb_9axisimu_driver::Driver")
 
 add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver_node.cpp)
 target_link_libraries(rt_usb_9axisimu_driver rt_usb_9axisimu_component)
