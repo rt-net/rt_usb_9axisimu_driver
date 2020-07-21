@@ -2,8 +2,8 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.0 (2020-07-21)
+------------------
 * Update README.md (`#23 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/23>`_)
 * Rename files (`#24 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/24>`_)
   Co-authored-by: Daisuke Sato <daisuke.sato@rt-net.jp>
