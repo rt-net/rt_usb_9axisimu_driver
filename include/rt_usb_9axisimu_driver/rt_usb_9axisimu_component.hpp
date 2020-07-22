@@ -53,7 +53,7 @@ public:
   explicit Driver(const rclcpp::NodeOptions& options);
 
 private:
-  std::unique_ptr<RtUsb9axisimuRosDriver> driver;
+  std::unique_ptr<RtUsb9axisimuRosDriver> driver_;
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State&);

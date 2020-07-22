@@ -45,13 +45,19 @@ namespace rt_usb_9axisimu_driver
 Driver::Driver(const rclcpp::NodeOptions & options)
 : rclcpp_lifecycle::LifecycleNode("rt_usb_9axisimu_driver", options)
 {
-  auto driver = std::make_unique<RtUsb9axisimuRosDriver>("/dev/ttyACM0");
+  driver_ = std::make_unique<RtUsb9axisimuRosDriver>("/dev/ttyACM0");
 }
 
 CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_configure() is called.");
 
+  if(!driver_->startCommunication()){
+    RCLCPP_ERROR(this->get_logger(), "Error opening sensor device, please re-check your devices.");
+    return CallbackReturn::FAILURE;
+  }
+
+  RCLCPP_INFO(this->get_logger(), "Configure complete.");
   return CallbackReturn::SUCCESS;
 }
 
@@ -72,6 +78,8 @@ CallbackReturn Driver::on_deactivate(const rclcpp_lifecycle::State &)
 CallbackReturn Driver::on_cleanup(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_cleanup() is called.");
+
+  driver_->stopCommunication();
 
   return CallbackReturn::SUCCESS;
 }
