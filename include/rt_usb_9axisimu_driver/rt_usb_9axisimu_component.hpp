@@ -43,6 +43,8 @@
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 
 namespace rt_usb_9axisimu_driver
 {
@@ -52,8 +54,14 @@ public:
   RT_USB_9AXISIMU_DRIVER_PUBLIC
   explicit Driver(const rclcpp::NodeOptions& options);
 
+protected:
+  void on_publish_timer();
+
 private:
   std::unique_ptr<RtUsb9axisimuRosDriver> driver_;
+
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>> imu_data_raw_pub_;
+  rclcpp::TimerBase::SharedPtr publish_timer_;
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_configure(const rclcpp_lifecycle::State&);

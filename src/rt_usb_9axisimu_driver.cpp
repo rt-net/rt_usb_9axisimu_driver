@@ -34,8 +34,8 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <iostream>
 
-#include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/magnetic_field.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
@@ -150,6 +150,11 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
     if (imu_data_buf[char_count] == ',' || imu_data_buf[char_count] == '\n')
     {
       imu_data_vector_buf.push_back(imu_data_oneline_buf);
+      // If the one line buffer is empty string (such as receiving ',' and '\n'
+      // continuously), clear the data vector buffer.
+      if(imu_data_oneline_buf.empty()){
+        imu_data_vector_buf.clear();
+      }
       imu_data_oneline_buf.clear();
     }
     else
@@ -229,6 +234,9 @@ bool RtUsb9axisimuRosDriver::startCommunication()
 void RtUsb9axisimuRosDriver::stopCommunication(void)
 {
   closeSerialPort();
+  has_completed_format_check_ = false;
+  data_format_ = DataFormat::NONE;
+  has_refreshed_imu_data_ = false;
 }
 
 void RtUsb9axisimuRosDriver::checkDataFormat(void)
@@ -345,6 +353,53 @@ bool RtUsb9axisimuRosDriver::publishImuData()
   // imu_temperature_pub_.publish(imu_temperature_msg);
 
   return true;
+}
+
+std::unique_ptr<sensor_msgs::msg::Imu> RtUsb9axisimuRosDriver::getImuRawDataUniquePtr(const rclcpp::Time timestamp)
+{
+  rt_usb_9axisimu::ImuData<double> imu;
+  auto imu_data_raw_msg = std::make_unique<sensor_msgs::msg::Imu>();
+
+  imu = sensor_data_.getImuData();  // Get physical quantity
+
+  // Calculate linear_acceleration_covariance diagonal elements
+  double linear_acceleration_cov = linear_acceleration_stddev_ * linear_acceleration_stddev_;
+  // Calculate angular_velocity_covariance diagonal elements
+  double angular_velocity_cov = angular_velocity_stddev_ * angular_velocity_stddev_;
+
+  // imu_data_raw_msg has no orientation values
+  imu_data_raw_msg->orientation_covariance[0] = -1;
+
+  imu_data_raw_msg->linear_acceleration_covariance[0] = imu_data_raw_msg->linear_acceleration_covariance[4] =
+      imu_data_raw_msg->linear_acceleration_covariance[8] = linear_acceleration_cov;
+
+  imu_data_raw_msg->angular_velocity_covariance[0] = imu_data_raw_msg->angular_velocity_covariance[4] =
+      imu_data_raw_msg->angular_velocity_covariance[8] = angular_velocity_cov;
+
+  imu_data_raw_msg->header.stamp = timestamp;
+  imu_data_raw_msg->header.frame_id = frame_id_;
+
+  // original data used the g unit, convert to m/s^2
+  imu_data_raw_msg->linear_acceleration.x = imu.ax * consts.CONVERTOR_G2A;
+  imu_data_raw_msg->linear_acceleration.y = imu.ay * consts.CONVERTOR_G2A;
+  imu_data_raw_msg->linear_acceleration.z = imu.az * consts.CONVERTOR_G2A;
+
+  if (data_format_ == DataFormat::BINARY)
+  {
+    // original binary data used the degree/s unit, convert to radian/s
+    imu_data_raw_msg->angular_velocity.x = imu.gx * consts.CONVERTOR_D2R;
+    imu_data_raw_msg->angular_velocity.y = imu.gy * consts.CONVERTOR_D2R;
+    imu_data_raw_msg->angular_velocity.z = imu.gz * consts.CONVERTOR_D2R;
+  }
+  else if (data_format_ == DataFormat::ASCII)
+  {
+    // original ascii data used the radian/s
+    imu_data_raw_msg->angular_velocity.x = imu.gx;
+    imu_data_raw_msg->angular_velocity.y = imu.gy;
+    imu_data_raw_msg->angular_velocity.z = imu.gz;
+  }
+
+  return std::move(imu_data_raw_msg);
 }
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS

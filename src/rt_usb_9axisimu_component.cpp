@@ -48,6 +48,21 @@ Driver::Driver(const rclcpp::NodeOptions & options)
   driver_ = std::make_unique<RtUsb9axisimuRosDriver>("/dev/ttyACM0");
 }
 
+void Driver::on_publish_timer()
+{
+  if (driver_->readSensorData())
+  {
+    if (driver_->hasRefreshedImuData())
+    {
+      imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(this->now())));
+    }
+  }
+  else
+  {
+    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
+  }
+}
+
 CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_configure() is called.");
@@ -57,7 +72,35 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
     return CallbackReturn::FAILURE;
   }
 
-  RCLCPP_INFO(this->get_logger(), "Configure complete.");
+  while (rclcpp::ok() && driver_->hasCompletedFormatCheck() == false)
+  {
+    driver_->checkDataFormat();
+  }
+
+  if (rclcpp::ok() && driver_->hasCompletedFormatCheck())
+  {
+    RCLCPP_INFO(this->get_logger(), "Format check has completed.");
+    if (driver_->hasAsciiDataFormat())
+    {
+      RCLCPP_INFO(this->get_logger(), "Data format is ascii.");
+    }
+    else if (driver_->hasBinaryDataFormat())
+    {
+      RCLCPP_INFO(this->get_logger(), "Data format is binary.");
+    }
+    else
+    {
+      RCLCPP_INFO(this->get_logger(), "Data format is neither binary nor ascii.");
+      driver_->stopCommunication();
+      return CallbackReturn::FAILURE;
+    }
+  }
+
+  imu_data_raw_pub_ = create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 1);
+  publish_timer_ = create_wall_timer(5ms, std::bind(&Driver::on_publish_timer, this));
+  // Don't actually start publishing data until activated
+  publish_timer_->cancel();
+
   return CallbackReturn::SUCCESS;
 }
 
@@ -65,12 +108,18 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
+  imu_data_raw_pub_->on_activate();
+  publish_timer_->reset();
+
   return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn Driver::on_deactivate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_deactivate() is called.");
+
+  imu_data_raw_pub_->on_deactivate();
+  publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;
 }
@@ -81,12 +130,18 @@ CallbackReturn Driver::on_cleanup(const rclcpp_lifecycle::State &)
 
   driver_->stopCommunication();
 
+  imu_data_raw_pub_.reset();
+  publish_timer_->reset();
+
   return CallbackReturn::SUCCESS;
 }
 
 CallbackReturn Driver::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_shutdown() is called.");
+
+  imu_data_raw_pub_.reset();
+  publish_timer_->reset();
 
   return CallbackReturn::SUCCESS;
 }

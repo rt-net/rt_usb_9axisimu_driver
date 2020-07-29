@@ -35,6 +35,8 @@
 #define RT_USB_9AXISIMU_BINARY_MODE_H_
 
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
+#include "rclcpp/time.hpp"
+#include "sensor_msgs/msg/imu.hpp"
 
 class RtUsb9axisimuRosDriver : public rt_usb_9axisimu::SerialPort
 {
@@ -92,6 +94,7 @@ public:
   bool hasRefreshedImuData(void);
 
   bool publishImuData();
+  std::unique_ptr<sensor_msgs::msg::Imu> getImuRawDataUniquePtr(const rclcpp::Time timestamp);
   bool readSensorData();
 };
 
