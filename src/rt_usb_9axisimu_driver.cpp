@@ -36,7 +36,6 @@
 #include <vector>
 #include <iostream>
 
-#include "sensor_msgs/msg/magnetic_field.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 
@@ -400,6 +399,27 @@ std::unique_ptr<sensor_msgs::msg::Imu> RtUsb9axisimuRosDriver::getImuRawDataUniq
   }
 
   return std::move(imu_data_raw_msg);
+}
+
+std::unique_ptr<sensor_msgs::msg::MagneticField> RtUsb9axisimuRosDriver::getImuMagUniquePtr(const rclcpp::Time timestamp)
+{
+  auto imu = sensor_data_.getImuData();  // Get physical quantity
+  auto imu_magnetic_msg = std::make_unique<sensor_msgs::msg::MagneticField>();
+
+  double magnetic_field_cov = magnetic_field_stddev_ * magnetic_field_stddev_;
+
+  imu_magnetic_msg->magnetic_field_covariance[0] = imu_magnetic_msg->magnetic_field_covariance[4] =
+      imu_magnetic_msg->magnetic_field_covariance[8] = magnetic_field_cov;
+
+  imu_magnetic_msg->header.stamp = timestamp;
+  imu_magnetic_msg->header.frame_id = frame_id_;
+
+  // original data used the uTesla unit, convert to Tesla
+  imu_magnetic_msg->magnetic_field.x = imu.mx / consts.CONVERTOR_UT2T;
+  imu_magnetic_msg->magnetic_field.y = imu.my / consts.CONVERTOR_UT2T;
+  imu_magnetic_msg->magnetic_field.z = imu.mz / consts.CONVERTOR_UT2T;
+
+  return std::move(imu_magnetic_msg);
 }
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS

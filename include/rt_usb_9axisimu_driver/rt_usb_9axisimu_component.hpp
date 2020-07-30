@@ -45,6 +45,7 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 #include "sensor_msgs/msg/imu.hpp"
+#include "sensor_msgs/msg/magnetic_field.hpp"
 
 namespace rt_usb_9axisimu_driver
 {
@@ -61,6 +62,7 @@ private:
   std::unique_ptr<RtUsb9axisimuRosDriver> driver_;
 
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>> imu_data_raw_pub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::MagneticField>> imu_mag_pub_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn

@@ -37,6 +37,7 @@
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
 #include "rclcpp/time.hpp"
 #include "sensor_msgs/msg/imu.hpp"
+#include "sensor_msgs/msg/magnetic_field.hpp"
 
 class RtUsb9axisimuRosDriver : public rt_usb_9axisimu::SerialPort
 {
@@ -95,6 +96,7 @@ public:
 
   bool publishImuData();
   std::unique_ptr<sensor_msgs::msg::Imu> getImuRawDataUniquePtr(const rclcpp::Time timestamp);
+  std::unique_ptr<sensor_msgs::msg::MagneticField> getImuMagUniquePtr(const rclcpp::Time timestamp);
   bool readSensorData();
 };
 

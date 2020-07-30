@@ -55,6 +55,7 @@ void Driver::on_publish_timer()
     if (driver_->hasRefreshedImuData())
     {
       imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(this->now())));
+      imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(this->now())));
     }
   }
   else
@@ -97,6 +98,7 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
   }
 
   imu_data_raw_pub_ = create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 1);
+  imu_mag_pub_ = create_publisher<sensor_msgs::msg::MagneticField>("imu/mag", 1);
   publish_timer_ = create_wall_timer(5ms, std::bind(&Driver::on_publish_timer, this));
   // Don't actually start publishing data until activated
   publish_timer_->cancel();
@@ -109,6 +111,7 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
   imu_data_raw_pub_->on_activate();
+  imu_mag_pub_->on_activate();
   publish_timer_->reset();
 
   return CallbackReturn::SUCCESS;
@@ -119,6 +122,7 @@ CallbackReturn Driver::on_deactivate(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(this->get_logger(), "on_deactivate() is called.");
 
   imu_data_raw_pub_->on_deactivate();
+  imu_mag_pub_->on_deactivate();
   publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;
@@ -129,9 +133,9 @@ CallbackReturn Driver::on_cleanup(const rclcpp_lifecycle::State &)
   RCLCPP_INFO(this->get_logger(), "on_cleanup() is called.");
 
   driver_->stopCommunication();
-
   imu_data_raw_pub_.reset();
-  publish_timer_->reset();
+  imu_mag_pub_.reset();
+  publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;
 }
@@ -140,8 +144,10 @@ CallbackReturn Driver::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_shutdown() is called.");
 
+  driver_->stopCommunication();
   imu_data_raw_pub_.reset();
-  publish_timer_->reset();
+  imu_mag_pub_.reset();
+  publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;
 }
