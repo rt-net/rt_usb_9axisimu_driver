@@ -35,6 +35,7 @@
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
 
 using namespace std::chrono_literals;
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
@@ -54,8 +55,10 @@ void Driver::on_publish_timer()
   {
     if (driver_->hasRefreshedImuData())
     {
-      imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(this->now())));
-      imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(this->now())));
+      rclcpp::Time timestamp = this->now();
+      imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(timestamp)));
+      imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(timestamp)));
+      imu_temperature_pub_->publish(std::move(driver_->getImuTemperatureUniquePtr()));
     }
   }
   else
@@ -99,6 +102,7 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
 
   imu_data_raw_pub_ = create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 1);
   imu_mag_pub_ = create_publisher<sensor_msgs::msg::MagneticField>("imu/mag", 1);
+  imu_temperature_pub_ = create_publisher<std_msgs::msg::Float64>("imu/temperature", 1);
   publish_timer_ = create_wall_timer(5ms, std::bind(&Driver::on_publish_timer, this));
   // Don't actually start publishing data until activated
   publish_timer_->cancel();
@@ -112,6 +116,7 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 
   imu_data_raw_pub_->on_activate();
   imu_mag_pub_->on_activate();
+  imu_temperature_pub_->on_activate();
   publish_timer_->reset();
 
   return CallbackReturn::SUCCESS;
@@ -123,6 +128,7 @@ CallbackReturn Driver::on_deactivate(const rclcpp_lifecycle::State &)
 
   imu_data_raw_pub_->on_deactivate();
   imu_mag_pub_->on_deactivate();
+  imu_temperature_pub_->on_deactivate();
   publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;
@@ -135,6 +141,7 @@ CallbackReturn Driver::on_cleanup(const rclcpp_lifecycle::State &)
   driver_->stopCommunication();
   imu_data_raw_pub_.reset();
   imu_mag_pub_.reset();
+  imu_temperature_pub_.reset();
   publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;
@@ -147,6 +154,7 @@ CallbackReturn Driver::on_shutdown(const rclcpp_lifecycle::State &)
   driver_->stopCommunication();
   imu_data_raw_pub_.reset();
   imu_mag_pub_.reset();
+  imu_temperature_pub_.reset();
   publish_timer_->cancel();
 
   return CallbackReturn::SUCCESS;

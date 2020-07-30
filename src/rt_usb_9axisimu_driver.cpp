@@ -36,7 +36,6 @@
 #include <vector>
 #include <iostream>
 
-#include "std_msgs/msg/float64.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 
 
@@ -356,10 +355,8 @@ bool RtUsb9axisimuRosDriver::publishImuData()
 
 std::unique_ptr<sensor_msgs::msg::Imu> RtUsb9axisimuRosDriver::getImuRawDataUniquePtr(const rclcpp::Time timestamp)
 {
-  rt_usb_9axisimu::ImuData<double> imu;
+  auto imu = sensor_data_.getImuData();  // Get physical quantity
   auto imu_data_raw_msg = std::make_unique<sensor_msgs::msg::Imu>();
-
-  imu = sensor_data_.getImuData();  // Get physical quantity
 
   // Calculate linear_acceleration_covariance diagonal elements
   double linear_acceleration_cov = linear_acceleration_stddev_ * linear_acceleration_stddev_;
@@ -420,6 +417,17 @@ std::unique_ptr<sensor_msgs::msg::MagneticField> RtUsb9axisimuRosDriver::getImuM
   imu_magnetic_msg->magnetic_field.z = imu.mz / consts.CONVERTOR_UT2T;
 
   return std::move(imu_magnetic_msg);
+}
+
+std::unique_ptr<std_msgs::msg::Float64> RtUsb9axisimuRosDriver::getImuTemperatureUniquePtr(void)
+{
+  auto imu = sensor_data_.getImuData();  // Get physical quantity
+  auto imu_temperature_msg = std::make_unique<std_msgs::msg::Float64>();
+
+  // original data used the celsius unit
+  imu_temperature_msg->data = imu.temperature;
+
+  return std::move(imu_temperature_msg);
 }
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS

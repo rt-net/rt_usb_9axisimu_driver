@@ -46,6 +46,7 @@
 #include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "sensor_msgs/msg/magnetic_field.hpp"
+#include "std_msgs/msg/float64.hpp"
 
 namespace rt_usb_9axisimu_driver
 {
@@ -63,6 +64,7 @@ private:
 
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>> imu_data_raw_pub_;
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::MagneticField>> imu_mag_pub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::Float64>> imu_temperature_pub_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
