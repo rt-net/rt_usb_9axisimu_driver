@@ -1,4 +1,3 @@
-
 /*
  * rt_usb_9axisimu_driver.cpp
  *
@@ -54,7 +53,7 @@ class Driver : public rclcpp_lifecycle::LifecycleNode
 {
 public:
   RT_USB_9AXISIMU_DRIVER_PUBLIC
-  explicit Driver(const rclcpp::NodeOptions& options);
+  explicit Driver(const rclcpp::NodeOptions & options);
 
 protected:
   void on_publish_timer();
@@ -63,22 +62,24 @@ private:
   std::unique_ptr<RtUsb9axisimuRosDriver> driver_;
 
   std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::Imu>> imu_data_raw_pub_;
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::MagneticField>> imu_mag_pub_;
-  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::Float64>> imu_temperature_pub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<sensor_msgs::msg::MagneticField>>
+  imu_mag_pub_;
+  std::shared_ptr<rclcpp_lifecycle::LifecyclePublisher<std_msgs::msg::Float64>>
+  imu_temperature_pub_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_configure(const rclcpp_lifecycle::State&);
+  on_configure(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_activate(const rclcpp_lifecycle::State&);
+  on_activate(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_deactivate(const rclcpp_lifecycle::State&);
+  on_deactivate(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_cleanup(const rclcpp_lifecycle::State&);
+  on_cleanup(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_shutdown(const rclcpp_lifecycle::State&);
+  on_shutdown(const rclcpp_lifecycle::State &);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
-  on_error(const rclcpp_lifecycle::State&);
+  on_error(const rclcpp_lifecycle::State &);
 };
 
 }  // namespace rt_usb_9axisimu_driver

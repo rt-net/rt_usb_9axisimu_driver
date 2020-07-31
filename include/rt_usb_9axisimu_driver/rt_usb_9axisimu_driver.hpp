@@ -31,8 +31,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RT_USB_9AXISIMU_BINARY_MODE_H_
-#define RT_USB_9AXISIMU_BINARY_MODE_H_
+#ifndef RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_DRIVER_HPP_
+#define RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_DRIVER_HPP_
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
 #include "rclcpp/time.hpp"
@@ -73,14 +77,14 @@ private:
   // Method to combine two separate one-byte data into one two-byte data
   int16_t combineByteData(unsigned char data_h, unsigned char data_l);
   // Method to extract binary sensor data from communication buffer
-  rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char* imu_data_buf);
-  bool isBinarySensorData(unsigned char* imu_data_buf);
+  rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char * imu_data_buf);
+  bool isBinarySensorData(unsigned char * imu_data_buf);
   bool readBinaryData(void);
   bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
   bool readAsciiData(void);
 
 public:
-  RtUsb9axisimuRosDriver(std::string serialport);
+  explicit RtUsb9axisimuRosDriver(std::string serialport);
   ~RtUsb9axisimuRosDriver();
 
   void setImuFrameIdName(std::string frame_id);
@@ -95,11 +99,10 @@ public:
   bool hasBinaryDataFormat(void);
   bool hasRefreshedImuData(void);
 
-  bool publishImuData();
   std::unique_ptr<sensor_msgs::msg::Imu> getImuRawDataUniquePtr(const rclcpp::Time timestamp);
   std::unique_ptr<sensor_msgs::msg::MagneticField> getImuMagUniquePtr(const rclcpp::Time timestamp);
   std::unique_ptr<std_msgs::msg::Float64> getImuTemperatureUniquePtr(void);
   bool readSensorData();
 };
 
-#endif
+#endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_DRIVER_HPP_

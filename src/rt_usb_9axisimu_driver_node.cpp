@@ -1,4 +1,3 @@
-
 /*
  * rt_usb_9axisimu_driver.cpp
  *

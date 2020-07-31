@@ -1,4 +1,3 @@
-
 /*
  * rt_usb_9axisimu_driver.cpp
  *
@@ -32,10 +31,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
+#include <memory>
+#include <utility>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
 
 using namespace std::chrono_literals;
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
@@ -51,18 +52,14 @@ Driver::Driver(const rclcpp::NodeOptions & options)
 
 void Driver::on_publish_timer()
 {
-  if (driver_->readSensorData())
-  {
-    if (driver_->hasRefreshedImuData())
-    {
+  if (driver_->readSensorData()) {
+    if (driver_->hasRefreshedImuData()) {
       rclcpp::Time timestamp = this->now();
       imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(timestamp)));
       imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(timestamp)));
       imu_temperature_pub_->publish(std::move(driver_->getImuTemperatureUniquePtr()));
     }
-  }
-  else
-  {
+  } else {
     RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
   }
 }
@@ -71,29 +68,22 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_configure() is called.");
 
-  if(!driver_->startCommunication()){
+  if (!driver_->startCommunication()) {
     RCLCPP_ERROR(this->get_logger(), "Error opening sensor device, please re-check your devices.");
     return CallbackReturn::FAILURE;
   }
 
-  while (rclcpp::ok() && driver_->hasCompletedFormatCheck() == false)
-  {
+  while (rclcpp::ok() && driver_->hasCompletedFormatCheck() == false) {
     driver_->checkDataFormat();
   }
 
-  if (rclcpp::ok() && driver_->hasCompletedFormatCheck())
-  {
+  if (rclcpp::ok() && driver_->hasCompletedFormatCheck()) {
     RCLCPP_INFO(this->get_logger(), "Format check has completed.");
-    if (driver_->hasAsciiDataFormat())
-    {
+    if (driver_->hasAsciiDataFormat()) {
       RCLCPP_INFO(this->get_logger(), "Data format is ascii.");
-    }
-    else if (driver_->hasBinaryDataFormat())
-    {
+    } else if (driver_->hasBinaryDataFormat()) {
       RCLCPP_INFO(this->get_logger(), "Data format is binary.");
-    }
-    else
-    {
+    } else {
       RCLCPP_INFO(this->get_logger(), "Data format is neither binary nor ascii.");
       driver_->stopCommunication();
       return CallbackReturn::FAILURE;
@@ -114,7 +104,7 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
-  if(!driver_->readSensorData()){
+  if (!driver_->readSensorData()) {
     RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
     return CallbackReturn::ERROR;
   }
