@@ -36,7 +36,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver_component.hpp"
 
 using namespace std::chrono_literals;
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;

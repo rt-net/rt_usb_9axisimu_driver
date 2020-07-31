@@ -34,7 +34,7 @@
 #include <memory>
 #include "rclcpp/rclcpp.hpp"
 
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_component.hpp"
+#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver_component.hpp"
 
 // #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
 
