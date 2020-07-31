@@ -114,6 +114,10 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
+  if(!driver_->readSensorData()){
+    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
+    return CallbackReturn::ERROR;
+  }
   imu_data_raw_pub_->on_activate();
   imu_mag_pub_->on_activate();
   imu_temperature_pub_->on_activate();
@@ -150,6 +154,19 @@ CallbackReturn Driver::on_cleanup(const rclcpp_lifecycle::State &)
 CallbackReturn Driver::on_shutdown(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_shutdown() is called.");
+
+  driver_->stopCommunication();
+  imu_data_raw_pub_.reset();
+  imu_mag_pub_.reset();
+  imu_temperature_pub_.reset();
+  publish_timer_->cancel();
+
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn Driver::on_error(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_INFO(this->get_logger(), "on_error() is called.");
 
   driver_->stopCommunication();
   imu_data_raw_pub_.reset();

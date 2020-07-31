@@ -77,6 +77,8 @@ private:
   on_cleanup(const rclcpp_lifecycle::State&);
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_shutdown(const rclcpp_lifecycle::State&);
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+  on_error(const rclcpp_lifecycle::State&);
 };
 
 }  // namespace rt_usb_9axisimu_driver
