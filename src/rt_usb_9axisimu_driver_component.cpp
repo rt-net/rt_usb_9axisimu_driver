@@ -93,7 +93,7 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
   imu_data_raw_pub_ = create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 1);
   imu_mag_pub_ = create_publisher<sensor_msgs::msg::MagneticField>("imu/mag", 1);
   imu_temperature_pub_ = create_publisher<std_msgs::msg::Float64>("imu/temperature", 1);
-  publish_timer_ = create_wall_timer(5ms, std::bind(&Driver::on_publish_timer, this));
+  publish_timer_ = create_wall_timer(10ms, std::bind(&Driver::on_publish_timer, this));
   // Don't actually start publishing data until activated
   publish_timer_->cancel();
 
