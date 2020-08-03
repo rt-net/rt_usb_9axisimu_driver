@@ -2,20 +2,54 @@
 
 # rt_usb_9axisimu_driver
 
-[![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amaster)
+ROS 2 package for USB Output 9-axis IMU sensor module.
 
-rt_usb_9axisimu_driverは株式会社アールティが販売しているUSB出力9軸IMUセンサモジュール用のROSパッケージです。  
-株式会社アールティによって開発、メンテナンスがなされています。
-- License: [The 3-Clause BSD License](https://github.com/rt-net/rt_usb_9axisimu_driver/blob/master/LICENSE)
-- Source: https://github.com/rt-net/rt_usb_9axisimu_driver.git (branch: master)
+[![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=dashing-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Adashing-devel)
 
-現在、以下のROSのディストリビューションに対応しております。
-- Kinetic
-- Melodic
+![usb-9axisimu](https://rt-net.github.io/images/usb-9axisimu/usb-9axisimu.png)
+
+## Installation
+
+```sh
+$ cd ~/ros2_ws/src
+# Clone package & checkout ROS 2 branch
+$ git clone -b dashing-devel https://github.com/rt-net/rt_usb_9axisimu_driver
+
+# Install dependencies
+$ rosdep install -r -y -i --from-paths .
+
+# Build & Install
+$ cd ~/ros2_ws
+$ colcon build --symlink-install
+$ source ~/ros2_ws/install/setup.bash
+```
+
+## QuickStart
+
+```sh
+# Terminal 1
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
+
+# Terminal 2
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 lifecycle set rt_usb_9axisimu_driver configure
+$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+# Echo topics (Press Ctrl+C for exit)
+$ ros2 topic echo /imu/data_raw
+$ ros2 topic echo /imu/mag
+$ ros2 topic echo /imu/temperature
+```
 
 ## 1. 概要
 
-このパッケージは、[USB出力9軸IMUセンサモジュール](https://www.rt-net.jp/products/9axisimu2/)をROSから使用するためのドライバを提供するものです。
+rt_usb_9axisimu_driverは株式会社アールティが販売している
+[USB出力9軸IMUセンサモジュール](https://www.rt-net.jp/products/9axisimu2/)
+のROS 2パッケージです。  
+
+株式会社アールティによって開発、メンテナンスがなされています。
+
+- License: [The 3-Clause BSD License](https://github.com/rt-net/rt_usb_9axisimu_driver/blob/master/LICENSE)
 
 ### 1.1 座標軸について
 
@@ -32,44 +66,10 @@ USB出力9軸IMUセンサモジュールはオープンハード・オープン�
 
 ### 1.3 ver2.0でのご利用について
 
-2018年10月現在、販売されているUSB出力9軸IMUセンサモジュールはver2.0となります。  
+2020年8月現在、販売されているUSB出力9軸IMUセンサモジュールはver2.0となります。  
 このバージョンのデフォルトのファームウェアには、ASCII出力とBinary出力の２つのデータ出力形式があります。  
 センサ出荷時点ではASCII出力に設定されています。出力形式の切り替え方法は、以下のリポジトリにあるマニュアルをご参照ください。  
 https://github.com/rt-net/RT-USB-9AXIS-00
-
-## 2. インストール
-
-現在、Debianパッケージの配布は行っておりません。ソースからインストールを行ってください。  
-catkinワークスペースを~/catkin_wsとすると、以下のような手順になります。
-
-```sh
-$ cd ~/catkin_ws/src
-$ git clone https://github.com/rt-net/rt_usb_9axisimu_driver.git
-$ cd ~/catkin_ws
-$ catkin build
-```
-
-## 3. 使用方法
-2のようにインストールを行った場合、ドライバを起動しようとする端末(Terminal)で、
-```sh
-$ source ~/catkin_ws/devel/setup.bash
-```
-と入力してください。その後、
-
-```sh
-$ roscore
-
-# 別の端末で
-$ rosrun rt_usb_9axisimu_driver rt_usb_9axisimu_driver
-```
-
-または、
-
-```sh
-$ roslaunch rt_usb_9axisimu_driver rt_usb_9axisimu_driver.launch
-```
-
-と入力することにより、ドライバを起動できます。
 
 ### [ERROR] Error opening sensor device, please re-check your devices. が発生する場合
 
@@ -79,12 +79,12 @@ $ roslaunch rt_usb_9axisimu_driver rt_usb_9axisimu_driver.launch
 $ sudo chmod 666 /dev/ttyACM0
 ```
 
-## 4. ノード
-### 4.1 rt_usb_9axisimu_driver
+## 2. ノード
+### 2.1 rt_usb_9axisimu_driver
 
 rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受信し、角速度と並進加速度・磁束密度をパブリッシュします。
 
-#### 4.1.1 パブリッシュされるトピック
+#### 2.1.1 パブリッシュされるトピック
 
 - /imu/data_raw([sensor_msgs/Imu](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html))
     - 並進加速度と角速度の生データ
