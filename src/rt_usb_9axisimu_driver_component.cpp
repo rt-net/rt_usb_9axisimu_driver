@@ -32,6 +32,7 @@
  */
 
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "rclcpp/rclcpp.hpp"
@@ -41,6 +42,12 @@
 using namespace std::chrono_literals;
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
+
+constexpr auto param_frame_id = "frame_id";
+constexpr auto param_port = "port";
+constexpr auto param_liner_acceleration_stddev = "linear_acceleration_stddev";
+constexpr auto param_angular_velocity_stddev = "angular_velocity_stddev";
+constexpr auto param_magnetic_field_stddev = "magnetic_field_stddev";
 namespace rt_usb_9axisimu_driver
 {
 
@@ -48,6 +55,12 @@ Driver::Driver(const rclcpp::NodeOptions & options)
 : rclcpp_lifecycle::LifecycleNode("rt_usb_9axisimu_driver", options)
 {
   driver_ = std::make_unique<RtUsb9axisimuRosDriver>("/dev/ttyACM0");
+
+  this->declare_parameter(param_frame_id, "imu_link");
+  this->declare_parameter(param_port, "/dev/ttyACM0");
+  this->declare_parameter(param_liner_acceleration_stddev, 0.023145);
+  this->declare_parameter(param_angular_velocity_stddev, 0.0010621);
+  this->declare_parameter(param_magnetic_field_stddev, 0.00000080786);
 }
 
 void Driver::on_publish_timer()
@@ -67,6 +80,13 @@ void Driver::on_publish_timer()
 CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_configure() is called.");
+
+  driver_->setImuFrameIdName(this->get_parameter(param_frame_id).get_value<std::string>());
+  driver_->setImuPortName(this->get_parameter(param_port).get_value<std::string>());
+  driver_->setImuStdDev(
+    this->get_parameter(param_liner_acceleration_stddev).get_value<double>(),
+    this->get_parameter(param_angular_velocity_stddev).get_value<double>(),
+    this->get_parameter(param_magnetic_field_stddev).get_value<double>());
 
   if (!driver_->startCommunication()) {
     RCLCPP_ERROR(this->get_logger(), "Error opening sensor device, please re-check your devices.");

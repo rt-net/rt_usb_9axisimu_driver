@@ -88,7 +88,7 @@ public:
   ~RtUsb9axisimuRosDriver();
 
   void setImuFrameIdName(std::string frame_id);
-  void setImuPortName(std::string serialport);
+  void setImuPortName(std::string port);
   void setImuStdDev(double linear_acceleration, double angular_velocity, double magnetic_field);
 
   bool startCommunication();

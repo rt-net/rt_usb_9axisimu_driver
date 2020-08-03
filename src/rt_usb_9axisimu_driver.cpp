@@ -205,9 +205,9 @@ void RtUsb9axisimuRosDriver::setImuFrameIdName(std::string frame_id)
   frame_id_ = frame_id;
 }
 
-void RtUsb9axisimuRosDriver::setImuPortName(std::string serialport)
+void RtUsb9axisimuRosDriver::setImuPortName(std::string port)
 {
-  rt_usb_9axisimu::SerialPort(serialport.c_str());
+  setPort(port.c_str());
 }
 
 void RtUsb9axisimuRosDriver::setImuStdDev(

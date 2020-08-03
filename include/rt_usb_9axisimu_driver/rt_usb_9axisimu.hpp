@@ -183,6 +183,11 @@ public:
     closeSerialPort();
   }
 
+  void setPort(const char * port)
+  {
+    port_name_ = port;
+  }
+
   bool openPort(const char * port)
   {
     port_name_ = port;
