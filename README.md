@@ -30,7 +30,9 @@ $ source ~/ros2_ws/install/setup.bash
 # Terminal 1
 $ source ~/ros2_ws/install/setup.bash
 $ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
+```
 
+```sh
 # Terminal 2
 $ source ~/ros2_ws/install/setup.bash
 $ ros2 lifecycle set rt_usb_9axisimu_driver configure
@@ -95,7 +97,7 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 - /imu/temperature([std_msgs/Float64](http://docs.ros.org/api/std_msgs/html/msg/Float64.html))
     - センサの温度データ
 
-#### 4.1.2 パラメータ
+#### 2.1.2 パラメータ
 
 - ~frame_id (string, default: imu_link)
     - IMUデータのヘッダーにセットされるフレーム名
@@ -112,3 +114,73 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 - ~magnetic_field_stddev (double, default: 0.00000080786)
     - 磁束密度の共分散行列の対角成分の平方根(T)
 
+
+## 3. ROS 2 特有の使い方
+### 3.1 Lifecycle
+
+[Lifecycle](https://design.ros2.org/articles/node_lifecycle.html)
+機能を使うことで、ノード実行中にUSBの抜き差しや、
+トピックのパブリッシュを稼働/停止できます。
+
+各状態での動作内容は次のとおりです。
+
+#### 3.1.1 Unconfigured state
+
+- USBポート(`~port`)にアクセスしません
+- トピックをパブリッシュしません
+
+#### 3.1.2 Configuring transition
+
+- 2.1.2 節のパラメータを反映します
+- USBポート(`~port`)をオープンし9軸IMUセンサと通信します
+  - 9軸IMUセンサの認識に失敗したら`Unconfigured state`に遷移します
+
+#### 3.1.3 Inactive state
+
+- トピックをパブリッシュしません
+
+#### 3.1.4 Activating transition
+
+- 9軸IMUセンサと定期通信を開始します
+  - 9軸IMUセンサとの通信に失敗したら`Unconfigured state`に遷移します
+- トピックのパブリッシュを開始します
+
+#### 3.1.5 Active state
+
+- トピックをパブリッシュします
+
+#### 3.1.6 Deactivating transition
+
+- 9軸IMUセンサとの定期通信を停止します
+- トピックのパブリッシュを停止します
+
+#### 3.1.7 CleaningUp transition
+
+- USBポート(`~port`)をクローズし9軸IMUセンサと通信を終了します
+
+#### 3.1.8 Example
+
+```sh
+# Terminal 1
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
+```
+
+```sh
+# Terminal 2
+$ source ~/ros2_ws/install/setup.bash
+
+# User can plug-in/out the IMU module at unconfigure state.
+
+$ ros2 lifecycle set rt_usb_9axisimu_driver configure
+$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+# The node start publishing the topics.
+
+# Stop publishing
+$ ros2 lifecycle set rt_usb_9axisimu_driver deactivate
+$ ros2 lifecycle set rt_usb_9axisimu_driver cleanup
+
+# User can plug-in/out the IMU module at unconfigure state.
+# User can set parameters of the node.
+
+```
