@@ -1,6 +1,6 @@
 
 /*
- * rt_usb_9axisimu_driver.cpp
+ * visibility_control.h
  *
  * License: BSD-3-Clause
  *

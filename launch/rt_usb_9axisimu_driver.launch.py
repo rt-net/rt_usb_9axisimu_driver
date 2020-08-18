@@ -1,5 +1,5 @@
 
-# rt_usb_9axisimu_driver.cpp
+# rt_usb_9axisimu_driver.launch.py
 #
 # License: BSD-3-Clause
 #
