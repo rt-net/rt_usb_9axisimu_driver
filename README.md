@@ -131,7 +131,7 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 
 #### 3.1.2 Configuring transition
 
-- 2.1.2 節のパラメータを反映します
+- パラメータを反映します
 - USBポート(`~port`)をオープンし9軸IMUセンサと通信します
   - 9軸IMUセンサの認識に失敗したら`Unconfigured state`に遷移します
 
@@ -148,6 +148,7 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 #### 3.1.5 Active state
 
 - トピックをパブリッシュします
+- 9軸IMUセンサとの通信に失敗しても**状態遷移しません**
 
 #### 3.1.6 Deactivating transition
 
@@ -182,5 +183,34 @@ $ ros2 lifecycle set rt_usb_9axisimu_driver cleanup
 
 # User can plug-in/out the IMU module at unconfigure state.
 # User can set parameters of the node.
+$ ros2 param set /rt_usb_9axisimu_driver frame_id "imu2-link"
+$ ros2 param set /rt_usb_9axisimu_driver port "/dev/ttyACM1"
 
+$ ros2 lifecycle set rt_usb_9axisimu_driver configure
+$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+# The node start publishing the topics.
+```
+
+### 3.2 Component
+
+rt_usb_9axisimu_driver::Driverは
+[Component](https://index.ros.org/doc/ros2/Tutorials/Composition/)
+として実装されているため、共有ライブラリとして実行できます。
+
+#### 3.2.1 Example
+
+```sh
+# Terminal 1
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 run rclcpp_components component_container
+```
+
+```sh
+# Terminal 2
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 component load /ComponentManager rt_usb_9axisimu_driver rt_usb_9axisimu_driver::Driver
+
+$ ros2 lifecycle set rt_usb_9axisimu_driver configure
+$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+# The node start publishing the topics.
 ```
