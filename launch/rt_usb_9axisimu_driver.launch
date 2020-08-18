@@ -1,8 +1,0 @@
-<launch>
-  <arg name="port" default="/dev/ttyACM0" />
-  <arg name="frame_id" default="imu_link" />
-  <node pkg="rt_usb_9axisimu_driver" type="rt_usb_9axisimu_driver" name="rt_usb_9axisimu_driver" required="true" output="screen">
-    <param name="port" value="$(arg port)" />
-    <param name="frame_id" value="$(arg frame_id)" />
-  </node>
-</launch>
