@@ -202,7 +202,7 @@ public:
       return true;
     }
 
-    fd = open(port_name_.c_str(), O_RDWR | O_NOCTTY);  // Open serial port
+    fd = open(port_name_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);  // Open serial port
     if (fd < 0) {
       return false;  // Port open error
     }

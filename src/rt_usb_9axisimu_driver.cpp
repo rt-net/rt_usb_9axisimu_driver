@@ -95,24 +95,40 @@ bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf)
 
 bool RtUsb9axisimuRosDriver::readBinaryData(void)
 {
-  unsigned char imu_data_buf[256];
-  rt_usb_9axisimu::ImuData<int16_t> imu_rawdata;
+  static std::vector<unsigned char> imu_binary_data_buffer;
+  unsigned char read_data_buf[256];
 
   has_refreshed_imu_data_ = false;
-  int data_size_of_buf = readFromDevice(imu_data_buf, consts.IMU_BIN_DATA_SIZE);
+  int read_data_size = readFromDevice(read_data_buf,
+    consts.IMU_BIN_DATA_SIZE - imu_binary_data_buffer.size());
 
-  if (data_size_of_buf < consts.IMU_BIN_DATA_SIZE) {
-    if (data_size_of_buf <= 0) {
-      return false;  // Raise communication error
+  if(read_data_size == 0){  // The device was unplugged.
+    return false;
+  }
+
+  if(read_data_size < 0){  // read() returns error code.
+    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Wainting for data.
+      return true;
+    }else{
+      return false;
     }
+  }
+
+  for(int i = 0; i < read_data_size; i++){
+    imu_binary_data_buffer.push_back(read_data_buf[i]);
+  }
+
+  if (imu_binary_data_buffer.size() < consts.IMU_BIN_DATA_SIZE){
+    return true;
+  }
+
+  if (isBinarySensorData(imu_binary_data_buffer.data()) == false) {
+    imu_binary_data_buffer.clear();
     return false;
   }
 
-  if (isBinarySensorData(imu_data_buf) == false) {
-    return false;
-  }
-
-  imu_rawdata = extractBinarySensorData(imu_data_buf);  // Extract sensor data
+  auto imu_rawdata = extractBinarySensorData(imu_binary_data_buffer.data());
+  imu_binary_data_buffer.clear();
 
   sensor_data_.setImuRawData(imu_rawdata);  // Update raw data
   sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
