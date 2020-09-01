@@ -31,8 +31,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef RT_USB_9AXISIMU_H_
-#define RT_USB_9AXISIMU_H_
+#ifndef RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_HPP_
+#define RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_HPP_
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -44,6 +44,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <string>
 
 /**********************************************************************************************************
  *
@@ -119,23 +120,23 @@ public:
   const double DEFAULT_MAGNETIC_FIELD_STDDEV;
 
   Consts()
-    : CONVERTOR_RAW2G(2048)                         // for linear_acceleration (raw data to [g])
-    , CONVERTOR_RAW2DPS(16.4)                       // for angular_velocity (raw data to [degree/s])
-    , CONVERTOR_RAW2UT(0.3)                         // for magnetic_field (raw data to [uT])
-    , CONVERTOR_RAW2C_1(340)                        // for temperature (raw data to celsius)
-    , CONVERTOR_RAW2C_2(35)                         // for temperature (raw data to celsius)
-    , CONVERTOR_G2A(9.80665)                        // for linear_acceleration (g to m/s^2)
-    , CONVERTOR_D2R(M_PI / 180.0)                   // for angular_velocity (degree to radian)
-    , CONVERTOR_UT2T(1000000)                       // for magnetic_field (uT to Tesla)
-    , DEFAULT_LINEAR_ACCELERATION_STDDEV(0.023145)  // Default of square root of the
-                                                    // linear_acceleration_covariance diagonal elements in
-                                                    // m/s^2.
+  : CONVERTOR_RAW2G(2048),                          // for linear_acceleration (raw data to [g])
+    CONVERTOR_RAW2DPS(16.4),                        // for angular_velocity (raw data to [degree/s])
+    CONVERTOR_RAW2UT(0.3),                          // for magnetic_field (raw data to [uT])
+    CONVERTOR_RAW2C_1(340),                         // for temperature (raw data to celsius)
+    CONVERTOR_RAW2C_2(35),                          // for temperature (raw data to celsius)
+    CONVERTOR_G2A(9.80665),                         // for linear_acceleration (g to m/s^2)
+    CONVERTOR_D2R(M_PI / 180.0),                    // for angular_velocity (degree to radian)
+    CONVERTOR_UT2T(1000000),                        // for magnetic_field (uT to Tesla)
+    DEFAULT_LINEAR_ACCELERATION_STDDEV(0.023145)    // Default of square root of the
+                                                    // linear_acceleration_covariance diagonal
+                                                    // elements in m/s^2.
     , DEFAULT_ANGULAR_VELOCITY_STDDEV(0.0010621)    // Default of square root of the
-                                                    // angular_velocity_covariance diagonal elements in
-                                                    // rad/s.
+                                                    // angular_velocity_covariance diagonal
+                                                    // elements in rad/s.
     , DEFAULT_MAGNETIC_FIELD_STDDEV(0.00000080786)  // Default of square root of the
-                                                    // magnetic_field_covariance diagonal elements in
-                                                    // Tesla.
+                                                    // magnetic_field_covariance diagonal
+                                                    // elements in Tesla.
   {
   }
 
@@ -146,14 +147,11 @@ public:
   // Method to adjust convertors to firmware version
   void ChangeConvertor(const int firmware_ver)
   {
-    if (firmware_ver == 5)
-    {
+    if (firmware_ver == 5) {
       CONVERTOR_RAW2UT = 0.3;
       CONVERTOR_RAW2C_1 = 340;
       CONVERTOR_RAW2C_2 = 35;
-    }
-    else if (firmware_ver >= 6)
-    {
+    } else if (firmware_ver >= 6) {
       CONVERTOR_RAW2UT = 0.15;
       CONVERTOR_RAW2C_1 = 333.87;
       CONVERTOR_RAW2C_2 = 21;
@@ -175,7 +173,8 @@ private:
   int port_fd_;
 
 public:
-  SerialPort(const char* port = "") : port_name_(port), port_fd_(-1)
+  explicit SerialPort(const char * port = "")
+  : port_name_(port), port_fd_(-1)
   {
   }
 
@@ -184,7 +183,12 @@ public:
     closeSerialPort();
   }
 
-  bool openPort(const char* port)
+  void setPort(const char * port)
+  {
+    port_name_ = port;
+  }
+
+  bool openPort(const char * port)
   {
     port_name_ = port;
     return openSerialPort();
@@ -194,14 +198,12 @@ public:
   {
     int fd = 0;
 
-    if (port_fd_ > 0)
-    {
+    if (port_fd_ > 0) {
       return true;
     }
 
-    fd = open(port_name_.c_str(), O_RDWR | O_NOCTTY);  // Open serial port
-    if (fd < 0)
-    {
+    fd = open(port_name_.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);  // Open serial port
+    if (fd < 0) {
       return false;  // Port open error
     }
 
@@ -216,33 +218,30 @@ public:
 
     port_fd_ = fd;
 
-    return (fd > 0);
+    return fd > 0;
   }
 
   void closeSerialPort()
   {
-    if (port_fd_ > 0)
-    {
+    if (port_fd_ > 0) {
       tcsetattr(port_fd_, TCSANOW, &old_settings_);
       close(port_fd_);  // Close serial port
       port_fd_ = -1;
     }
   }
 
-  int readFromDevice(unsigned char* buf, unsigned int buf_len)
+  int readFromDevice(unsigned char * buf, unsigned int buf_len)
   {
-    if (port_fd_ < 0)
-    {
+    if (port_fd_ < 0) {
       return -1;
     }
 
     return read(port_fd_, buf, buf_len);
   }
 
-  int writeToDevice(unsigned char* data, unsigned int data_len)
+  int writeToDevice(unsigned char * data, unsigned int data_len)
   {
-    if (port_fd_ < 0)
-    {
+    if (port_fd_ < 0) {
       return -1;
     }
 
@@ -257,7 +256,7 @@ public:
  **************************************************************************/
 
 // Class to store either raw integer imu data or converted physical quantity
-template <typename Type>
+template<typename Type>
 class ImuData
 {
 public:
@@ -305,12 +304,12 @@ public:
     imu_.reset();
   }
 
-  void setImuRawData(ImuData<int16_t>& i)
+  void setImuRawData(ImuData<int16_t> & i)
   {
     imu_raw_data_ = i;
   }
 
-  void setImuData(ImuData<double>& i)
+  void setImuData(ImuData<double> & i)
   {
     imu_ = i;
   }
@@ -340,7 +339,8 @@ public:
     imu_.mz = imu_raw_data_.mz * consts_.CONVERTOR_RAW2UT;
 
     // Convert raw data to celsius
-    imu_.temperature = imu_raw_data_.temperature / consts_.CONVERTOR_RAW2C_1 + consts_.CONVERTOR_RAW2C_2;
+    imu_.temperature = imu_raw_data_.temperature / consts_.CONVERTOR_RAW2C_1 +
+      consts_.CONVERTOR_RAW2C_2;
   }
 
   ImuData<double> getImuData()
@@ -348,6 +348,6 @@ public:
     return imu_;
   }
 };
-};  // namespace rt_usb_9axisimu
+}  // namespace rt_usb_9axisimu
 
-#endif
+#endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_HPP_

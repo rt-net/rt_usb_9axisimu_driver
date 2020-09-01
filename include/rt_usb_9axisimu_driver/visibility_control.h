@@ -1,5 +1,6 @@
+
 /*
- * rt_usb_9axisimu_driver_node.cpp
+ * visibility_control.h
  *
  * License: BSD-3-Clause
  *
@@ -31,20 +32,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <memory>
-#include "rclcpp/rclcpp.hpp"
+#ifndef RT_USB_9AXISIMU_DRIVER__VISIBILITY_CONTROL_H_
+#define RT_USB_9AXISIMU_DRIVER__VISIBILITY_CONTROL_H_
 
-#include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver_component.hpp"
-
-// #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_binary_mode.hpp"
-
-int main(int argc, char * argv[])
+#ifdef __cplusplus
+extern "C"
 {
-  rclcpp::init(argc, argv);
-  rclcpp::executors::SingleThreadedExecutor exec;
-  rclcpp::NodeOptions options;
-  auto driver = std::make_shared<rt_usb_9axisimu_driver::Driver>(options);
-  exec.add_node(driver->get_node_base_interface());
-  exec.spin();
-  rclcpp::shutdown();
+#endif
+
+// This logic was borrowed (then namespaced) from the examples on the gcc wiki:
+//     https://gcc.gnu.org/wiki/Visibility
+
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef __GNUC__
+    #define RT_USB_9AXISIMU_DRIVER_EXPORT __attribute__ ((dllexport))
+    #define RT_USB_9AXISIMU_DRIVER_IMPORT __attribute__ ((dllimport))
+  #else
+    #define RT_USB_9AXISIMU_DRIVER_EXPORT __declspec(dllexport)
+    #define RT_USB_9AXISIMU_DRIVER_IMPORT __declspec(dllimport)
+  #endif
+  #ifdef RT_USB_9AXISIMU_DRIVER_BUILDING_DLL
+    #define RT_USB_9AXISIMU_DRIVER_PUBLIC RT_USB_9AXISIMU_DRIVER_EXPORT
+  #else
+    #define RT_USB_9AXISIMU_DRIVER_PUBLIC RT_USB_9AXISIMU_DRIVER_IMPORT
+  #endif
+  #define RT_USB_9AXISIMU_DRIVER_PUBLIC_TYPE RT_USB_9AXISIMU_DRIVER_PUBLIC
+  #define RT_USB_9AXISIMU_DRIVER_LOCAL
+#else
+  #define RT_USB_9AXISIMU_DRIVER_EXPORT __attribute__ ((visibility("default")))
+  #define RT_USB_9AXISIMU_DRIVER_IMPORT
+  #if __GNUC__ >= 4
+    #define RT_USB_9AXISIMU_DRIVER_PUBLIC __attribute__ ((visibility("default")))
+    #define RT_USB_9AXISIMU_DRIVER_LOCAL  __attribute__ ((visibility("hidden")))
+  #else
+    #define RT_USB_9AXISIMU_DRIVER_PUBLIC
+    #define RT_USB_9AXISIMU_DRIVER_LOCAL
+  #endif
+  #define RT_USB_9AXISIMU_DRIVER_PUBLIC_TYPE
+#endif
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif  // RT_USB_9AXISIMU_DRIVER__VISIBILITY_CONTROL_H_

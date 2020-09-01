@@ -1,81 +1,90 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(rt_usb_9axisimu_driver)
 
-add_compile_options(-std=c++11)
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
 
-# Find catkin macros and libraries
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+
+# find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+
+include_directories(include)
+
+add_library(rt_usb_9axisimu_driver_component SHARED
+  src/rt_usb_9axisimu_driver_component.cpp
+  src/rt_usb_9axisimu_driver.cpp)
+target_compile_definitions(rt_usb_9axisimu_driver_component
+  PRIVATE "RT_USB_9AXISIMU_DRIVER_BUILDING_DLL")
+ament_target_dependencies(rt_usb_9axisimu_driver_component
+  rclcpp
+  rclcpp_components
+  rclcpp_lifecycle
   sensor_msgs
   std_msgs
-  roslint
+  std_srvs)
+rclcpp_components_register_nodes(rt_usb_9axisimu_driver_component "rt_usb_9axisimu_driver::Driver")
+
+add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver_node.cpp)
+target_link_libraries(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_component)
+ament_target_dependencies(rt_usb_9axisimu_driver
+  rclcpp)
+
+ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+
+ament_export_dependencies(rclcpp)
+ament_export_dependencies(rclcpp_components)
+ament_export_dependencies(rclcpp_lifecycle)
+ament_export_dependencies(sensor_msgs)
+ament_export_dependencies(std_msgs)
+ament_export_dependencies(std_srvs)
+
+ament_export_include_directories(include)
+ament_export_libraries(
+  rt_usb_9axisimu_driver_component)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
 
-###################################
-## catkin specific configuration ##
-###################################
+install(TARGETS
+  rt_usb_9axisimu_driver_component
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include)
 
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp sensor_msgs std_msgs
-  # DEPENDS system_lib
+install(TARGETS
+  rt_usb_9axisimu_driver
+  DESTINATION lib/${PROJECT_NAME})
+
+# launch files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
-###########
-## Build ##
-###########
+#if(BUILD_TESTING)
+#  find_package(ament_lint_auto REQUIRED)
+#  ament_lint_auto_find_test_dependencies()
+#endif()
 
-# Specify additional locations of header files
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-
-# Declare a C++ executable
-add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver_node.cpp src/rt_usb_9axisimu_driver.cpp)
-
-# Specify libraries to link a library or executable target against
-target_link_libraries(rt_usb_9axisimu_driver ${catkin_LIBRARIES})
-
-# Add cmake target dependencies of the library
-# add_dependencies(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_generate_messages_cpp)
-
-#############
-## Install ##
-#############
-
-# Mark executables and/or libraries for installation
-install(TARGETS rt_usb_9axisimu_driver
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-# Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-  FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
-  PATTERN ".svn" EXCLUDE
-)
-
-# Mark other files for installation (e.g. launch and bag files, etc.)
-install(FILES
-  launch/rt_usb_9axisimu_driver.launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-
-#############
-## Testing ##
-#############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_rt_usb_9axisimu_driver.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
-
-roslint_cpp()
-roslint_add_test()
+ament_package()
