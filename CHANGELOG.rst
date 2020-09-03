@@ -2,9 +2,15 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.0 (2020-09-03)
+------------------
+* Migrate to ROS 2 Dashing (`#26 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/26>`_)
+* Contributors: Shota Aoki
+
 1.0.0 (2020-07-21)
 ------------------
 * Contributors: Daisuke Sato, Shota Aoki
+
 Feature updates
 ^^^^^^^^^^^^^^^
 * Rename files (`#24 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/24>`_)
