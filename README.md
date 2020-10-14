@@ -47,6 +47,17 @@ https://github.com/rt-net/RT-USB-9AXIS-00
 
 ## 2. インストール
 
+### バイナリをインストール
+
+```sh
+# ROS Kineticの場合
+$ sudo apt install ros-kinetic-rt-usb-9axisimu-driver
+# ROS Melodicの場合
+$ sudo apt install ros-melodic-rt-usb-9axisimu-driver
+# ROS 2 Dashingの場合
+$ sudo apt install ros-dashing-rt-usb-9axisimu-driver
+```
+
 ### ソースからインストール
 
 catkinワークスペースを~/catkin_wsとすると、以下のような手順になります。
