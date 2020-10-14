@@ -7,7 +7,7 @@ rt_usb_9axisimu_driverは株式会社アールティが販売しているUSB出�
 - License: [The 3-Clause BSD License](https://github.com/rt-net/rt_usb_9axisimu_driver/blob/master/LICENSE)
 - Source: https://github.com/rt-net/rt_usb_9axisimu_driver.git (branch: master)
 
-![usb-9axisimu](https://rt-net.github.io/images/usb-9axisimu/usb-9axisimu.png)
+[![usb-9axisimu](https://rt-net.github.io/images/usb-9axisimu/usb-9axisimu.png)](https://rt-net.jp/products/usb9imu/)
 
 現在、以下のROSのディストリビューションに対応しております。
 - Kinetic ([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel))
