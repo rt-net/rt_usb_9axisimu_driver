@@ -2,16 +2,24 @@
 
 # rt_usb_9axisimu_driver
 
-[![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amaster)
-
 rt_usb_9axisimu_driverは株式会社アールティが販売しているUSB出力9軸IMUセンサモジュール用のROSパッケージです。  
 株式会社アールティによって開発、メンテナンスがなされています。
 - License: [The 3-Clause BSD License](https://github.com/rt-net/rt_usb_9axisimu_driver/blob/master/LICENSE)
 - Source: https://github.com/rt-net/rt_usb_9axisimu_driver.git (branch: master)
 
+[![usb-9axisimu](https://rt-net.github.io/images/usb-9axisimu/usb-9axisimu.png)](https://rt-net.jp/products/usb9imu/)
+
 現在、以下のROSのディストリビューションに対応しております。
-- Kinetic
-- Melodic
+- Kinetic ([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel))
+- Melodic ([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel))
+- Dashing ([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel))
+
+| | main develop<br>([`master`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/master)) | Xenial + Kinetic<br>([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel)) | Bionic + Melodic<br>([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel)) | Bionic + Dashing<br>([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel)) |
+|:---:|:---:|:---:|:---:|:---:|
+| industrial_ci | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amaster) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=kinetic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Akinetic-devel) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=melodic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amelodic-devel) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=dashing-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Adashing-devel) |
+| source build | - | [![Build Status](http://build.ros.org/job/Ksrc_uX__rt_usb_9axisimu_driver__ubuntu_xenial__source/badge/icon)](http://build.ros.org/job/Ksrc_uX__rt_usb_9axisimu_driver__ubuntu_xenial__source/) | [![Build Status](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) |  [![Build Status](http://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](http://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) |
+| amd64 binary | - | [![Build Status](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__rt_usb_9axisimu_driver__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__rt_usb_9axisimu_driver__ubuntu_xenial_amd64__binary/) | [![Build Status](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](http://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) |
+| arm64 binary | - | [![Build Status](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/badge/icon)](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/) | [![Build Status](http://build.ros.org/job/Mbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](http://build.ros.org/job/Mbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) | [![Build Status](http://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](http://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) |
 
 ## 1. 概要
 
@@ -39,7 +47,19 @@ https://github.com/rt-net/RT-USB-9AXIS-00
 
 ## 2. インストール
 
-現在、Debianパッケージの配布は行っておりません。ソースからインストールを行ってください。  
+### バイナリをインストール
+
+```sh
+# ROS Kineticの場合
+$ sudo apt install ros-kinetic-rt-usb-9axisimu-driver
+# ROS Melodicの場合
+$ sudo apt install ros-melodic-rt-usb-9axisimu-driver
+# ROS 2 Dashingの場合
+$ sudo apt install ros-dashing-rt-usb-9axisimu-driver
+```
+
+### ソースからインストール
+
 catkinワークスペースを~/catkin_wsとすると、以下のような手順になります。
 
 ```sh
