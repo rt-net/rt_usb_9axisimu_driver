@@ -46,7 +46,7 @@ target_link_libraries(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_component)
 ament_target_dependencies(rt_usb_9axisimu_driver
   rclcpp)
 
-ament_export_interfaces(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
+ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 ament_export_dependencies(rclcpp)
 ament_export_dependencies(rclcpp_components)
