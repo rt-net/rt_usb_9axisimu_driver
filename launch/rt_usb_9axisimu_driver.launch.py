@@ -37,9 +37,9 @@ from launch_ros.actions import Node
 def generate_launch_description():
     """Generate launch description with multiple components."""
     driver = Node(
-        node_name='rt_usb_9axisimu_driver',
+        name='rt_usb_9axisimu_driver',
         package='rt_usb_9axisimu_driver',
-        node_executable='rt_usb_9axisimu_driver',
+        executable='rt_usb_9axisimu_driver',
         output='screen'
     )
 
