@@ -330,7 +330,7 @@ std::unique_ptr<sensor_msgs::msg::Imu> RtUsb9axisimuRosDriver::getImuRawDataUniq
     imu_data_raw_msg->angular_velocity.z = imu.gz;
   }
 
-  return std::move(imu_data_raw_msg);
+  return imu_data_raw_msg;
 }
 
 std::unique_ptr<sensor_msgs::msg::MagneticField> RtUsb9axisimuRosDriver::getImuMagUniquePtr(
@@ -352,7 +352,7 @@ std::unique_ptr<sensor_msgs::msg::MagneticField> RtUsb9axisimuRosDriver::getImuM
   imu_magnetic_msg->magnetic_field.y = imu.my / consts.CONVERTOR_UT2T;
   imu_magnetic_msg->magnetic_field.z = imu.mz / consts.CONVERTOR_UT2T;
 
-  return std::move(imu_magnetic_msg);
+  return imu_magnetic_msg;
 }
 
 std::unique_ptr<std_msgs::msg::Float64> RtUsb9axisimuRosDriver::getImuTemperatureUniquePtr(void)
@@ -363,7 +363,7 @@ std::unique_ptr<std_msgs::msg::Float64> RtUsb9axisimuRosDriver::getImuTemperatur
   // original data used the celsius unit
   imu_temperature_msg->data = imu.temperature;
 
-  return std::move(imu_temperature_msg);
+  return imu_temperature_msg;
 }
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS
