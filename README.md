@@ -2,46 +2,24 @@
 
 # rt_usb_9axisimu_driver
 
-ROS 2 package for USB Output 9-axis IMU sensor module.
-
-[![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=dashing-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Adashing-devel)
+株式会社アールティが販売しているUSB出力9軸IMUセンサモジュール用のROS 2パッケージです。  
 
 ![usb-9axisimu](https://rt-net.github.io/images/usb-9axisimu/usb-9axisimu.png)
 
-## Installation
+現在、以下のROSのディストリビューションに対応しております。
+- Kinetic ([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel))
+- Melodic ([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel))
+- Dashing ([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel))
+- Foxy ([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel))
 
-```sh
-$ cd ~/ros2_ws/src
-# Clone package & checkout ROS 2 branch
-$ git clone -b dashing-devel https://github.com/rt-net/rt_usb_9axisimu_driver
-
-# Install dependencies
-$ rosdep install -r -y -i --from-paths .
-
-# Build & Install
-$ cd ~/ros2_ws
-$ colcon build --symlink-install
-$ source ~/ros2_ws/install/setup.bash
-```
-
-## QuickStart
-
-```sh
-# Terminal 1
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
-```
-
-```sh
-# Terminal 2
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 lifecycle set rt_usb_9axisimu_driver configure
-$ ros2 lifecycle set rt_usb_9axisimu_driver activate
-# Echo topics (Press Ctrl+C for exit)
-$ ros2 topic echo /imu/data_raw
-$ ros2 topic echo /imu/mag
-$ ros2 topic echo /imu/temperature
-```
+| | industrial_ci | source build | amd64 binary | arm64 binary |
+|:---:|:---:|:---:|:---:|:---:|
+| main develop<br>([`master`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/master)) |  [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amaster) | - | - | - | - |
+| ROS 2 develop<br>([`ros2-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/ros2-devel)) |  [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=ros2-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Aros2-devel) | - | - | - | - |
+| Xenial + Kinetic<br>([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=kinetic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Akinetic-devel) | [![Build Status](http://build.ros.org/job/Ksrc_uX__rt_usb_9axisimu_driver__ubuntu_xenial__source/badge/icon)](http://build.ros.org/job/Ksrc_uX__rt_usb_9axisimu_driver__ubuntu_xenial__source/) | [![Build Status](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__rt_usb_9axisimu_driver__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__rt_usb_9axisimu_driver__ubuntu_xenial_amd64__binary/) | [![Build Status](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/badge/icon)](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/) |
+| Bionic + Melodic<br>([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=melodic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amelodic-devel) | [![Build Status](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) | [![Build Status](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/badge/icon)](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/) |
+| Bionic + Dashing<br>([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=dashing-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Adashing-devel) |[![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) | [![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) |
+| Focal + Foxy<br>([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=foxy-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Afoxy-devel) | [![Build Status](https://build.ros2.org/view/Fsrc_uF/job/Fsrc_uF__rt_usb_9axisimu_driver__ubuntu_focal__source/badge/icon)](https://build.ros2.org/view/Fsrc_uF/job/Fsrc_uF__rt_usb_9axisimu_driver__ubuntu_focal__source/) |[![Build Status](https://build.ros2.org/view/Fsrc_uF/job/Fbin_uF64__rt_usb_9axisimu_driver__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/view/Fsrc_uF/job/Fbin_uF64__rt_usb_9axisimu_driver__ubuntu_focal_amd64__binary/) | [![Build Status](https://build.ros2.org/view/Fbin_ubv8_uFv8/job/Fbin_ubv8_uFv8__rt_usb_9axisimu_driver__ubuntu_focal_arm64__binary/badge/icon)](https://build.ros2.org/view/Fbin_ubv8_uFv8/job/Fbin_ubv8_uFv8__rt_usb_9axisimu_driver__ubuntu_focal_arm64__binary/) |
 
 ## 1. 概要
 
@@ -81,12 +59,62 @@ https://github.com/rt-net/RT-USB-9AXIS-00
 $ sudo chmod 666 /dev/ttyACM0
 ```
 
-## 2. ノード
-### 2.1 rt_usb_9axisimu_driver
+## 2. インストール
+
+
+ROS Melodic等ROS 1のパッケージについては[`master`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/master)ブランチのREADMEをご覧ください。
+
+### 2.1 バイナリをインストールする場合
+
+```sh
+# ROS 2 Dashing
+$ sudo apt install ros-dashing-rt-usb-9axisimu-driver
+# ROS 2 Foxy
+$ sudo apt install ros-foxy-rt-usb-9axisimu-driver
+```
+
+### 2.2 ソースからインストールする場合
+
+```sh
+$ cd ~/ros2_ws/src
+# Clone package & checkout ROS 2 branch
+$ git clone -b ros2-devel https://github.com/rt-net/rt_usb_9axisimu_driver
+
+# Install dependencies
+$ rosdep install -r -y -i --from-paths .
+
+# Build & Install
+$ cd ~/ros2_ws
+$ colcon build --symlink-install
+$ source ~/ros2_ws/install/setup.bash
+```
+
+### 2.3 クイックスタート
+
+```sh
+# Terminal 1
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
+```
+
+```sh
+# Terminal 2
+$ source ~/ros2_ws/install/setup.bash
+$ ros2 lifecycle set rt_usb_9axisimu_driver configure
+$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+# Echo topics (Press Ctrl+C for exit)
+$ ros2 topic echo /imu/data_raw
+$ ros2 topic echo /imu/mag
+$ ros2 topic echo /imu/temperature
+```
+
+
+## 3. ノード
+### 3.1 rt_usb_9axisimu_driver
 
 rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受信し、角速度と並進加速度・磁束密度をパブリッシュします。
 
-#### 2.1.1 パブリッシュされるトピック
+#### 3.1.1 パブリッシュされるトピック
 
 - /imu/data_raw([sensor_msgs/Imu](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html))
     - 並進加速度と角速度の生データ
@@ -97,7 +125,7 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 - /imu/temperature([std_msgs/Float64](http://docs.ros.org/api/std_msgs/html/msg/Float64.html))
     - センサの温度データ
 
-#### 2.1.2 パラメータ
+#### 3.1.2 パラメータ
 
 - ~frame_id (string, default: imu_link)
     - IMUデータのヘッダーにセットされるフレーム名
@@ -115,8 +143,8 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
     - 磁束密度の共分散行列の対角成分の平方根(T)
 
 
-## 3. ROS 2 特有の使い方
-### 3.1 Lifecycle
+## 4. ROS 2 特有の使い方
+### 4.1 Lifecycle
 
 [Lifecycle](https://design.ros2.org/articles/node_lifecycle.html)
 機能を使うことで、ノード実行中にUSBの抜き差しや、
@@ -124,42 +152,42 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 
 各状態での動作内容は次のとおりです。
 
-#### 3.1.1 Unconfigured state
+#### 4.1.1 Unconfigured state
 
 - USBポート(`~port`)にアクセスしません
 - トピックをパブリッシュしません
 
-#### 3.1.2 Configuring transition
+#### 4.1.2 Configuring transition
 
 - パラメータを反映します
 - USBポート(`~port`)をオープンし9軸IMUセンサと通信します
   - 9軸IMUセンサの認識に失敗したら`Unconfigured state`に遷移します
 
-#### 3.1.3 Inactive state
+#### 4.1.3 Inactive state
 
 - トピックをパブリッシュしません
 
-#### 3.1.4 Activating transition
+#### 4.1.4 Activating transition
 
 - 9軸IMUセンサと定期通信を開始します
   - 9軸IMUセンサとの通信に失敗したら`Unconfigured state`に遷移します
 - トピックのパブリッシュを開始します
 
-#### 3.1.5 Active state
+#### 4.1.5 Active state
 
 - トピックをパブリッシュします
 - 9軸IMUセンサとの通信に失敗しても**状態遷移しません**
 
-#### 3.1.6 Deactivating transition
+#### 4.1.6 Deactivating transition
 
 - 9軸IMUセンサとの定期通信を停止します
 - トピックのパブリッシュを停止します
 
-#### 3.1.7 CleaningUp transition
+#### 4.1.7 CleaningUp transition
 
 - USBポート(`~port`)をクローズし9軸IMUセンサと通信を終了します
 
-#### 3.1.8 Example
+#### 4.1.8 Example
 
 ```sh
 # Terminal 1
@@ -191,13 +219,13 @@ $ ros2 lifecycle set rt_usb_9axisimu_driver activate
 # The node start publishing the topics.
 ```
 
-### 3.2 Component
+### 4.2 Component
 
 rt_usb_9axisimu_driver::Driverは
 [Component](https://index.ros.org/doc/ros2/Tutorials/Composition/)
 として実装されているため、共有ライブラリとして実行できます。
 
-#### 3.2.1 Example
+#### 4.2.1 Example
 
 ```sh
 # Terminal 1
