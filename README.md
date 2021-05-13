@@ -12,7 +12,7 @@ rt_usb_9axisimu_driverは株式会社アールティが販売しているUSB出�
 現在、以下のROSのディストリビューションに対応しております。
 - Kinetic ([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel))
 - Melodic ([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel))
-- Melodic ([`noetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/noetic-devel))
+- Noetic ([`noetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/noetic-devel))
 - Dashing ([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel))
 - Foxy ([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel))
 
