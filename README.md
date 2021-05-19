@@ -2,16 +2,29 @@
 
 # rt_usb_9axisimu_driver
 
-[![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amaster)
-
 rt_usb_9axisimu_driverは株式会社アールティが販売しているUSB出力9軸IMUセンサモジュール用のROSパッケージです。  
 株式会社アールティによって開発、メンテナンスがなされています。
 - License: [The 3-Clause BSD License](https://github.com/rt-net/rt_usb_9axisimu_driver/blob/master/LICENSE)
 - Source: https://github.com/rt-net/rt_usb_9axisimu_driver.git (branch: master)
 
+[![usb-9axisimu](https://rt-net.github.io/images/usb-9axisimu/usb-9axisimu.png)](https://rt-net.jp/products/usb9imu/)
+
 現在、以下のROSのディストリビューションに対応しております。
-- Kinetic
-- Melodic
+- Kinetic ([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel))
+- Melodic ([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel))
+- Noetic ([`noetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/noetic-devel))
+- Dashing ([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel))
+- Foxy ([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel))
+
+| | industrial_ci | source build | amd64 binary | arm64 binary |
+|:---:|:---:|:---:|:---:|:---:|
+| main develop<br>([`master`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/master)) |  [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=master)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amaster) | - | - | - | - |
+| ROS 2 develop<br>([`ros2-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/ros2-devel)) |  [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=ros2-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Aros2-devel) | - | - | - | - |
+| Xenial + Kinetic<br>([`kinetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/kinetic-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=kinetic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Akinetic-devel) | [![Build Status](http://build.ros.org/job/Ksrc_uX__rt_usb_9axisimu_driver__ubuntu_xenial__source/badge/icon)](http://build.ros.org/job/Ksrc_uX__rt_usb_9axisimu_driver__ubuntu_xenial__source/) | [![Build Status](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__rt_usb_9axisimu_driver__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__rt_usb_9axisimu_driver__ubuntu_xenial_amd64__binary/) | [![Build Status](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/badge/icon)](http://build.ros.org/view/Kbin_uxv8_uXv8/job/Kbin_uxv8_uXv8__rt_usb_9axisimu_driver__ubuntu_xenial_arm64__binary/) |
+| Bionic + Melodic<br>([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=melodic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amelodic-devel) | [![Build Status](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) | [![Build Status](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](http://build.ros.org/job/Mbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](http://build.ros.org/job/Mbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) |
+| Focal + Noetic<br>([`noetic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/noetic-devel)) |  [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=noetic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Anoetic-devel) | - | - | - | - |
+| Bionic + Dashing<br>([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=dashing-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Adashing-devel) |[![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) | [![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) |
+| Focal + Foxy<br>([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=foxy-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Afoxy-devel) | [![Build Status](https://build.ros2.org/view/Fsrc_uF/job/Fsrc_uF__rt_usb_9axisimu_driver__ubuntu_focal__source/badge/icon)](https://build.ros2.org/view/Fsrc_uF/job/Fsrc_uF__rt_usb_9axisimu_driver__ubuntu_focal__source/) |[![Build Status](https://build.ros2.org/view/Fsrc_uF/job/Fbin_uF64__rt_usb_9axisimu_driver__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/view/Fsrc_uF/job/Fbin_uF64__rt_usb_9axisimu_driver__ubuntu_focal_amd64__binary/) | [![Build Status](https://build.ros2.org/view/Fbin_ubv8_uFv8/job/Fbin_ubv8_uFv8__rt_usb_9axisimu_driver__ubuntu_focal_arm64__binary/badge/icon)](https://build.ros2.org/view/Fbin_ubv8_uFv8/job/Fbin_ubv8_uFv8__rt_usb_9axisimu_driver__ubuntu_focal_arm64__binary/) |
 
 ## 1. 概要
 
@@ -39,12 +52,24 @@ https://github.com/rt-net/RT-USB-9AXIS-00
 
 ## 2. インストール
 
-現在、Debianパッケージの配布は行っておりません。ソースからインストールを行ってください。  
+ROS 2のパッケージについては[`ros2-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/ros2-devel)のREADMEをご覧ください。
+
+### バイナリをインストール
+
+```sh
+# ROS Kineticの場合
+$ sudo apt install ros-kinetic-rt-usb-9axisimu-driver
+# ROS Melodicの場合
+$ sudo apt install ros-melodic-rt-usb-9axisimu-driver
+```
+
+### ソースからインストール
+
 catkinワークスペースを~/catkin_wsとすると、以下のような手順になります。
 
 ```sh
 $ cd ~/catkin_ws/src
-$ git clone https://github.com/rt-net/rt_usb_9axisimu_driver.git
+$ git clone -b $ROS_DISTRO-devel https://github.com/rt-net/rt_usb_9axisimu_driver.git
 $ cd ~/catkin_ws
 $ catkin build
 ```
@@ -111,4 +136,3 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 
 - ~magnetic_field_stddev (double, default: 0.00000080786)
     - 磁束密度の共分散行列の対角成分の平方根(T)
-

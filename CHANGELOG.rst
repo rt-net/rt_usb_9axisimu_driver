@@ -2,9 +2,24 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.1 (2021-05-13)
+------------------
+* Contributors: Daisuke Sato, Shota Aoki
+
+Bug fix
+^^^^^^^^^^^^^^^
+* Fix launch file install path (`#36 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/36>`_)
+
+Documentation updates
+^^^^^^^^^^^^^^^^^^^^^
+* Support ROS 1 Noetic (`#37 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/37>`_)
+* Update README to add Foxy support (ROS 1 branch) (`#32 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/32>`_)
+* Add build status to README (`#28 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/28>`_)
+
 1.0.0 (2020-07-21)
 ------------------
 * Contributors: Daisuke Sato, Shota Aoki
+
 Feature updates
 ^^^^^^^^^^^^^^^
 * Rename files (`#24 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/24>`_)
@@ -33,7 +48,7 @@ CI updates
   * Fix TravisCI settings
 
 Minor updates for ROS Package information
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 * Merge pull request `#12 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/12>`_ from rt-net/update_packagexml
 
   * Update package.xml
@@ -60,12 +75,12 @@ Minor updates for ROS Package information
 * Contributors: RT Corp, Shota Aoki, ShotaAk, Shun Hasegawa, pazeshun
 
 0.1.2 (2016-03-10)
------------
+------------------
 
 0.1.1 (2015-09-30)
------------
+------------------
 * update to manage different firmware versions
 
 0.1.0 (2015-09-26)
------------
+------------------
 * first release for ROS indigo
