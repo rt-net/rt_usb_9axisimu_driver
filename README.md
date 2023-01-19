@@ -11,6 +11,7 @@
 - Melodic ([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel))
 - Dashing ([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel))
 - Foxy ([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel))
+- Humble ([`humble-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/humble-devel))
 
 | | industrial_ci | source build | amd64 binary | arm64 binary |
 |:---:|:---:|:---:|:---:|:---:|
@@ -20,6 +21,7 @@
 | Bionic + Melodic<br>([`melodic-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/melodic-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=melodic-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Amelodic-devel) | [![Build Status](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](http://build.ros.org/job/Msrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) | [![Build Status](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/view/Mbin_uB64/job/Mbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](http://build.ros.org/job/Mbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](http://build.ros.org/job/Mbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) |
 | Bionic + Dashing<br>([`dashing-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/dashing-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=dashing-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Adashing-devel) |[![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dsrc_uB__rt_usb_9axisimu_driver__ubuntu_bionic__source/) | [![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dbin_uB64__rt_usb_9axisimu_driver__ubuntu_bionic_amd64__binary/) | [![Build Status](https://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/badge/icon)](https://build.ros2.org/view/Dsrc_uB/job/Dbin_ubv8_uBv8__rt_usb_9axisimu_driver__ubuntu_bionic_arm64__binary/) |
 | Focal + Foxy<br>([`foxy-devel`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/foxy-devel)) | [![industrial_ci](https://github.com/rt-net/rt_usb_9axisimu_driver/workflows/industrial_ci/badge.svg?branch=foxy-devel)](https://github.com/rt-net/rt_usb_9axisimu_driver/actions?query=workflow%3Aindustrial_ci+branch%3Afoxy-devel) | [![Build Status](https://build.ros2.org/view/Fsrc_uF/job/Fsrc_uF__rt_usb_9axisimu_driver__ubuntu_focal__source/badge/icon)](https://build.ros2.org/view/Fsrc_uF/job/Fsrc_uF__rt_usb_9axisimu_driver__ubuntu_focal__source/) |[![Build Status](https://build.ros2.org/view/Fsrc_uF/job/Fbin_uF64__rt_usb_9axisimu_driver__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/view/Fsrc_uF/job/Fbin_uF64__rt_usb_9axisimu_driver__ubuntu_focal_amd64__binary/) | [![Build Status](https://build.ros2.org/view/Fbin_ubv8_uFv8/job/Fbin_ubv8_uFv8__rt_usb_9axisimu_driver__ubuntu_focal_arm64__binary/badge/icon)](https://build.ros2.org/view/Fbin_ubv8_uFv8/job/Fbin_ubv8_uFv8__rt_usb_9axisimu_driver__ubuntu_focal_arm64__binary/) |
+**TODO: Add Humble + Jammy**
 
 ## 1. 概要
 
@@ -71,6 +73,8 @@ ROS Melodic等ROS 1のパッケージについては[`master`](https://github.co
 $ sudo apt install ros-dashing-rt-usb-9axisimu-driver
 # ROS 2 Foxy
 $ sudo apt install ros-foxy-rt-usb-9axisimu-driver
+# ROS 2 Humble 
+$ sudo apt install ros-humble-rt-usb-9axisimu-driver
 ```
 
 ### 2.2 ソースからインストールする場合
@@ -78,7 +82,7 @@ $ sudo apt install ros-foxy-rt-usb-9axisimu-driver
 ```sh
 $ cd ~/ros2_ws/src
 # Clone package & checkout ROS 2 branch
-$ git clone -b ros2-devel https://github.com/rt-net/rt_usb_9axisimu_driver
+$ git clone -b $ROS_DISTRO-devel https://github.com/rt-net/rt_usb_9axisimu_driver
 
 # Install dependencies
 $ rosdep install -r -y -i --from-paths .
