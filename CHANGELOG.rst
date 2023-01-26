@@ -2,8 +2,8 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.2 (2023-01-26)
+------------------
 * Support Humble (`#42 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/42>`_)
 * Update README to add Foxy support (ROS 2 branch) (`#33 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/33>`_)
 * Contributors: Daisuke Sato, Shuhei Kozasa
