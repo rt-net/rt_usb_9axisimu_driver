@@ -88,7 +88,7 @@ private:
   bool isBinarySensorData(unsigned char * imu_data_buf);
   ReadStatus readBinaryData(void);
   bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
-  bool readAsciiData(void);
+  ReadStatus readAsciiData(void);
 
 public:
   explicit RtUsb9axisimuRosDriver(std::string serialport);

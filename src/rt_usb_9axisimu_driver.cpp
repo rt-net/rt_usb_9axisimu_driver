@@ -108,7 +108,7 @@ ReadStatus RtUsb9axisimuRosDriver::readBinaryData(void)
   }
 
   if(read_data_size < 0){  // read() returns error code.
-    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Wainting for data.
+    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Waiting for data.
       return ReadStatus::NEED_TO_CONTINUE;
     }else{
       return ReadStatus::FAILURE;
@@ -148,7 +148,7 @@ bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str
   return true;
 }
 
-bool RtUsb9axisimuRosDriver::readAsciiData(void)
+ReadStatus RtUsb9axisimuRosDriver::readAsciiData(void)
 {
   static std::vector<std::string> imu_data_vector_buf;
 
@@ -161,8 +161,16 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
 
   int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
 
-  if (data_size_of_buf <= 0) {
-    return false;  // Raise communication error
+  if (data_size_of_buf == 0) {  // The device was unplugged.
+    return ReadStatus::FAILURE;
+  }
+
+  if(data_size_of_buf < 0){  // read() returns error code.
+    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Waiting for data.
+      return ReadStatus::NEED_TO_CONTINUE;
+    }else{
+      return ReadStatus::FAILURE;
+    }
   }
 
   for (int char_count = 0; char_count < data_size_of_buf; char_count++) {
@@ -202,7 +210,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
     }
   }
 
-  return true;
+  return ReadStatus::SUCCESS;
 }
 
 RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
@@ -374,11 +382,7 @@ ReadStatus RtUsb9axisimuRosDriver::readSensorData()
   if (data_format_ == DataFormat::BINARY) {
     return readBinaryData();
   } else if (data_format_ == DataFormat::ASCII) {
-    if (readAsciiData() ) {
-      return ReadStatus::SUCCESS;
-    } else {
-      return ReadStatus::FAILURE;
-    }
+    return readAsciiData();
   }
 
   return ReadStatus::FAILURE;
