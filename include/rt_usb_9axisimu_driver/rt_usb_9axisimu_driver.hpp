@@ -44,6 +44,13 @@
 #include "sensor_msgs/msg/magnetic_field.hpp"
 #include "std_msgs/msg/float64.hpp"
 
+enum class ReadStatus
+{
+  SUCCESS = 0,
+  NEED_TO_CONTINUE,
+  FAILURE
+};
+
 class RtUsb9axisimuRosDriver : public rt_usb_9axisimu::SerialPort
 {
 private:
@@ -79,7 +86,7 @@ private:
   // Method to extract binary sensor data from communication buffer
   rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char * imu_data_buf);
   bool isBinarySensorData(unsigned char * imu_data_buf);
-  bool readBinaryData(void);
+  ReadStatus readBinaryData(void);
   bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
   bool readAsciiData(void);
 
@@ -102,7 +109,7 @@ public:
   std::unique_ptr<sensor_msgs::msg::Imu> getImuRawDataUniquePtr(const rclcpp::Time timestamp);
   std::unique_ptr<sensor_msgs::msg::MagneticField> getImuMagUniquePtr(const rclcpp::Time timestamp);
   std::unique_ptr<std_msgs::msg::Float64> getImuTemperatureUniquePtr(void);
-  bool readSensorData();
+  ReadStatus readSensorData();
 };
 
 #endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_DRIVER_HPP_

@@ -65,15 +65,30 @@ Driver::Driver(const rclcpp::NodeOptions & options)
 
 void Driver::on_publish_timer()
 {
-  if (driver_->readSensorData()) {
+  std::unique_ptr<sensor_msgs::msg::Imu> raw_imu;
+  std::unique_ptr<sensor_msgs::msg::MagneticField> mag;
+  std::unique_ptr<std_msgs::msg::Float64> temperature;
+
+  // Keep reading to get the latest data
+  auto read_result = ReadStatus::FAILURE;
+  while ((read_result = driver_->readSensorData()) == ReadStatus::SUCCESS) {
     if (driver_->hasRefreshedImuData()) {
-      rclcpp::Time timestamp = this->now();
-      imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(timestamp)));
-      imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(timestamp)));
-      imu_temperature_pub_->publish(std::move(driver_->getImuTemperatureUniquePtr()));
+      auto timestamp = this->now();
+      raw_imu = driver_->getImuRawDataUniquePtr(timestamp);
+      mag = driver_->getImuMagUniquePtr(timestamp);
+      temperature = driver_->getImuTemperatureUniquePtr();
     }
-  } else {
-    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
+  }
+
+  if (read_result == ReadStatus::FAILURE) {
+    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns FAILURE, please check your devices.");
+    return;
+  }
+
+  if(raw_imu && mag && temperature) {
+    imu_data_raw_pub_->publish(std::move(raw_imu));
+    imu_mag_pub_->publish(std::move(mag));
+    imu_temperature_pub_->publish(std::move(temperature));
   }
 }
 
@@ -113,7 +128,7 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
   imu_data_raw_pub_ = create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 1);
   imu_mag_pub_ = create_publisher<sensor_msgs::msg::MagneticField>("imu/mag", 1);
   imu_temperature_pub_ = create_publisher<std_msgs::msg::Float64>("imu/temperature", 1);
-  publish_timer_ = create_wall_timer(10ms, std::bind(&Driver::on_publish_timer, this));
+  publish_timer_ = create_wall_timer(100ms, std::bind(&Driver::on_publish_timer, this));
   // Don't actually start publishing data until activated
   publish_timer_->cancel();
 
@@ -124,8 +139,8 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
-  if (!driver_->readSensorData()) {
-    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
+  if (driver_->readSensorData() == ReadStatus::FAILURE) {
+    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns FAILURE, please check your devices.");
     return CallbackReturn::ERROR;
   }
   imu_data_raw_pub_->on_activate();
