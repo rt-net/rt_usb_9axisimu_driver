@@ -36,6 +36,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 
@@ -93,7 +94,7 @@ bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf)
   return false;
 }
 
-bool RtUsb9axisimuRosDriver::readBinaryData(void)
+ReadStatus RtUsb9axisimuRosDriver::readBinaryData(void)
 {
   static std::vector<unsigned char> imu_binary_data_buffer;
   unsigned char read_data_buf[256];
@@ -103,14 +104,14 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
     consts.IMU_BIN_DATA_SIZE - imu_binary_data_buffer.size());
 
   if(read_data_size == 0){  // The device was unplugged.
-    return false;
+    return ReadStatus::FAILURE;
   }
 
   if(read_data_size < 0){  // read() returns error code.
-    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Wainting for data.
-      return true;
+    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Waiting for data.
+      return ReadStatus::NEED_TO_CONTINUE;
     }else{
-      return false;
+      return ReadStatus::FAILURE;
     }
   }
 
@@ -119,12 +120,12 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
   }
 
   if (imu_binary_data_buffer.size() < consts.IMU_BIN_DATA_SIZE){
-    return true;
+    return ReadStatus::NEED_TO_CONTINUE;
   }
 
   if (isBinarySensorData(imu_binary_data_buffer.data()) == false) {
     imu_binary_data_buffer.clear();
-    return false;
+    return ReadStatus::FAILURE;
   }
 
   auto imu_rawdata = extractBinarySensorData(imu_binary_data_buffer.data());
@@ -134,7 +135,7 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
   sensor_data_.convertRawDataUnit();        // Convert raw data to physical quantity
   has_refreshed_imu_data_ = true;
 
-  return true;
+  return ReadStatus::SUCCESS;
 }
 
 bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
@@ -147,7 +148,7 @@ bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str
   return true;
 }
 
-bool RtUsb9axisimuRosDriver::readAsciiData(void)
+ReadStatus RtUsb9axisimuRosDriver::readAsciiData(void)
 {
   static std::vector<std::string> imu_data_vector_buf;
 
@@ -160,8 +161,16 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
 
   int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
 
-  if (data_size_of_buf <= 0) {
-    return false;  // Raise communication error
+  if (data_size_of_buf == 0) {  // The device was unplugged.
+    return ReadStatus::FAILURE;
+  }
+
+  if(data_size_of_buf < 0){  // read() returns error code.
+    if(errno == EAGAIN || errno == EWOULDBLOCK){  // Waiting for data.
+      return ReadStatus::NEED_TO_CONTINUE;
+    }else{
+      return ReadStatus::FAILURE;
+    }
   }
 
   for (int char_count = 0; char_count < data_size_of_buf; char_count++) {
@@ -201,7 +210,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
     }
   }
 
-  return true;
+  return ReadStatus::SUCCESS;
 }
 
 RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
@@ -368,7 +377,7 @@ std::unique_ptr<std_msgs::msg::Float64> RtUsb9axisimuRosDriver::getImuTemperatur
 
 // Method to receive IMU data, convert those units to SI, and publish to ROS
 // topic
-bool RtUsb9axisimuRosDriver::readSensorData()
+ReadStatus RtUsb9axisimuRosDriver::readSensorData()
 {
   if (data_format_ == DataFormat::BINARY) {
     return readBinaryData();
@@ -376,5 +385,5 @@ bool RtUsb9axisimuRosDriver::readSensorData()
     return readAsciiData();
   }
 
-  return false;
+  return ReadStatus::FAILURE;
 }
