@@ -165,7 +165,19 @@ public:
  *
  **********************************************************************************************************/
 
-class SerialPort
+class SerialPortInterface
+{
+public:
+  virtual ~SerialPortInterface() {}
+  virtual void setPort(const char * port) = 0;
+  virtual bool openPort(const char * port) = 0;
+  virtual bool openSerialPort() = 0;
+  virtual void closeSerialPort() = 0;
+  virtual int readFromDevice(unsigned char * buf, unsigned int buf_len) = 0;
+  virtual int writeToDevice(unsigned char * data, unsigned int data_len) = 0;
+};
+
+class SerialPort : public SerialPortInterface
 {
 private:
   std::string port_name_;  // ex) "/dev/ttyACM0"

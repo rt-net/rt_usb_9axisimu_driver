@@ -82,9 +82,25 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
-#if(BUILD_TESTING)
+if(BUILD_TESTING)
 #  find_package(ament_lint_auto REQUIRED)
 #  ament_lint_auto_find_test_dependencies()
-#endif()
+  Set(FETCHCONTENT_QUIET FALSE)
+  include(FetchContent)
+  FetchContent_Declare(
+    fakeit
+    GIT_REPOSITORY https://github.com/eranpeer/FakeIt
+    GIT_TAG 2.4.0
+    GIT_PROGRESS TRUE)
+  FetchContent_MakeAvailable(fakeit)
+
+  find_package(ament_cmake_gtest)
+  ament_add_gtest(test_driver test/test_driver.cpp src/rt_usb_9axisimu_driver.cpp)
+  target_include_directories(test_driver PRIVATE ${fakeit_SOURCE_DIR}/single_header/gtest)
+  ament_target_dependencies(test_driver
+    rclcpp
+    sensor_msgs
+  )
+endif()
 
 ament_package()
