@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         env:
-          - { ROS_DISTRO: humble, ROS_REPO: ros, BEFORE_SCRIPT: 'apt update && apt install -y git' }
+          - { ROS_DISTRO: humble, ROS_REPO: ros, AFTER_SETUP_UPSTREAM_WORKSPACE: 'apt update && apt install -y git' }
 
     runs-on: ubuntu-latest
     steps:
