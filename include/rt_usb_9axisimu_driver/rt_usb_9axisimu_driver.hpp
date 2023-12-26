@@ -47,7 +47,7 @@
 class RtUsb9axisimuRosDriver
 {
 private:
-  std::unique_ptr<rt_usb_9axisimu::SerialPortInterface> serial_port_;
+  std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port_;
 
   rt_usb_9axisimu::SensorData sensor_data_;
 
@@ -81,7 +81,7 @@ private:
 
 public:
   explicit RtUsb9axisimuRosDriver(std::string serialport);
-  RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPortInterface> serial_port, std::string port_name);
+  RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port);
   ~RtUsb9axisimuRosDriver();
 
   void setImuFrameIdName(std::string frame_id);

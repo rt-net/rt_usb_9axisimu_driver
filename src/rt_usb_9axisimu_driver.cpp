@@ -212,10 +212,9 @@ RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
   has_refreshed_imu_data_ = false;
 }
 
-RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPortInterface> serial_port, std::string port_name)
+RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port)
 {
   serial_port_ = std::move(serial_port);
-  serial_port_->setPort(port_name.c_str());
   has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
   has_refreshed_imu_data_ = false;
