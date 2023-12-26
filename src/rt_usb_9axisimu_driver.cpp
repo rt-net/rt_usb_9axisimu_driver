@@ -99,7 +99,7 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
   unsigned char read_data_buf[256];
 
   has_refreshed_imu_data_ = false;
-  int read_data_size = readFromDevice(read_data_buf,
+  int read_data_size = serial_port_->readFromDevice(read_data_buf,
     consts.IMU_BIN_DATA_SIZE - imu_binary_data_buffer.size());
 
   if(read_data_size == 0){  // The device was unplugged.
@@ -158,7 +158,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
   has_refreshed_imu_data_ = false;
   imu_data_oneline_buf.clear();
 
-  int data_size_of_buf = readFromDevice(imu_data_buf, sizeof(imu_data_buf));
+  int data_size_of_buf = serial_port_->readFromDevice(imu_data_buf, sizeof(imu_data_buf));
 
   if (data_size_of_buf <= 0) {
     return false;  // Raise communication error
@@ -205,8 +205,16 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
 }
 
 RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
-: rt_usb_9axisimu::SerialPort(port.c_str())
 {
+  serial_port_ = std::make_unique<rt_usb_9axisimu::SerialPort>(port.c_str());
+  has_completed_format_check_ = false;
+  data_format_ = DataFormat::NONE;
+  has_refreshed_imu_data_ = false;
+}
+
+RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port)
+{
+  serial_port_ = std::move(serial_port);
   has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
   has_refreshed_imu_data_ = false;
@@ -223,7 +231,7 @@ void RtUsb9axisimuRosDriver::setImuFrameIdName(std::string frame_id)
 
 void RtUsb9axisimuRosDriver::setImuPortName(std::string port)
 {
-  setPort(port.c_str());
+  serial_port_->setPort(port.c_str());
 }
 
 void RtUsb9axisimuRosDriver::setImuStdDev(
@@ -238,12 +246,12 @@ void RtUsb9axisimuRosDriver::setImuStdDev(
 bool RtUsb9axisimuRosDriver::startCommunication()
 {
   // returns serial port open status
-  return openSerialPort();
+  return serial_port_->openSerialPort();
 }
 
 void RtUsb9axisimuRosDriver::stopCommunication(void)
 {
-  closeSerialPort();
+  serial_port_->closeSerialPort();
   has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
   has_refreshed_imu_data_ = false;
@@ -253,7 +261,7 @@ void RtUsb9axisimuRosDriver::checkDataFormat(void)
 {
   if (data_format_ == DataFormat::NONE) {
     unsigned char data_buf[256];
-    int data_size_of_buf = readFromDevice(data_buf, consts.IMU_BIN_DATA_SIZE);
+    int data_size_of_buf = serial_port_->readFromDevice(data_buf, consts.IMU_BIN_DATA_SIZE);
     if (data_size_of_buf == consts.IMU_BIN_DATA_SIZE) {
       if (isBinarySensorData(data_buf)) {
         data_format_ = DataFormat::BINARY;

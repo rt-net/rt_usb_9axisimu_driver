@@ -44,14 +44,10 @@
 #include "sensor_msgs/msg/magnetic_field.hpp"
 #include "std_msgs/msg/float64.hpp"
 
-class RtUsb9axisimuRosDriver : public rt_usb_9axisimu::SerialPort
+class RtUsb9axisimuRosDriver
 {
 private:
-  // ros::NodeHandle nh_;
-
-  // ros::Publisher imu_data_raw_pub_;
-  // ros::Publisher imu_mag_pub_;
-  // ros::Publisher imu_temperature_pub_;
+  std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port_;
 
   rt_usb_9axisimu::SensorData sensor_data_;
 
@@ -85,6 +81,7 @@ private:
 
 public:
   explicit RtUsb9axisimuRosDriver(std::string serialport);
+  RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port);
   ~RtUsb9axisimuRosDriver();
 
   void setImuFrameIdName(std::string frame_id);
