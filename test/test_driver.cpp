@@ -63,3 +63,17 @@ TEST(TestDriver, startCommunication)
   EXPECT_TRUE(driver.startCommunication());
   EXPECT_FALSE(driver.startCommunication());
 }
+
+TEST(TestDriver, initialize_member_variables)
+{
+  // Expect member variables of the driver instance to be initialised
+  auto mock = create_serial_port_mock();
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  EXPECT_FALSE(driver.hasCompletedFormatCheck());
+  EXPECT_FALSE(driver.hasBinaryDataFormat());
+  EXPECT_FALSE(driver.hasAsciiDataFormat());
+  EXPECT_FALSE(driver.hasRefreshedImuData());
+}
