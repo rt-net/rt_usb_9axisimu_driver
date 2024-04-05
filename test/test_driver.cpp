@@ -31,6 +31,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <array>
+#include <string>
 #include <gtest/gtest.h>
 #include "fakeit.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
@@ -89,7 +91,6 @@ TEST(TestDriver, checkDataFormat_Binary)
     unsigned char dummy_bin_imu_data[consts.IMU_BIN_DATA_SIZE] = {0};
     dummy_bin_imu_data[consts.IMU_BIN_HEADER_R] = 0x52; // R
     dummy_bin_imu_data[consts.IMU_BIN_HEADER_T] = 0x54; // T
-
     for(int i = 0; i < consts.IMU_BIN_DATA_SIZE; i++) {
       buf[i] = dummy_bin_imu_data[i];
     }
@@ -105,4 +106,48 @@ TEST(TestDriver, checkDataFormat_Binary)
   EXPECT_TRUE(driver.hasCompletedFormatCheck());
   EXPECT_TRUE(driver.hasBinaryDataFormat());
   EXPECT_FALSE(driver.hasAsciiDataFormat());
+}
+
+TEST(TestDriver, checkDataFormat_ASCII)
+{
+  // Expect to check correctly when read data in ASCII format
+  auto mock = create_serial_port_mock();
+
+  When(Method(mock, readFromDevice)).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    rt_usb_9axisimu::Consts consts;
+    std::array<std::string, consts.IMU_ASCII_DATA_SIZE> dummy_ascii_imu_data; 
+    dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
+    std::string str = "";
+    std::string split_char = ",";
+    for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
+      str += dummy_ascii_imu_data[i];
+      if(i != consts.IMU_ASCII_DATA_SIZE - 1) str += split_char;
+    }
+    for(int i = 0; i < int(str.length()); i++) {
+      buf[i] = str[i];
+    }
+    buf_size = consts.IMU_BIN_DATA_SIZE;
+    return buf_size;
+  });
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  driver.checkDataFormat();
+  driver.checkDataFormat();
+
+  EXPECT_TRUE(driver.hasCompletedFormatCheck());
+  EXPECT_TRUE(driver.hasAsciiDataFormat());
+  EXPECT_FALSE(driver.hasBinaryDataFormat());
 }
