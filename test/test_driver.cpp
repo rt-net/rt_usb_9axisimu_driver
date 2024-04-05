@@ -145,9 +145,35 @@ TEST(TestDriver, checkDataFormat_ASCII)
     std::unique_ptr<SerialPort>(&mock.get()));
 
   driver.checkDataFormat();
-  driver.checkDataFormat();
 
   EXPECT_TRUE(driver.hasCompletedFormatCheck());
   EXPECT_TRUE(driver.hasAsciiDataFormat());
   EXPECT_FALSE(driver.hasBinaryDataFormat());
+}
+
+TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
+{
+  // Expect to check correctly when read data in not Binary or ASCII format
+  auto mock = create_serial_port_mock();
+
+  When(Method(mock, readFromDevice)).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    rt_usb_9axisimu::Consts consts;
+    unsigned char dummy_data_not_binary_or_ascii[] =
+      "dummy_data_not_binary_or_ascii";
+    for(int i = 0; i < int(sizeof(dummy_data_not_binary_or_ascii)); i++) {
+      buf[i] = dummy_data_not_binary_or_ascii[i];
+    }
+    buf_size = consts.IMU_BIN_DATA_SIZE;
+    return buf_size;
+  });
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  driver.checkDataFormat();
+
+  EXPECT_FALSE(driver.hasCompletedFormatCheck());
+  EXPECT_FALSE(driver.hasBinaryDataFormat());
+  EXPECT_FALSE(driver.hasAsciiDataFormat());
 }
