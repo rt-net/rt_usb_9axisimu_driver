@@ -145,6 +145,7 @@ TEST(TestDriver, checkDataFormat_ASCII)
     std::unique_ptr<SerialPort>(&mock.get()));
 
   driver.checkDataFormat();
+  driver.checkDataFormat();
 
   EXPECT_TRUE(driver.hasCompletedFormatCheck());
   EXPECT_TRUE(driver.hasAsciiDataFormat());
