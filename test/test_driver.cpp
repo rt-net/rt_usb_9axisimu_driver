@@ -32,7 +32,9 @@
  */
 
 #include <array>
+#include <vector>
 #include <string>
+#include <iostream>
 #include <gtest/gtest.h>
 #include "fakeit.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
@@ -85,7 +87,7 @@ TEST(TestDriver, checkDataFormat_Binary)
   // Expect to check correctly when read data in binary format
   auto mock = create_serial_port_mock();
 
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).AlwaysDo([](
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
     unsigned char dummy_bin_imu_data[consts.IMU_BIN_DATA_SIZE] = {0};
@@ -113,38 +115,44 @@ TEST(TestDriver, checkDataFormat_ASCII)
   // Expect to check correctly when read data in ASCII format
   auto mock = create_serial_port_mock();
 
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).AlwaysDo([](
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
-    std::array<std::string, consts.IMU_ASCII_DATA_SIZE> dummy_ascii_imu_data; 
-    dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
-    std::string str = "";
-    std::string split_char = ",";
-    for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
-      str += dummy_ascii_imu_data[i];
-      if(i != consts.IMU_ASCII_DATA_SIZE - 1) str += split_char;
-    }
-    for(int i = 0; i < int(str.length()); i++) {
-      buf[i] = str[i];
-    }
-    buf_size = consts.IMU_BIN_DATA_SIZE;
+    //std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
+    //dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = "0.000000";
+    //ummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = "0.000000";
+    //dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
+    //const char split_char = ',';
+    //const char newline_char = 0x0a; // new line
+    //int char_count = 0;
+    //for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
+    //  for(int j = 0; j < (int)strlen(dummy_ascii_imu_data[i]); j++) {
+    //    buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
+    //    char_count++;
+    //  }
+    //  if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = split_char;
+    //  else buf[char_count] = newline_char;
+    //  char_count++;
+    //}
+    //buf_size = char_count;
+    unsigned char dummy_ascii_imu_data[] =
+      "0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000\n";
+    buf = dummy_ascii_imu_data;
+    buf_size = (int)strlen((char*)buf);
     return buf_size;
   });
 
   RtUsb9axisimuRosDriver driver(
     std::unique_ptr<SerialPort>(&mock.get()));
 
-  driver.checkDataFormat();
   driver.checkDataFormat();
 
   EXPECT_TRUE(driver.hasCompletedFormatCheck());
@@ -157,15 +165,13 @@ TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
   // Expect to check correctly when read data in not Binary or ASCII format
   auto mock = create_serial_port_mock();
 
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).AlwaysDo([](
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
     unsigned char dummy_data_not_binary_or_ascii[] =
       "dummy_data_not_binary_or_ascii";
-    for(int i = 0; i < int(sizeof(dummy_data_not_binary_or_ascii)); i++) {
-      buf[i] = dummy_data_not_binary_or_ascii[i];
-    }
-    buf_size = consts.IMU_BIN_DATA_SIZE;
+    buf = dummy_data_not_binary_or_ascii;
+    buf_size = strlen((char*)buf);
     return buf_size;
   });
 
