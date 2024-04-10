@@ -91,8 +91,12 @@ TEST(TestDriver, checkDataFormat_Binary)
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
     unsigned char dummy_bin_imu_data[consts.IMU_BIN_DATA_SIZE] = {0};
+    dummy_bin_imu_data[consts.IMU_BIN_HEADER_FF0] = 0xff;
+    dummy_bin_imu_data[consts.IMU_BIN_HEADER_FF1] = 0xff;
     dummy_bin_imu_data[consts.IMU_BIN_HEADER_R] = 0x52; // R
     dummy_bin_imu_data[consts.IMU_BIN_HEADER_T] = 0x54; // T
+    dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID0] = 0x39;
+    dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID1] = 0x41;
     for(int i = 0; i < consts.IMU_BIN_DATA_SIZE; i++) {
       buf[i] = dummy_bin_imu_data[i];
     }
@@ -118,35 +122,31 @@ TEST(TestDriver, checkDataFormat_ASCII)
   When(Method(mock, readFromDevice)).AlwaysDo([](
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
-    //std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
-    //dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = "0.000000";
-    //ummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = "0.000000";
-    //dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
-    //const char split_char = ',';
-    //const char newline_char = 0x0a; // new line
-    //int char_count = 0;
-    //for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
-    //  for(int j = 0; j < (int)strlen(dummy_ascii_imu_data[i]); j++) {
-    //    buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
-    //    char_count++;
-    //  }
-    //  if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = split_char;
-    //  else buf[char_count] = newline_char;
-    //  char_count++;
-    //}
-    //buf_size = char_count;
-    unsigned char dummy_ascii_imu_data[] =
-      "0,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000\n";
-    buf = dummy_ascii_imu_data;
-    buf_size = (int)strlen((char*)buf);
+    std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
+    dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
+    const char split_char = ',';
+    const char newline_char = '\n';
+    int char_count = 0;
+    for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
+      for(int j = 0; j < (int)strlen(dummy_ascii_imu_data.at(i)); j++) {
+        buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
+        char_count++;
+      }
+      if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = split_char;
+      else buf[char_count] = newline_char;
+      char_count++;
+    }
+    buf_size = char_count;
     return buf_size;
   });
 
@@ -170,7 +170,9 @@ TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
     rt_usb_9axisimu::Consts consts;
     unsigned char dummy_data_not_binary_or_ascii[] =
       "dummy_data_not_binary_or_ascii";
-    buf = dummy_data_not_binary_or_ascii;
+    for(int i = 0; i < (int)sizeof(dummy_data_not_binary_or_ascii); i++) {
+      buf[i] = dummy_data_not_binary_or_ascii[i];
+    }
     buf_size = strlen((char*)buf);
     return buf_size;
   });

@@ -76,6 +76,7 @@ private:
   rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char * imu_data_buf);
   bool isBinarySensorData(unsigned char * imu_data_buf);
   bool readBinaryData(void);
+  bool isAsciiSensorData(unsigned char * imu_data_buf, int data_size);
   bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
   bool readAsciiData(void);
 

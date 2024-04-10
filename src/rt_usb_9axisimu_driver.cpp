@@ -87,8 +87,12 @@ RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char * imu_data_buf)
 
 bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf)
 {
-  if (imu_data_buf[consts.IMU_BIN_HEADER_R] == 'R' &&
-    imu_data_buf[consts.IMU_BIN_HEADER_T] == 'T')
+  if (imu_data_buf[consts.IMU_BIN_HEADER_FF0] == 0xff &&
+    imu_data_buf[consts.IMU_BIN_HEADER_FF1] == 0xff &&
+    imu_data_buf[consts.IMU_BIN_HEADER_R] == 'R' &&
+    imu_data_buf[consts.IMU_BIN_HEADER_T] == 'T' &&
+    imu_data_buf[consts.IMU_BIN_HEADER_ID0] == 0x39 &&
+    imu_data_buf[consts.IMU_BIN_HEADER_ID1] == 0x41)
   {
     return true;
   }
@@ -137,6 +141,32 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
   has_refreshed_imu_data_ = true;
 
   return true;
+}
+
+bool RtUsb9axisimuRosDriver::isAsciiSensorData(unsigned char * imu_data_buf, int data_size)
+{
+  // convert imu data to vector in ascii format
+  static std::vector<std::string> data_vector_ascii;
+  std::string data_oneline_ascii;
+  for (int char_count = 0; char_count < data_size; char_count++) {
+    if (imu_data_buf[char_count] == ',' || imu_data_buf[char_count] == '\n') {
+      data_vector_ascii.push_back(data_oneline_ascii);
+      data_oneline_ascii.clear();
+    } else {
+      data_oneline_ascii += imu_data_buf[char_count];
+    }
+    if (imu_data_buf[char_count] == '\n') {
+      break;
+    }
+  }
+
+  // check data is in ascii format
+  if (data_vector_ascii.size() == consts.IMU_ASCII_DATA_SIZE &&
+    data_vector_ascii[consts.IMU_ASCII_TIMESTAMP].find(".") == std::string::npos &&
+    isValidAsciiSensorData(data_vector_ascii)) {
+    return true;
+  }
+  return false;
 }
 
 bool RtUsb9axisimuRosDriver::isValidAsciiSensorData(std::vector<std::string> str_vector)
@@ -262,58 +292,26 @@ void RtUsb9axisimuRosDriver::stopCommunication(void)
 void RtUsb9axisimuRosDriver::checkDataFormat(void)
 {
   if (data_format_ == DataFormat::NONE) {
-    // read data in binary format
-    unsigned char data_buf_binary[consts.IMU_BIN_DATA_SIZE];
-    int data_size_binary = serial_port_->readFromDevice(data_buf_binary, consts.IMU_BIN_DATA_SIZE);
+    unsigned char read_buffer[256];
+    int read_size = serial_port_->readFromDevice(read_buffer, sizeof(read_buffer));
 
-    // read data in ascii format
-    unsigned char data_buf_ascii[256];
-    int data_size_ascii = serial_port_->readFromDevice(data_buf_ascii, sizeof(data_buf_ascii));
-
-    // convert ascii data to vector
-    static std::vector<std::string> data_vector_ascii;
-    std::string data_oneline_ascii;
-    for (int char_count = 0; char_count < data_size_ascii; char_count++) {
-      if (data_buf_ascii[char_count] == ',' || data_buf_ascii[char_count] == '\n') {
-        data_vector_ascii.push_back(data_oneline_ascii);
-        data_oneline_ascii.clear();
-      } else {
-        data_oneline_ascii += data_buf_ascii[char_count];
-      }
-      if (data_buf_ascii[char_count] == '\n') {
-        break;
-      }
+    if(read_size <= 0) {
+      data_format_ = DataFormat::NONE;
+      has_completed_format_check_ = false;
+      return;
     }
 
-    // debug
-    std::cout << "--- debug start ---" << std::endl;;
-    for(int i = 0; i < (int)sizeof(data_buf_ascii); i++) {
-      std::cout << data_buf_ascii[i];
+    if (isBinarySensorData(read_buffer)) {
+      data_format_ = DataFormat::BINARY;
+      has_completed_format_check_ = true;
     }
-    std::cout << std::endl;
-    std::cout << data_size_ascii << std::endl;;
-    std::cout << data_vector_ascii.size() << std::endl;;
-    std::cout << "--- debug start ---" << std::endl;;
-
-    // check data format
-    if (data_size_binary == consts.IMU_BIN_DATA_SIZE) {
-      if (isBinarySensorData(data_buf_binary)) {
-        data_format_ = DataFormat::BINARY;
-        has_completed_format_check_ = true;
-      } else {
-        data_format_ = DataFormat::NOT_BINARY;
-        has_completed_format_check_ = true;
-      }
+    else if (isAsciiSensorData(read_buffer, read_size)) {
+      data_format_ = DataFormat::ASCII;
+      has_completed_format_check_ = true;
     }
-    if (data_vector_ascii.size() == consts.IMU_ASCII_DATA_SIZE) {
-      if (data_vector_ascii[consts.IMU_ASCII_TIMESTAMP].find(".") == std::string::npos &&
-        isValidAsciiSensorData(data_vector_ascii)) {
-        data_format_ = DataFormat::ASCII;
-        has_completed_format_check_ = true;
-      } else {
-        data_format_ = DataFormat::NOT_ASCII;
-        has_completed_format_check_ = true;
-      }
+    else {
+      data_format_ = DataFormat::NONE;
+      has_completed_format_check_ = false;
     }
   }
 }
