@@ -31,10 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <array>
 #include <vector>
-#include <string>
-#include <iostream>
 #include <gtest/gtest.h>
 #include "fakeit.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
@@ -76,7 +73,6 @@ TEST(TestDriver, initialize_member_variables)
   RtUsb9axisimuRosDriver driver(
     std::unique_ptr<SerialPort>(&mock.get()));
 
-  EXPECT_FALSE(driver.hasCompletedFormatCheck());
   EXPECT_FALSE(driver.hasBinaryDataFormat());
   EXPECT_FALSE(driver.hasAsciiDataFormat());
   EXPECT_FALSE(driver.hasRefreshedImuData());
@@ -87,7 +83,7 @@ TEST(TestDriver, checkDataFormat_Binary)
   // Expect to check correctly when read data in binary format
   auto mock = create_serial_port_mock();
 
-  When(Method(mock, readFromDevice)).AlwaysDo([](
+  When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
     unsigned char dummy_bin_imu_data[consts.IMU_BIN_DATA_SIZE] = {0};
@@ -109,7 +105,6 @@ TEST(TestDriver, checkDataFormat_Binary)
 
   driver.checkDataFormat();
 
-  EXPECT_TRUE(driver.hasCompletedFormatCheck());
   EXPECT_TRUE(driver.hasBinaryDataFormat());
   EXPECT_FALSE(driver.hasAsciiDataFormat());
 }
@@ -119,7 +114,7 @@ TEST(TestDriver, checkDataFormat_ASCII)
   // Expect to check correctly when read data in ASCII format
   auto mock = create_serial_port_mock();
 
-  When(Method(mock, readFromDevice)).AlwaysDo([](
+  When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
     rt_usb_9axisimu::Consts consts;
     std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
@@ -155,7 +150,6 @@ TEST(TestDriver, checkDataFormat_ASCII)
 
   driver.checkDataFormat();
 
-  EXPECT_TRUE(driver.hasCompletedFormatCheck());
   EXPECT_TRUE(driver.hasAsciiDataFormat());
   EXPECT_FALSE(driver.hasBinaryDataFormat());
 }
@@ -167,13 +161,12 @@ TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
 
   When(Method(mock, readFromDevice)).AlwaysDo([](
     unsigned char* buf, unsigned int buf_size) {
-    rt_usb_9axisimu::Consts consts;
     unsigned char dummy_data_not_binary_or_ascii[] =
       "dummy_data_not_binary_or_ascii";
-    for(int i = 0; i < (int)sizeof(dummy_data_not_binary_or_ascii); i++) {
+    buf_size = (unsigned int)strlen((char*)dummy_data_not_binary_or_ascii);
+    for(int i = 0; i < buf_size; i++) {
       buf[i] = dummy_data_not_binary_or_ascii[i];
     }
-    buf_size = strlen((char*)buf);
     return buf_size;
   });
 
@@ -182,7 +175,6 @@ TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
 
   driver.checkDataFormat();
 
-  EXPECT_FALSE(driver.hasCompletedFormatCheck());
   EXPECT_FALSE(driver.hasBinaryDataFormat());
   EXPECT_FALSE(driver.hasAsciiDataFormat());
 }

@@ -31,13 +31,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-
-#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
+#include <chrono>
 
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 
@@ -146,7 +143,7 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
 bool RtUsb9axisimuRosDriver::isAsciiSensorData(unsigned char * imu_data_buf, int data_size)
 {
   // convert imu data to vector in ascii format
-  static std::vector<std::string> data_vector_ascii;
+  std::vector<std::string> data_vector_ascii;
   std::string data_oneline_ascii;
   for (int char_count = 0; char_count < data_size; char_count++) {
     if (imu_data_buf[char_count] == ',' || imu_data_buf[char_count] == '\n') {
@@ -239,7 +236,6 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
 RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
 {
   serial_port_ = std::make_unique<rt_usb_9axisimu::SerialPort>(port.c_str());
-  has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
   has_refreshed_imu_data_ = false;
 }
@@ -247,7 +243,6 @@ RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::string port = "")
 RtUsb9axisimuRosDriver::RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port)
 {
   serial_port_ = std::move(serial_port);
-  has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
   has_refreshed_imu_data_ = false;
 }
@@ -284,41 +279,37 @@ bool RtUsb9axisimuRosDriver::startCommunication()
 void RtUsb9axisimuRosDriver::stopCommunication(void)
 {
   serial_port_->closeSerialPort();
-  has_completed_format_check_ = false;
   data_format_ = DataFormat::NONE;
   has_refreshed_imu_data_ = false;
 }
 
-void RtUsb9axisimuRosDriver::checkDataFormat(void)
+void RtUsb9axisimuRosDriver::checkDataFormat(const double timeout)
 {
-  if (data_format_ == DataFormat::NONE) {
+  auto start_time = std::chrono::system_clock::now();
+  while (data_format_ == DataFormat::NONE) {
+    // time out
+    auto end_time = std::chrono::system_clock::now();
+    double time_elapsed = (double)std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+    if (time_elapsed > timeout) {
+      return;
+    }
+    
     unsigned char read_buffer[256];
     int read_size = serial_port_->readFromDevice(read_buffer, sizeof(read_buffer));
 
     if(read_size <= 0) {
-      data_format_ = DataFormat::NONE;
-      has_completed_format_check_ = false;
-      return;
+      continue;
     }
 
     if (isBinarySensorData(read_buffer)) {
       data_format_ = DataFormat::BINARY;
-      has_completed_format_check_ = true;
+      return;
     }
     else if (isAsciiSensorData(read_buffer, read_size)) {
       data_format_ = DataFormat::ASCII;
-      has_completed_format_check_ = true;
-    }
-    else {
-      data_format_ = DataFormat::NONE;
-      has_completed_format_check_ = false;
+      return;
     }
   }
-}
-
-bool RtUsb9axisimuRosDriver::hasCompletedFormatCheck(void)
-{
-  return has_completed_format_check_;
 }
 
 bool RtUsb9axisimuRosDriver::hasAsciiDataFormat(void)

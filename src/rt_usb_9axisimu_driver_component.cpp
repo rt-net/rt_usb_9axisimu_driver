@@ -93,21 +93,16 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
     return CallbackReturn::FAILURE;
   }
 
-  while (rclcpp::ok() && driver_->hasCompletedFormatCheck() == false) {
-    driver_->checkDataFormat();
-  }
+  driver_->checkDataFormat();
 
-  if (rclcpp::ok() && driver_->hasCompletedFormatCheck()) {
-    RCLCPP_INFO(this->get_logger(), "Format check has completed.");
-    if (driver_->hasAsciiDataFormat()) {
-      RCLCPP_INFO(this->get_logger(), "Data format is ascii.");
-    } else if (driver_->hasBinaryDataFormat()) {
-      RCLCPP_INFO(this->get_logger(), "Data format is binary.");
-    } else {
-      RCLCPP_INFO(this->get_logger(), "Data format is neither binary nor ascii.");
-      driver_->stopCommunication();
-      return CallbackReturn::FAILURE;
-    }
+  if (driver_->hasAsciiDataFormat()) {
+    RCLCPP_INFO(this->get_logger(), "Data format is ascii.");
+  } else if (driver_->hasBinaryDataFormat()) {
+    RCLCPP_INFO(this->get_logger(), "Data format is binary.");
+  } else {
+    RCLCPP_INFO(this->get_logger(), "Data format is neither binary nor ascii.");
+    driver_->stopCommunication();
+    return CallbackReturn::FAILURE;
   }
 
   imu_data_raw_pub_ = create_publisher<sensor_msgs::msg::Imu>("imu/data_raw", 1);

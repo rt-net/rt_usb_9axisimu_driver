@@ -66,7 +66,6 @@ private:
     ASCII,
     INCORRECT
   };
-  bool has_completed_format_check_;
   DataFormat data_format_;
   bool has_refreshed_imu_data_;
 
@@ -91,8 +90,7 @@ public:
 
   bool startCommunication();
   void stopCommunication(void);
-  void checkDataFormat(void);
-  bool hasCompletedFormatCheck(void);
+  void checkDataFormat(const double timeout = 5.0);
   bool hasAsciiDataFormat(void);
   bool hasBinaryDataFormat(void);
   bool hasRefreshedImuData(void);
