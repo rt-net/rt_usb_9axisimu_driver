@@ -35,7 +35,6 @@
 #include <utility>
 #include <vector>
 #include <chrono>
-#include <thread>
 
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 
@@ -288,10 +287,6 @@ void RtUsb9axisimuRosDriver::checkDataFormat(const double timeout)
 {
   auto start_time = std::chrono::system_clock::now();
   while (data_format_ == DataFormat::NONE) {
-    // sleep (10ms)
-    // Prevent read failures due to high speed loop processing
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
     // time out (default 5.0s)
     // Measures for data formats that are neither Binary nor ASCII
     auto end_time = std::chrono::system_clock::now();
