@@ -285,16 +285,16 @@ void RtUsb9axisimuRosDriver::stopCommunication(void)
 
 void RtUsb9axisimuRosDriver::checkDataFormat(const double timeout)
 {
-  auto start_time = std::chrono::system_clock::now();
+  const auto start_time = std::chrono::system_clock::now();
   while (data_format_ == DataFormat::NONE) {
-    auto end_time = std::chrono::system_clock::now();
-    double time_elapsed = (double)std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+    const auto end_time = std::chrono::system_clock::now();
+    const double time_elapsed = (double)std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
     if (time_elapsed > timeout) {
       return;
     }
     
     unsigned char read_buffer[256];
-    int read_size = serial_port_->readFromDevice(read_buffer, sizeof(read_buffer));
+    const auto read_size = serial_port_->readFromDevice(read_buffer, sizeof(read_buffer));
 
     if(read_size <= 0) {
       continue;
