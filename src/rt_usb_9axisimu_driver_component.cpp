@@ -100,7 +100,7 @@ CallbackReturn Driver::on_configure(const rclcpp_lifecycle::State &)
   } else if (driver_->hasBinaryDataFormat()) {
     RCLCPP_INFO(this->get_logger(), "Data format is binary.");
   } else {
-    RCLCPP_INFO(this->get_logger(), "Data format is neither binary nor ascii.");
+    RCLCPP_WARN(this->get_logger(), "Data format is neither binary nor ascii.");
     driver_->stopCommunication();
     return CallbackReturn::FAILURE;
   }
