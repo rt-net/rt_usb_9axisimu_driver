@@ -85,9 +85,9 @@ RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char * imu_data_buf)
 bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf, unsigned int data_size)
 {
   for (int i = 0; i < (int)data_size; i++) {
-    if (bin_read_buffer_idx >= 256) break;
     bin_read_buffer[bin_read_buffer_idx] = imu_data_buf[i];
     bin_read_buffer_idx++;
+    if (bin_read_buffer_idx >= 256) bin_read_buffer_idx = 0;
   }
 
   int start_idx = 0;
@@ -157,9 +157,9 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
 bool RtUsb9axisimuRosDriver::isAsciiSensorData(unsigned char * imu_data_buf, unsigned int data_size)
 {
   for (int i = 0; i < (int)data_size; i++) {
-    if (ascii_read_buffer_idx >= 256) break;
     ascii_read_buffer[ascii_read_buffer_idx] = imu_data_buf[i];
     ascii_read_buffer_idx++;
+    if (ascii_read_buffer_idx >= 256) ascii_read_buffer_idx = 0;
   }
 
   // convert imu data to vector in ascii format
