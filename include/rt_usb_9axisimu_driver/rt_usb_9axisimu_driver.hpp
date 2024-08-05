@@ -57,6 +57,11 @@ private:
   double magnetic_field_stddev_;
   rt_usb_9axisimu::Consts consts;
 
+  unsigned char bin_read_buffer[256];
+  unsigned char ascii_read_buffer[256];
+  unsigned int bin_read_buffer_idx = 0;
+  unsigned int ascii_read_buffer_idx = 0;
+
   enum DataFormat
   {
     NONE = 0,
@@ -73,9 +78,9 @@ private:
   int16_t combineByteData(unsigned char data_h, unsigned char data_l);
   // Method to extract binary sensor data from communication buffer
   rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char * imu_data_buf);
-  bool isBinarySensorData(unsigned char * imu_data_buf);
+  bool isBinarySensorData(unsigned char * imu_data_buf, unsigned int data_size);
   bool readBinaryData(void);
-  bool isAsciiSensorData(unsigned char * imu_data_buf, int data_size);
+  bool isAsciiSensorData(unsigned char * imu_data_buf, unsigned int data_size);
   bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
   bool readAsciiData(void);
 

@@ -82,14 +82,28 @@ RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char * imu_data_buf)
   return imu_rawdata;
 }
 
-bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf)
+bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf, unsigned int data_size)
 {
-  if (imu_data_buf[consts.IMU_BIN_HEADER_FF0] == 0xff &&
-    imu_data_buf[consts.IMU_BIN_HEADER_FF1] == 0xff &&
-    imu_data_buf[consts.IMU_BIN_HEADER_R] == 'R' &&
-    imu_data_buf[consts.IMU_BIN_HEADER_T] == 'T' &&
-    imu_data_buf[consts.IMU_BIN_HEADER_ID0] == 0x39 &&
-    imu_data_buf[consts.IMU_BIN_HEADER_ID1] == 0x41)
+  for (int i = 0; i < (int)data_size; i++) {
+    if (bin_read_buffer_idx >= 256) break;
+    bin_read_buffer[bin_read_buffer_idx] = imu_data_buf[i];
+    bin_read_buffer_idx++;
+  }
+
+  int start_idx = 0;
+  for (int i = 0; i < (int)(bin_read_buffer_idx - consts.IMU_BIN_DATA_SIZE); i++) {
+    if (imu_data_buf[i] == 0xff) {
+      start_idx = i;
+      break;
+    }
+  }
+
+  if (imu_data_buf[start_idx + consts.IMU_BIN_HEADER_FF0] == 0xff &&
+    imu_data_buf[start_idx + consts.IMU_BIN_HEADER_FF1] == 0xff &&
+    imu_data_buf[start_idx + consts.IMU_BIN_HEADER_R] == 'R' &&
+    imu_data_buf[start_idx + consts.IMU_BIN_HEADER_T] == 'T' &&
+    imu_data_buf[start_idx + consts.IMU_BIN_HEADER_ID0] == 0x39 &&
+    imu_data_buf[start_idx + consts.IMU_BIN_HEADER_ID1] == 0x41)
   {
     return true;
   }
@@ -125,7 +139,7 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
     return true;
   }
 
-  if (isBinarySensorData(imu_binary_data_buffer.data()) == false) {
+  if (isBinarySensorData(imu_binary_data_buffer.data(), imu_binary_data_buffer.size()) == false) {
     imu_binary_data_buffer.clear();
     return false;
   }
@@ -140,28 +154,40 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
   return true;
 }
 
-bool RtUsb9axisimuRosDriver::isAsciiSensorData(unsigned char * imu_data_buf, int data_size)
+bool RtUsb9axisimuRosDriver::isAsciiSensorData(unsigned char * imu_data_buf, unsigned int data_size)
 {
+  for (int i = 0; i < (int)data_size; i++) {
+    if (ascii_read_buffer_idx >= 256) break;
+    ascii_read_buffer[ascii_read_buffer_idx] = imu_data_buf[i];
+    ascii_read_buffer_idx++;
+  }
+
   // convert imu data to vector in ascii format
-  std::vector<std::string> data_vector_ascii;
+  std::vector<std::vector<std::string>> data_vector_ascii;
+  std::vector<std::string> data_oneset_ascii;
   std::string data_oneline_ascii;
-  for (int char_count = 0; char_count < data_size; char_count++) {
-    if (imu_data_buf[char_count] == ',' || imu_data_buf[char_count] == '\n') {
-      data_vector_ascii.push_back(data_oneline_ascii);
+  for (int char_count = 0; char_count < (int)ascii_read_buffer_idx; char_count++) {
+    if (ascii_read_buffer[char_count] == '\n') {
+      data_oneset_ascii.push_back(data_oneline_ascii);
+      data_vector_ascii.push_back(data_oneset_ascii);
+      data_oneline_ascii.clear();
+      data_oneset_ascii.clear();
+    }
+    else if (ascii_read_buffer[char_count] == ',') {
+      data_oneset_ascii.push_back(data_oneline_ascii);
       data_oneline_ascii.clear();
     } else {
-      data_oneline_ascii += imu_data_buf[char_count];
-    }
-    if (imu_data_buf[char_count] == '\n') {
-      break;
+      data_oneline_ascii += ascii_read_buffer[char_count];
     }
   }
 
   // check data is in ascii format
-  if (data_vector_ascii.size() == consts.IMU_ASCII_DATA_SIZE &&
-    data_vector_ascii[consts.IMU_ASCII_TIMESTAMP].find(".") == std::string::npos &&
-    isValidAsciiSensorData(data_vector_ascii)) {
-    return true;
+  for (int i = 0; i < (int)data_vector_ascii.size(); i++) {
+    if (data_vector_ascii.at(i).size() == consts.IMU_ASCII_DATA_SIZE &&
+      data_vector_ascii.at(i).at(consts.IMU_ASCII_TIMESTAMP).find(".") == std::string::npos &&
+      isValidAsciiSensorData(data_vector_ascii.at(i))) {
+      return true;
+    }
   }
   return false;
 }
@@ -296,11 +322,11 @@ void RtUsb9axisimuRosDriver::checkDataFormat(const double timeout)
     unsigned char read_buffer[256];
     const auto read_size = serial_port_->readFromDevice(read_buffer, sizeof(read_buffer));
 
-    if(read_size <= 0) {
+    if (read_size <= 0) {
       continue;
     }
 
-    if (isBinarySensorData(read_buffer)) {
+    if (isBinarySensorData(read_buffer, read_size)) {
       data_format_ = DataFormat::BINARY;
       return;
     }

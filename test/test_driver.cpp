@@ -92,14 +92,15 @@ unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid) {
     dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
     const char split_char = ',';
     const char newline_char = '\n';
-    unsigned int char_count = 0;
+    buf[0] = (unsigned char)newline_char;
+    unsigned int char_count = 1;
     for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
       for(int j = 0; j < (int)strlen(dummy_ascii_imu_data.at(i)); j++) {
         buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
         char_count++;
       }
-      if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = split_char;
-      else buf[char_count] = newline_char;
+      if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = (unsigned char)split_char;
+      else buf[char_count] = (unsigned char)newline_char;
       char_count++;
     }
     return char_count;
