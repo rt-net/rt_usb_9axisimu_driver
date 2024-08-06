@@ -85,13 +85,13 @@ RtUsb9axisimuRosDriver::extractBinarySensorData(unsigned char * imu_data_buf)
 bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf, unsigned int data_size)
 {
   for (int i = 0; i < (int)data_size; i++) {
-    bin_read_buffer[bin_read_buffer_idx] = imu_data_buf[i];
-    bin_read_buffer_idx++;
-    if (bin_read_buffer_idx >= 256) bin_read_buffer_idx = 0;
+    bin_read_buffer_[bin_read_buffer_idx_] = imu_data_buf[i];
+    bin_read_buffer_idx_++;
+    if (bin_read_buffer_idx_ >= consts.READ_BUFFER_SIZE) bin_read_buffer_idx_ = 0;
   }
 
   int start_idx = 0;
-  for (int i = 0; i < (int)(bin_read_buffer_idx - consts.IMU_BIN_DATA_SIZE); i++) {
+  for (int i = 0; i < (int)(bin_read_buffer_idx_ - consts.IMU_BIN_DATA_SIZE); i++) {
     if (imu_data_buf[i] == 0xff) {
       start_idx = i;
       break;
@@ -113,7 +113,7 @@ bool RtUsb9axisimuRosDriver::isBinarySensorData(unsigned char * imu_data_buf, un
 bool RtUsb9axisimuRosDriver::readBinaryData(void)
 {
   static std::vector<unsigned char> imu_binary_data_buffer;
-  unsigned char read_data_buf[256];
+  unsigned char read_data_buf[consts.READ_BUFFER_SIZE];
 
   has_refreshed_imu_data_ = false;
   int read_data_size = serial_port_->readFromDevice(read_data_buf,
@@ -157,27 +157,27 @@ bool RtUsb9axisimuRosDriver::readBinaryData(void)
 bool RtUsb9axisimuRosDriver::isAsciiSensorData(unsigned char * imu_data_buf, unsigned int data_size)
 {
   for (int i = 0; i < (int)data_size; i++) {
-    ascii_read_buffer[ascii_read_buffer_idx] = imu_data_buf[i];
-    ascii_read_buffer_idx++;
-    if (ascii_read_buffer_idx >= 256) ascii_read_buffer_idx = 0;
+    ascii_read_buffer_[ascii_read_buffer_idx_] = imu_data_buf[i];
+    ascii_read_buffer_idx_++;
+    if (ascii_read_buffer_idx_ >= consts.READ_BUFFER_SIZE) ascii_read_buffer_idx_ = 0;
   }
 
   // convert imu data to vector in ascii format
   std::vector<std::vector<std::string>> data_vector_ascii;
   std::vector<std::string> data_oneset_ascii;
   std::string data_oneline_ascii;
-  for (int char_count = 0; char_count < (int)ascii_read_buffer_idx; char_count++) {
-    if (ascii_read_buffer[char_count] == '\n') {
+  for (int char_count = 0; char_count < (int)ascii_read_buffer_idx_; char_count++) {
+    if (ascii_read_buffer_[char_count] == '\n') {
       data_oneset_ascii.push_back(data_oneline_ascii);
       data_vector_ascii.push_back(data_oneset_ascii);
       data_oneline_ascii.clear();
       data_oneset_ascii.clear();
     }
-    else if (ascii_read_buffer[char_count] == ',') {
+    else if (ascii_read_buffer_[char_count] == ',') {
       data_oneset_ascii.push_back(data_oneline_ascii);
       data_oneline_ascii.clear();
     } else {
-      data_oneline_ascii += ascii_read_buffer[char_count];
+      data_oneline_ascii += ascii_read_buffer_[char_count];
     }
   }
 
@@ -206,7 +206,7 @@ bool RtUsb9axisimuRosDriver::readAsciiData(void)
 {
   static std::vector<std::string> imu_data_vector_buf;
 
-  unsigned char imu_data_buf[256];
+  unsigned char imu_data_buf[consts.READ_BUFFER_SIZE];
   rt_usb_9axisimu::ImuData<double> imu_data;
   std::string imu_data_oneline_buf;
 
@@ -319,7 +319,7 @@ void RtUsb9axisimuRosDriver::checkDataFormat(const double timeout)
       return;
     }
     
-    unsigned char read_buffer[256];
+    unsigned char read_buffer[consts.READ_BUFFER_SIZE];
     const auto read_size = serial_port_->readFromDevice(read_buffer, sizeof(read_buffer));
 
     if (read_size <= 0) {

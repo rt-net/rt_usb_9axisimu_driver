@@ -57,10 +57,10 @@ private:
   double magnetic_field_stddev_;
   rt_usb_9axisimu::Consts consts;
 
-  unsigned char bin_read_buffer[256];
-  unsigned char ascii_read_buffer[256];
-  unsigned int bin_read_buffer_idx = 0;
-  unsigned int ascii_read_buffer_idx = 0;
+  unsigned char bin_read_buffer_[rt_usb_9axisimu::Consts::READ_BUFFER_SIZE];
+  unsigned char ascii_read_buffer_[rt_usb_9axisimu::Consts::READ_BUFFER_SIZE];
+  unsigned int bin_read_buffer_idx_ = 0;
+  unsigned int ascii_read_buffer_idx_ = 0;
 
   enum DataFormat
   {
