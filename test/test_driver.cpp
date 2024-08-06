@@ -209,3 +209,57 @@ TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
   EXPECT_FALSE(driver.hasBinaryDataFormat());
   EXPECT_FALSE(driver.hasAsciiDataFormat());
 }
+
+TEST(TestDriver, readSensorData_Binary)
+{
+  auto mock = create_serial_port_mock();
+
+  When(Method(mock, readFromDevice)).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    buf_size = create_dummy_bin_imu_data(buf, true);
+    return buf_size;
+  }).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    buf_size = create_dummy_bin_imu_data(buf, false);
+    return buf_size;
+  });
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  driver.setBinaryFormat();
+  driver.readSensorData();
+
+  EXPECT_FALSE(driver.hasRefreshedImuData());
+
+  driver.readSensorData();
+
+  EXPECT_TRUE(driver.hasRefreshedImuData());
+}
+
+TEST(TestDriver, readSensorData_ASCII)
+{
+  auto mock = create_serial_port_mock();
+
+  When(Method(mock, readFromDevice)).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    buf_size = create_dummy_ascii_imu_data(buf, true);
+    return buf_size;
+  }).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    buf_size = create_dummy_ascii_imu_data(buf, false);
+    return buf_size;
+  });
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  driver.setAsciiFormat();
+  driver.readSensorData();
+
+  EXPECT_FALSE(driver.hasRefreshedImuData());
+
+  driver.readSensorData();
+
+  EXPECT_TRUE(driver.hasRefreshedImuData());
+}
