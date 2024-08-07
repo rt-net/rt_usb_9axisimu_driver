@@ -212,8 +212,11 @@ TEST(TestDriver, checkDataFormat_not_Binary_or_ASCII)
 
 TEST(TestDriver, readSensorData_Binary)
 {
+  // Expect to check the data is correctly updated when binary data is read
   auto mock = create_serial_port_mock();
 
+  // 1st: invalid binary data ('R' and 'T' positions are reversed)
+  // 2nd: correct binary data ('R' and 'T' are in the correct position)
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
     buf_size = create_dummy_bin_imu_data(buf, true);
@@ -239,8 +242,11 @@ TEST(TestDriver, readSensorData_Binary)
 
 TEST(TestDriver, readSensorData_ASCII)
 {
+  // Expect to check the data is correctly updated when ascii data is read
   auto mock = create_serial_port_mock();
 
+  // 1st: invalid ascii data (timestamp is double)
+  // 2nd: correct ascii data (timestamp is int)
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
     buf_size = create_dummy_ascii_imu_data(buf, true);
