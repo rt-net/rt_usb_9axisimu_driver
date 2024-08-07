@@ -269,3 +269,39 @@ TEST(TestDriver, readSensorData_ASCII)
 
   EXPECT_TRUE(driver.hasRefreshedImuData());
 }
+
+TEST(TestDriver, check_convert_when_read_ASCII) {
+  // Expect to check the data is correctly converted when ascii data is read
+  auto mock = create_serial_port_mock();
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  driver.setAsciiFormat();
+
+  rclcpp::Time timestamp;
+  const double abs_error = 1e-9;
+
+  // case 1: zero
+  When(Method(mock, readFromDevice)).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    buf_size = create_dummy_ascii_imu_data(buf, false);
+    return buf_size;
+  });
+
+  auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
+  auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
+  auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
+
+  const double zero = 0.0;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, zero, abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, zero, abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, zero, abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, zero, abs_error);
+  EXPECT_NEAR(imu_data_temperature->data, zero, abs_error);
+}
