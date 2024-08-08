@@ -53,7 +53,14 @@ Mock<SerialPort> create_serial_port_mock(void) {
   return mock;
 }
 
-unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid) {
+// Expect that short int is 2 bytes.
+unsigned char short_int_to_byte(short int val, bool is_low) {
+  if (is_low) return (val >> 0) & 0xFF;
+  else return (val >> 8) & 0xFF;
+}
+
+unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
+                                       short int *gyro, short int *acc, short int *mag, short int temp) {
   rt_usb_9axisimu::Consts consts;
   unsigned char dummy_bin_imu_data[consts.IMU_BIN_DATA_SIZE] = {0};
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_FF0] = 0xff;
@@ -67,6 +74,26 @@ unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid) {
   }
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID0] = 0x39;
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID1] = 0x41;
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_L] = short_int_to_byte(acc[0], true);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_H] = short_int_to_byte(acc[0], false);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_L] = short_int_to_byte(acc[1], true);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_H] = short_int_to_byte(acc[1], false);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_L] = short_int_to_byte(acc[2], true);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_H] = short_int_to_byte(acc[2], false);
+  dummy_bin_imu_data[consts.IMU_BIN_TEMP_L] = short_int_to_byte(temp, true);
+  dummy_bin_imu_data[consts.IMU_BIN_TEMP_H] = short_int_to_byte(temp, false);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_L] = short_int_to_byte(gyro[0], true);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_H] = short_int_to_byte(gyro[0], false);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_L] = short_int_to_byte(gyro[1], true);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_H] = short_int_to_byte(gyro[1], false);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_L] = short_int_to_byte(gyro[2], true);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_H] = short_int_to_byte(gyro[2], false);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_L] = short_int_to_byte(mag[0], true);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_H] = short_int_to_byte(mag[0], false);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_L] = short_int_to_byte(mag[1], true);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_H] = short_int_to_byte(mag[1], false);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_L] = short_int_to_byte(mag[2], true);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_H] = short_int_to_byte(mag[2], false);
   for(int i = 0; i < consts.IMU_BIN_DATA_SIZE; i++) {
     buf[i] = dummy_bin_imu_data[i];
   }
@@ -149,11 +176,19 @@ TEST(TestDriver, checkDataFormat_Binary)
   // 2nd: correct binary data ('R' and 'T' are in the correct position)
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, true);
+    short int gyro[] = {0, 0, 0};
+    short int acc[] = {0, 0, 0};
+    short int mag[] = {0, 0, 0};
+    short int temp = 0;
+    buf_size = create_dummy_bin_imu_data(buf, true, gyro, acc, mag, temp);
     return buf_size;
   }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, false);
+    short int gyro[] = {0, 0, 0};
+    short int acc[] = {0, 0, 0};
+    short int mag[] = {0, 0, 0};
+    short int temp = 0;
+    buf_size = create_dummy_bin_imu_data(buf, false, gyro, acc, mag, temp);
     return buf_size;
   });
 
@@ -235,11 +270,19 @@ TEST(TestDriver, readSensorData_Binary)
   // 2nd: correct binary data ('R' and 'T' are in the correct position)
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, true);
+    short int gyro[] = {0, 0, 0};
+    short int acc[] = {0, 0, 0};
+    short int mag[] = {0, 0, 0};
+    short int temp = 0;
+    buf_size = create_dummy_bin_imu_data(buf, true, gyro, acc, mag, temp);
     return buf_size;
   }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, false);
+    short int gyro[] = {0, 0, 0};
+    short int acc[] = {0, 0, 0};
+    short int mag[] = {0, 0, 0};
+    short int temp = 0;
+    buf_size = create_dummy_bin_imu_data(buf, false, gyro, acc, mag, temp);
     return buf_size;
   });
 
@@ -292,6 +335,46 @@ TEST(TestDriver, readSensorData_ASCII)
   driver.readSensorData();
 
   EXPECT_TRUE(driver.hasRefreshedImuData());
+}
+
+TEST(TestDriver, check_convert_when_read_Binary) {
+  // Expect to check the data is correctly converted when binary data is read
+  auto mock = create_serial_port_mock();
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  driver.setBinaryFormat();
+
+  rclcpp::Time timestamp;
+  const double abs_error = 1e-9;
+
+  // case 1: zero
+  When(Method(mock, readFromDevice)).Do([](
+    unsigned char* buf, unsigned int buf_size) {
+    short int gyro[] = {0, 0, 0};
+    short int acc[] = {0, 0, 0};
+    short int mag[] = {0, 0, 0};
+    short int temp = 0;
+    buf_size = create_dummy_bin_imu_data(buf, true, gyro, acc, mag, temp);
+    return buf_size;
+  });
+
+  auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
+  auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
+  auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
+
+  const double zero = 0.0;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, zero, abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, zero, abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, zero, abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, zero, abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, zero, abs_error);
+  EXPECT_NEAR(imu_data_temperature->data, zero, abs_error);
 }
 
 TEST(TestDriver, check_convert_when_read_ASCII) {
