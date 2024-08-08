@@ -36,6 +36,7 @@
 #include "fakeit.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
+#include <iostream>
 
 using fakeit::Mock;
 using fakeit::When;
@@ -72,7 +73,14 @@ unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid) {
   return consts.IMU_BIN_DATA_SIZE;
 }
 
-unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid) {
+std::string double_to_string(double val) {
+    std::string str = std::to_string(val);
+    str.resize(8, '0');
+    return str;
+}
+
+unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid,
+                                         double *gyro, double *acc, double *mag, double temp) {
     rt_usb_9axisimu::Consts consts;
     std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
     if (is_invalid) {
@@ -80,16 +88,16 @@ unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid) {
     } else {
       dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
     }
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = "0.000000";
-    dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = "0.000000";
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = double_to_string(gyro[0]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = double_to_string(gyro[1]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = double_to_string(gyro[2]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = double_to_string(acc[0]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = double_to_string(acc[1]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = double_to_string(acc[2]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = double_to_string(mag[0]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = double_to_string(mag[1]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = double_to_string(mag[2]).c_str();
+    dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = double_to_string(temp).c_str();
     const char split_char = ',';
     const char newline_char = '\n';
     buf[0] = (unsigned char)newline_char;
@@ -167,11 +175,19 @@ TEST(TestDriver, checkDataFormat_ASCII)
   // 2nd: correct ascii data (timestamp is int)
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, true);
+    double gyro[] = {0.0, 0.0, 0.0};
+    double acc[] = {0.0, 0.0, 0.0};
+    double mag[] = {0.0, 0.0, 0.0};
+    double temp = 0.0;
+    buf_size = create_dummy_ascii_imu_data(buf, true, gyro, acc, mag, temp);
     return buf_size;
   }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, false);
+    double gyro[] = {0.0, 0.0, 0.0};
+    double acc[] = {0.0, 0.0, 0.0};
+    double mag[] = {0.0, 0.0, 0.0};
+    double temp = 0.0;
+    buf_size = create_dummy_ascii_imu_data(buf, false, gyro, acc, mag, temp);
     return buf_size;
   });
 
@@ -249,11 +265,19 @@ TEST(TestDriver, readSensorData_ASCII)
   // 2nd: correct ascii data (timestamp is int)
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, true);
+    double gyro[] = {0.0, 0.0, 0.0};
+    double acc[] = {0.0, 0.0, 0.0};
+    double mag[] = {0.0, 0.0, 0.0};
+    double temp = 0.0;
+    buf_size = create_dummy_ascii_imu_data(buf, true, gyro, acc, mag, temp);
     return buf_size;
   }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, false);
+    double gyro[] = {0.0, 0.0, 0.0};
+    double acc[] = {0.0, 0.0, 0.0};
+    double mag[] = {0.0, 0.0, 0.0};
+    double temp = 0.0;
+    buf_size = create_dummy_ascii_imu_data(buf, false, gyro, acc, mag, temp);
     return buf_size;
   });
 
@@ -285,7 +309,11 @@ TEST(TestDriver, check_convert_when_read_ASCII) {
   // case 1: zero
   When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, false);
+    double gyro[] = {0.0, 0.0, 0.0};
+    double acc[] = {0.0, 0.0, 0.0};
+    double mag[] = {0.0, 0.0, 0.0};
+    double temp = 0.0;
+    buf_size = create_dummy_ascii_imu_data(buf, false, gyro, acc, mag, temp);
     return buf_size;
   });
 
