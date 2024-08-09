@@ -36,11 +36,60 @@
 #include "fakeit.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu_driver.hpp"
 #include "rt_usb_9axisimu_driver/rt_usb_9axisimu.hpp"
-#include <iostream>
 
 using fakeit::Mock;
 using fakeit::When;
 using rt_usb_9axisimu::SerialPort;
+
+class ReadBinaryTestParam {
+public:
+  short int gyro[3];
+  short int acc[3];
+  short int mag[3];
+  short int temp;
+  double ans_gyro[3];
+  double ans_acc[3];
+  double ans_mag[3];
+  double ans_temp;
+
+  ReadBinaryTestParam (int case_num) {
+    if (case_num == 0) {
+      gyro[0] = gyro[1] = gyro[2] = 0;
+      acc[0] = acc[1] = acc[2] = 0;
+      mag[0] = mag[1] = mag[2] = 0;
+      temp = 0;
+      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = 0.0;
+      ans_acc[0] = ans_acc[1] = ans_acc[2] = 0.0;
+      ans_mag[0] = ans_mag[1] = ans_mag[2] = 0.0;
+      ans_temp = 0.0;
+    }
+  }
+};
+
+class ReadAsciiTestParam {
+public:
+  double gyro[3];
+  double acc[3];
+  double mag[3];
+  double temp;
+  double ans_gyro[3];
+  double ans_acc[3];
+  double ans_mag[3];
+  double ans_temp;
+
+  ReadAsciiTestParam (int case_num) {
+    if (case_num == 0) {
+      gyro[0] = gyro[1] = gyro[2] = 0.0;
+      acc[0] = acc[1] = acc[2] = 0.0;
+      mag[0] = mag[1] = mag[2] = 0.0;
+      temp = 0.0;
+      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = 0.0;
+      ans_acc[0] = ans_acc[1] = ans_acc[2] = 0.0;
+      ans_mag[0] = ans_mag[1] = ans_mag[2] = 0.0;
+      ans_temp = 0.0;
+    }
+  }
+};
 
 Mock<SerialPort> create_serial_port_mock(void) {
   Mock<SerialPort> mock;
@@ -171,24 +220,17 @@ TEST(TestDriver, checkDataFormat_Binary)
 {
   // Expect to check correctly when read data in binary format
   auto mock = create_serial_port_mock();
+  auto data = ReadBinaryTestParam(0);
 
   // 1st: invalid binary data ('R' and 'T' positions are reversed)
   // 2nd: correct binary data ('R' and 'T' are in the correct position)
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    short int gyro[] = {0, 0, 0};
-    short int acc[] = {0, 0, 0};
-    short int mag[] = {0, 0, 0};
-    short int temp = 0;
-    buf_size = create_dummy_bin_imu_data(buf, true, gyro, acc, mag, temp);
+    buf_size = create_dummy_bin_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
-  }).Do([](
+  }).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    short int gyro[] = {0, 0, 0};
-    short int acc[] = {0, 0, 0};
-    short int mag[] = {0, 0, 0};
-    short int temp = 0;
-    buf_size = create_dummy_bin_imu_data(buf, false, gyro, acc, mag, temp);
+    buf_size = create_dummy_bin_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
@@ -205,24 +247,17 @@ TEST(TestDriver, checkDataFormat_ASCII)
 {
   // Expect to check correctly when read data in ASCII format
   auto mock = create_serial_port_mock();
+  auto data = ReadAsciiTestParam(0);
 
   // 1st: invalid ascii data (timestamp is double)
   // 2nd: correct ascii data (timestamp is int)
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    double gyro[] = {0.0, 0.0, 0.0};
-    double acc[] = {0.0, 0.0, 0.0};
-    double mag[] = {0.0, 0.0, 0.0};
-    double temp = 0.0;
-    buf_size = create_dummy_ascii_imu_data(buf, true, gyro, acc, mag, temp);
+    buf_size = create_dummy_ascii_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
-  }).Do([](
+  }).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    double gyro[] = {0.0, 0.0, 0.0};
-    double acc[] = {0.0, 0.0, 0.0};
-    double mag[] = {0.0, 0.0, 0.0};
-    double temp = 0.0;
-    buf_size = create_dummy_ascii_imu_data(buf, false, gyro, acc, mag, temp);
+    buf_size = create_dummy_ascii_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
@@ -265,24 +300,17 @@ TEST(TestDriver, readSensorData_Binary)
 {
   // Expect to check the data is correctly updated when binary data is read
   auto mock = create_serial_port_mock();
+  auto data = ReadBinaryTestParam(0);
 
   // 1st: invalid binary data ('R' and 'T' positions are reversed)
   // 2nd: correct binary data ('R' and 'T' are in the correct position)
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    short int gyro[] = {0, 0, 0};
-    short int acc[] = {0, 0, 0};
-    short int mag[] = {0, 0, 0};
-    short int temp = 0;
-    buf_size = create_dummy_bin_imu_data(buf, true, gyro, acc, mag, temp);
+    buf_size = create_dummy_bin_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
-  }).Do([](
+  }).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    short int gyro[] = {0, 0, 0};
-    short int acc[] = {0, 0, 0};
-    short int mag[] = {0, 0, 0};
-    short int temp = 0;
-    buf_size = create_dummy_bin_imu_data(buf, false, gyro, acc, mag, temp);
+    buf_size = create_dummy_bin_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
@@ -303,24 +331,17 @@ TEST(TestDriver, readSensorData_ASCII)
 {
   // Expect to check the data is correctly updated when ascii data is read
   auto mock = create_serial_port_mock();
+  auto data = ReadAsciiTestParam(0);
 
   // 1st: invalid ascii data (timestamp is double)
   // 2nd: correct ascii data (timestamp is int)
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    double gyro[] = {0.0, 0.0, 0.0};
-    double acc[] = {0.0, 0.0, 0.0};
-    double mag[] = {0.0, 0.0, 0.0};
-    double temp = 0.0;
-    buf_size = create_dummy_ascii_imu_data(buf, true, gyro, acc, mag, temp);
+    buf_size = create_dummy_ascii_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
-  }).Do([](
+  }).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    double gyro[] = {0.0, 0.0, 0.0};
-    double acc[] = {0.0, 0.0, 0.0};
-    double mag[] = {0.0, 0.0, 0.0};
-    double temp = 0.0;
-    buf_size = create_dummy_ascii_imu_data(buf, false, gyro, acc, mag, temp);
+    buf_size = create_dummy_ascii_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
@@ -337,82 +358,92 @@ TEST(TestDriver, readSensorData_ASCII)
   EXPECT_TRUE(driver.hasRefreshedImuData());
 }
 
-TEST(TestDriver, check_convert_when_read_Binary) {
+class ReadBinaryTest : public testing::TestWithParam<ReadBinaryTestParam> {
+};
+
+TEST_P(ReadBinaryTest, read_binary_test) {
   // Expect to check the data is correctly converted when binary data is read
   auto mock = create_serial_port_mock();
+  auto data = GetParam();
 
   RtUsb9axisimuRosDriver driver(
     std::unique_ptr<SerialPort>(&mock.get()));
 
   driver.setBinaryFormat();
 
-  rclcpp::Time timestamp;
-  const double abs_error = 1e-9;
-
-  // case 1: zero
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    short int gyro[] = {0, 0, 0};
-    short int acc[] = {0, 0, 0};
-    short int mag[] = {0, 0, 0};
-    short int temp = 0;
-    buf_size = create_dummy_bin_imu_data(buf, true, gyro, acc, mag, temp);
+    buf_size = create_dummy_bin_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
+  rclcpp::Time timestamp;
   auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
   auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
   auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
 
-  const double zero = 0.0;
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.x, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.y, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.z, zero, abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.x, zero, abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.y, zero, abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.z, zero, abs_error);
-  EXPECT_NEAR(imu_data_temperature->data, zero, abs_error);
+  const double abs_error = 1e-9;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error);
+  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error);
 }
 
-TEST(TestDriver, check_convert_when_read_ASCII) {
+INSTANTIATE_TEST_SUITE_P(
+    TestDriver,
+    ReadBinaryTest,
+    ::testing::Values(
+      ReadBinaryTestParam(0)
+    )
+);
+
+class ReadAsciiTest : public testing::TestWithParam<ReadAsciiTestParam> {
+};
+
+TEST_P(ReadAsciiTest, read_ascii_test) {
   // Expect to check the data is correctly converted when ascii data is read
   auto mock = create_serial_port_mock();
+  auto data = GetParam();
 
   RtUsb9axisimuRosDriver driver(
     std::unique_ptr<SerialPort>(&mock.get()));
 
   driver.setAsciiFormat();
 
-  rclcpp::Time timestamp;
-  const double abs_error = 1e-9;
-
-  // case 1: zero
-  When(Method(mock, readFromDevice)).Do([](
+  When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    double gyro[] = {0.0, 0.0, 0.0};
-    double acc[] = {0.0, 0.0, 0.0};
-    double mag[] = {0.0, 0.0, 0.0};
-    double temp = 0.0;
-    buf_size = create_dummy_ascii_imu_data(buf, false, gyro, acc, mag, temp);
+    buf_size = create_dummy_ascii_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
+  rclcpp::Time timestamp;
   auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
   auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
   auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
 
-  const double zero = 0.0;
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.x, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.y, zero, abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.z, zero, abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.x, zero, abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.y, zero, abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.z, zero, abs_error);
-  EXPECT_NEAR(imu_data_temperature->data, zero, abs_error);
+  const double abs_error = 1e-9;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error);
+  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error);
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    TestDriver,
+    ReadAsciiTest,
+    ::testing::Values(
+      ReadAsciiTestParam(0)
+    )
+);
