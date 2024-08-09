@@ -52,17 +52,32 @@ public:
   double ans_mag[3];
   double ans_temp;
 
+  void set_data (short int test_val) {
+      rt_usb_9axisimu::Consts consts;
+      const int test_firmfare_ver = 18;
+      consts.ChangeConvertor(test_firmfare_ver);
+      gyro[0] = gyro[1] = gyro[2] = test_val;
+      acc[0] = acc[1] = acc[2] = test_val;
+      mag[0] = mag[1] = mag[2] = test_val;
+      temp = test_val;
+      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = (double)(test_val / consts.CONVERTOR_RAW2DPS * consts.CONVERTOR_D2R);
+      ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(test_val / consts.CONVERTOR_RAW2G * consts.CONVERTOR_G2A);
+      ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(test_val * consts.CONVERTOR_RAW2UT / consts.CONVERTOR_UT2T);
+      ans_temp = (double)(test_val / consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2);
+  }
+
   ReadBinaryTestParam (int case_num) {
-    if (case_num == 0) {
-      gyro[0] = gyro[1] = gyro[2] = 0;
-      acc[0] = acc[1] = acc[2] = 0;
-      mag[0] = mag[1] = mag[2] = 0;
-      temp = 0;
-      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = 0.0;
-      ans_acc[0] = ans_acc[1] = ans_acc[2] = 0.0;
-      ans_mag[0] = ans_mag[1] = ans_mag[2] = 0.0;
-      ans_temp = 0.0;
-    }
+    if (case_num == 0) set_data(0); // zero
+    else if (case_num == 1) set_data(32767); // max
+    else if (case_num == 2) set_data(-32768); // min
+    else if (case_num == 3) set_data(32766); // boundary
+    else if (case_num == 4) set_data(-32767); // boundary
+    else if (case_num == 5) set_data(1); // random
+    else if (case_num == 6) set_data(-1); // random
+    else if (case_num == 7) set_data(999); // random
+    else if (case_num == 8) set_data(-999); // random
+    else if (case_num == 9) set_data(12345); // random
+    else if (case_num == 10) set_data(-12345); // random
   }
 };
 
@@ -77,17 +92,32 @@ public:
   double ans_mag[3];
   double ans_temp;
 
+  void set_data (double gyro_val, double acc_val, double mag_val, double temp_val) {
+      rt_usb_9axisimu::Consts consts;
+      const int test_firmfare_ver = 18;
+      consts.ChangeConvertor(test_firmfare_ver);
+      gyro[0] = gyro[1] = gyro[2] = gyro_val;
+      acc[0] = acc[1] = acc[2] = acc_val;
+      mag[0] = mag[1] = mag[2] = mag_val;
+      temp = temp_val;
+      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = gyro_val;
+      ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(acc_val * consts.CONVERTOR_G2A);
+      ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(mag_val / consts.CONVERTOR_UT2T);
+      ans_temp = temp_val;
+  }
+
   ReadAsciiTestParam (int case_num) {
-    if (case_num == 0) {
-      gyro[0] = gyro[1] = gyro[2] = 0.0;
-      acc[0] = acc[1] = acc[2] = 0.0;
-      mag[0] = mag[1] = mag[2] = 0.0;
-      temp = 0.0;
-      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = 0.0;
-      ans_acc[0] = ans_acc[1] = ans_acc[2] = 0.0;
-      ans_mag[0] = ans_mag[1] = ans_mag[2] = 0.0;
-      ans_temp = 0.0;
-    }
+    if(case_num == 0) set_data(0.0, 0.0, 0.0, 0.0); // zero
+    else if(case_num == 1) set_data(34.906585, 16.0, 4800.0, 85.0); // max
+    else if(case_num == 2) set_data(-34.906585, -16.0, -4800.0, -40.0); // min
+    else if(case_num == 3) set_data(0.00107, 0.0005, 0.14649, 0.0026); // resolution
+    else if(case_num == 4) set_data(-0.00107, -0.0005, -0.14649, -0.00122); // resolution
+    else if(case_num == 5) set_data(0.1, 0.1, 0.1, 0.1); // random
+    else if(case_num == 6) set_data(-0.1, -0.1, -0.1, -0.1); // random
+    else if(case_num == 7) set_data(1.0, 1.0, 1.0, 1.0); // random
+    else if(case_num == 8) set_data(-1.0, -1.0, -1.0, -1.0); // random
+    else if(case_num == 9) set_data(12.34567, 12.34567, 12.34567, 12.34567); // random
+    else if(case_num == 10) set_data(-12.34567, -12.34567, -12.34567, -12.34567); // random
   }
 };
 
@@ -123,6 +153,8 @@ unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
   }
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID0] = 0x39;
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID1] = 0x41;
+  dummy_bin_imu_data[consts.IMU_BIN_FIRMWARE] = 0x12;
+  dummy_bin_imu_data[consts.IMU_BIN_TIMESTAMP] = 0x00;
   dummy_bin_imu_data[consts.IMU_BIN_ACC_X_L] = short_int_to_byte(acc[0], true);
   dummy_bin_imu_data[consts.IMU_BIN_ACC_X_H] = short_int_to_byte(acc[0], false);
   dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_L] = short_int_to_byte(acc[1], true);
@@ -369,42 +401,67 @@ TEST_P(ReadBinaryTest, read_binary_test) {
   RtUsb9axisimuRosDriver driver(
     std::unique_ptr<SerialPort>(&mock.get()));
 
-  driver.setBinaryFormat();
-
   When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_bin_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
+
+  driver.setBinaryFormat();
+  driver.readSensorData();
 
   rclcpp::Time timestamp;
   auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
   auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
   auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
 
-  const double abs_error = 1e-9;
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error);
-  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error);
+  const double abs_error_acc = 1e-3;
+  const double abs_error_gyro = 1e-3;
+  const double abs_error_mag = 1e-7;
+  const double abs_error_temp = 1e-3;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error_gyro);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error_mag);
+  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error_temp);
 }
 
 INSTANTIATE_TEST_SUITE_P(
     TestDriver,
     ReadBinaryTest,
     ::testing::Values(
-      ReadBinaryTestParam(0)
+      ReadBinaryTestParam(0),
+      ReadBinaryTestParam(1),
+      ReadBinaryTestParam(2),
+      ReadBinaryTestParam(3),
+      ReadBinaryTestParam(4),
+      ReadBinaryTestParam(5),
+      ReadBinaryTestParam(6),
+      ReadBinaryTestParam(7),
+      ReadBinaryTestParam(8),
+      ReadBinaryTestParam(9),
+      ReadBinaryTestParam(10)
     )
 );
 
 class ReadAsciiTest : public testing::TestWithParam<ReadAsciiTestParam> {
 };
+
+int16_t comb(unsigned char data_h, unsigned char data_l)
+{
+  int16_t short_data = 0;
+
+  short_data = data_h;
+  short_data = short_data << 8;
+  short_data |= data_l;
+
+  return short_data;
+}
 
 TEST_P(ReadAsciiTest, read_ascii_test) {
   // Expect to check the data is correctly converted when ascii data is read
@@ -414,36 +471,50 @@ TEST_P(ReadAsciiTest, read_ascii_test) {
   RtUsb9axisimuRosDriver driver(
     std::unique_ptr<SerialPort>(&mock.get()));
 
-  driver.setAsciiFormat();
-
   When(Method(mock, readFromDevice)).Do([&](
     unsigned char* buf, unsigned int buf_size) {
     buf_size = create_dummy_ascii_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
     return buf_size;
   });
 
+  driver.setAsciiFormat();
+  driver.readSensorData();
+
   rclcpp::Time timestamp;
   auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
   auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
   auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
 
-  const double abs_error = 1e-9;
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error);
-  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error);
-  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error);
-  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error);
-  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error);
+  const double abs_error_acc = 1e-3;
+  const double abs_error_gyro = 1e-3;
+  const double abs_error_mag = 1e-7;
+  const double abs_error_temp = 1e-3;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error_gyro);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error_mag);
+  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error_temp);
 }
 
 INSTANTIATE_TEST_SUITE_P(
     TestDriver,
     ReadAsciiTest,
     ::testing::Values(
-      ReadAsciiTestParam(0)
+      ReadAsciiTestParam(0),
+      ReadAsciiTestParam(1),
+      ReadAsciiTestParam(2),
+      ReadAsciiTestParam(3),
+      ReadAsciiTestParam(4),
+      ReadAsciiTestParam(5),
+      ReadAsciiTestParam(6),
+      ReadAsciiTestParam(7),
+      ReadAsciiTestParam(8),
+      ReadAsciiTestParam(9),
+      ReadAsciiTestParam(10)
     )
 );
