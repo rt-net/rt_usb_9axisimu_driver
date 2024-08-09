@@ -452,17 +452,6 @@ INSTANTIATE_TEST_SUITE_P(
 class ReadAsciiTest : public testing::TestWithParam<ReadAsciiTestParam> {
 };
 
-int16_t comb(unsigned char data_h, unsigned char data_l)
-{
-  int16_t short_data = 0;
-
-  short_data = data_h;
-  short_data = short_data << 8;
-  short_data |= data_l;
-
-  return short_data;
-}
-
 TEST_P(ReadAsciiTest, read_ascii_test) {
   // Expect to check the data is correctly converted when ascii data is read
   auto mock = create_serial_port_mock();
