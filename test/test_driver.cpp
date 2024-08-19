@@ -120,9 +120,12 @@ Mock<SerialPort> create_serial_port_mock(void) {
   return mock;
 }
 
-unsigned char int16_to_byte(int16_t val, bool is_low) {
-  if (is_low) return (val >> 0) & 0xFF;
-  else return (val >> 8) & 0xFF;
+unsigned char int16_to_byte_low_8bit(int16_t val) {
+  return (val >> 0) & 0xFF;
+}
+
+unsigned char int16_to_byte_high_8bit(int16_t val) {
+  return (val >> 8) & 0xFF;
 }
 
 unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
@@ -142,26 +145,26 @@ unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID1] = 0x41;
   dummy_bin_imu_data[consts.IMU_BIN_FIRMWARE] = 0x12;
   dummy_bin_imu_data[consts.IMU_BIN_TIMESTAMP] = 0x00;
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_L] = int16_to_byte(acc[0], true);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_H] = int16_to_byte(acc[0], false);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_L] = int16_to_byte(acc[1], true);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_H] = int16_to_byte(acc[1], false);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_L] = int16_to_byte(acc[2], true);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_H] = int16_to_byte(acc[2], false);
-  dummy_bin_imu_data[consts.IMU_BIN_TEMP_L] = int16_to_byte(temp, true);
-  dummy_bin_imu_data[consts.IMU_BIN_TEMP_H] = int16_to_byte(temp, false);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_L] = int16_to_byte(gyro[0], true);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_H] = int16_to_byte(gyro[0], false);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_L] = int16_to_byte(gyro[1], true);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_H] = int16_to_byte(gyro[1], false);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_L] = int16_to_byte(gyro[2], true);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_H] = int16_to_byte(gyro[2], false);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_L] = int16_to_byte(mag[0], true);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_H] = int16_to_byte(mag[0], false);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_L] = int16_to_byte(mag[1], true);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_H] = int16_to_byte(mag[1], false);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_L] = int16_to_byte(mag[2], true);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_H] = int16_to_byte(mag[2], false);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_L] = int16_to_byte_low_8bit(acc[0]);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_H] = int16_to_byte_high_8bit(acc[0]);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_L] = int16_to_byte_low_8bit(acc[1]);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_H] = int16_to_byte_high_8bit(acc[1]);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_L] = int16_to_byte_low_8bit(acc[2]);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_H] = int16_to_byte_high_8bit(acc[2]);
+  dummy_bin_imu_data[consts.IMU_BIN_TEMP_L] = int16_to_byte_low_8bit(temp);
+  dummy_bin_imu_data[consts.IMU_BIN_TEMP_H] = int16_to_byte_high_8bit(temp);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_L] = int16_to_byte_low_8bit(gyro[0]);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_H] = int16_to_byte_high_8bit(gyro[0]);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_L] = int16_to_byte_low_8bit(gyro[1]);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_H] = int16_to_byte_high_8bit(gyro[1]);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_L] = int16_to_byte_low_8bit(gyro[2]);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_H] = int16_to_byte_high_8bit(gyro[2]);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_L] = int16_to_byte_low_8bit(mag[0]);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_H] = int16_to_byte_high_8bit(mag[0]);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_L] = int16_to_byte_low_8bit(mag[1]);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_H] = int16_to_byte_high_8bit(mag[1]);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_L] = int16_to_byte_low_8bit(mag[2]);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_H] = int16_to_byte_high_8bit(mag[2]);
   for(int i = 0; i < consts.IMU_BIN_DATA_SIZE; i++) {
     buf[i] = dummy_bin_imu_data[i];
   }
