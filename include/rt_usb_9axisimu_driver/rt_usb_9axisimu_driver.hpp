@@ -104,14 +104,6 @@ public:
   std::unique_ptr<sensor_msgs::msg::MagneticField> getImuMagUniquePtr(const rclcpp::Time timestamp);
   std::unique_ptr<std_msgs::msg::Float64> getImuTemperatureUniquePtr(void);
   bool readSensorData();
-
-  void setBinaryFormat() {
-    data_format_ = DataFormat::BINARY;
-  }
-
-  void setAsciiFormat() {
-    data_format_ = DataFormat::ASCII;
-  }
 };
 
 #endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_DRIVER_HPP_
