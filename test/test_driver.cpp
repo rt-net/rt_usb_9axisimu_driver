@@ -41,23 +41,33 @@ using fakeit::Mock;
 using fakeit::When;
 using rt_usb_9axisimu::SerialPort;
 
+unsigned char int16_to_byte_low_8bit(int16_t val);
+unsigned char int16_to_byte_high_8bit(int16_t val);
+unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid);
+unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
+                                       int16_t *gyro, int16_t *acc, int16_t *mag, int16_t temp);
+std::string double_to_string(double val);
+unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid);
+unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid,
+                                         double *gyro, double *acc, double *mag, double temp);
+
 class ReadBinaryTestParam {
 public:
   int16_t gyro[3], acc[3], mag[3], temp;
   double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
   void set_data (int16_t test_val) {
-      rt_usb_9axisimu::Consts consts;
-      const int test_firmfare_ver = 18;
-      consts.ChangeConvertor(test_firmfare_ver);
-      gyro[0] = gyro[1] = gyro[2] = test_val;
-      acc[0] = acc[1] = acc[2] = test_val;
-      mag[0] = mag[1] = mag[2] = test_val;
-      temp = test_val;
-      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = (double)(test_val / consts.CONVERTOR_RAW2DPS * consts.CONVERTOR_D2R);
-      ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(test_val / consts.CONVERTOR_RAW2G * consts.CONVERTOR_G2A);
-      ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(test_val * consts.CONVERTOR_RAW2UT / consts.CONVERTOR_UT2T);
-      ans_temp = (double)(test_val / consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2);
+    rt_usb_9axisimu::Consts consts;
+    const int test_firmfare_ver = 18;
+    consts.ChangeConvertor(test_firmfare_ver);
+    gyro[0] = gyro[1] = gyro[2] = test_val;
+    acc[0] = acc[1] = acc[2] = test_val;
+    mag[0] = mag[1] = mag[2] = test_val;
+    temp = test_val;
+    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = (double)(test_val / consts.CONVERTOR_RAW2DPS * consts.CONVERTOR_D2R);
+    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(test_val / consts.CONVERTOR_RAW2G * consts.CONVERTOR_G2A);
+    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(test_val * consts.CONVERTOR_RAW2UT / consts.CONVERTOR_UT2T);
+    ans_temp = (double)(test_val / consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2);
   }
 
   ReadBinaryTestParam (int case_num) {
@@ -81,17 +91,17 @@ public:
   double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
   void set_data (double gyro_val, double acc_val, double mag_val, double temp_val) {
-      rt_usb_9axisimu::Consts consts;
-      const int test_firmfare_ver = 18;
-      consts.ChangeConvertor(test_firmfare_ver);
-      gyro[0] = gyro[1] = gyro[2] = gyro_val;
-      acc[0] = acc[1] = acc[2] = acc_val;
-      mag[0] = mag[1] = mag[2] = mag_val;
-      temp = temp_val;
-      ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = gyro_val;
-      ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(acc_val * consts.CONVERTOR_G2A);
-      ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(mag_val / consts.CONVERTOR_UT2T);
-      ans_temp = temp_val;
+    rt_usb_9axisimu::Consts consts;
+    const int test_firmfare_ver = 18;
+    consts.ChangeConvertor(test_firmfare_ver);
+    gyro[0] = gyro[1] = gyro[2] = gyro_val;
+    acc[0] = acc[1] = acc[2] = acc_val;
+    mag[0] = mag[1] = mag[2] = mag_val;
+    temp = temp_val;
+    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = gyro_val;
+    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(acc_val * consts.CONVERTOR_G2A);
+    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(mag_val / consts.CONVERTOR_UT2T);
+    ans_temp = temp_val;
   }
 
   ReadAsciiTestParam (int case_num) {
@@ -126,6 +136,11 @@ unsigned char int16_to_byte_low_8bit(int16_t val) {
 
 unsigned char int16_to_byte_high_8bit(int16_t val) {
   return (val >> 8) & 0xFF;
+}
+
+unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid) {
+  ReadBinaryTestParam data(0);
+  return create_dummy_bin_imu_data(buf, is_invalid, data.gyro, data.acc, data.mag, data.temp);
 }
 
 unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
@@ -172,44 +187,49 @@ unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
 }
 
 std::string double_to_string(double val) {
-    std::string str = std::to_string(val);
-    str.resize(8, '0');
-    return str;
+  std::string str = std::to_string(val);
+  str.resize(8, '0');
+  return str;
+}
+
+unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid) {
+  ReadAsciiTestParam data(0);
+  return create_dummy_ascii_imu_data(buf, is_invalid, data.gyro, data.acc, data.mag, data.temp);
 }
 
 unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid,
                                          double *gyro, double *acc, double *mag, double temp) {
-    rt_usb_9axisimu::Consts consts;
-    std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
-    if (is_invalid) {
-      dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0.0";
-    } else {
-      dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
-    }
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = double_to_string(gyro[0]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = double_to_string(gyro[1]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = double_to_string(gyro[2]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = double_to_string(acc[0]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = double_to_string(acc[1]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = double_to_string(acc[2]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = double_to_string(mag[0]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = double_to_string(mag[1]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = double_to_string(mag[2]).c_str();
-    dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = double_to_string(temp).c_str();
-    const char split_char = ',';
-    const char newline_char = '\n';
-    buf[0] = (unsigned char)newline_char;
-    unsigned int char_count = 1;
-    for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
-      for(int j = 0; j < (int)strlen(dummy_ascii_imu_data.at(i)); j++) {
-        buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
-        char_count++;
-      }
-      if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = (unsigned char)split_char;
-      else buf[char_count] = (unsigned char)newline_char;
+  rt_usb_9axisimu::Consts consts;
+  std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
+  if (is_invalid) {
+    dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0.0";
+  } else {
+    dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
+  }
+  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = double_to_string(gyro[0]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = double_to_string(gyro[1]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = double_to_string(gyro[2]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = double_to_string(acc[0]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = double_to_string(acc[1]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = double_to_string(acc[2]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = double_to_string(mag[0]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = double_to_string(mag[1]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = double_to_string(mag[2]).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = double_to_string(temp).c_str();
+  const char split_char = ',';
+  const char newline_char = '\n';
+  buf[0] = (unsigned char)newline_char;
+  unsigned int char_count = 1;
+  for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
+    for(int j = 0; j < (int)strlen(dummy_ascii_imu_data.at(i)); j++) {
+      buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
       char_count++;
     }
-    return char_count;
+    if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = (unsigned char)split_char;
+    else buf[char_count] = (unsigned char)newline_char;
+    char_count++;
+  }
+  return char_count;
 }
 
 TEST(TestDriver, startCommunication)
@@ -242,17 +262,16 @@ TEST(TestDriver, checkDataFormat_Binary)
 {
   // Expect to check correctly when read data in binary format
   auto mock = create_serial_port_mock();
-  auto data = ReadBinaryTestParam(0);
 
   // 1st: invalid binary data ('R' and 'T' positions are reversed)
   // 2nd: correct binary data ('R' and 'T' are in the correct position)
-  When(Method(mock, readFromDevice)).Do([&](
+  When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_bin_imu_data(buf, true);
     return buf_size;
-  }).Do([&](
+  }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_bin_imu_data(buf, false);
     return buf_size;
   });
 
@@ -269,17 +288,16 @@ TEST(TestDriver, checkDataFormat_ASCII)
 {
   // Expect to check correctly when read data in ASCII format
   auto mock = create_serial_port_mock();
-  auto data = ReadAsciiTestParam(0);
 
   // 1st: invalid ascii data (timestamp is double)
   // 2nd: correct ascii data (timestamp is int)
-  When(Method(mock, readFromDevice)).Do([&](
+  When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_ascii_imu_data(buf, true);
     return buf_size;
-  }).Do([&](
+  }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_ascii_imu_data(buf, false);
     return buf_size;
   });
 
@@ -322,17 +340,16 @@ TEST(TestDriver, readSensorData_Binary)
 {
   // Expect to check the data is correctly updated when binary data is read
   auto mock = create_serial_port_mock();
-  auto data = ReadBinaryTestParam(0);
 
   // 1st: invalid binary data ('R' and 'T' positions are reversed)
   // 2nd: correct binary data ('R' and 'T' are in the correct position)
-  When(Method(mock, readFromDevice)).Do([&](
+  When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_bin_imu_data(buf, true);
     return buf_size;
-  }).Do([&](
+  }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_bin_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_bin_imu_data(buf, false);
     return buf_size;
   });
 
@@ -353,17 +370,16 @@ TEST(TestDriver, readSensorData_ASCII)
 {
   // Expect to check the data is correctly updated when ascii data is read
   auto mock = create_serial_port_mock();
-  auto data = ReadAsciiTestParam(0);
 
   // 1st: invalid ascii data (timestamp is double)
   // 2nd: correct ascii data (timestamp is int)
-  When(Method(mock, readFromDevice)).Do([&](
+  When(Method(mock, readFromDevice)).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, true, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_ascii_imu_data(buf, true);
     return buf_size;
-  }).Do([&](
+  }).Do([](
     unsigned char* buf, unsigned int buf_size) {
-    buf_size = create_dummy_ascii_imu_data(buf, false, data.gyro, data.acc, data.mag, data.temp);
+    buf_size = create_dummy_ascii_imu_data(buf, false);
     return buf_size;
   });
 
@@ -422,21 +438,21 @@ TEST_P(ReadBinaryTest, read_binary_test) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    TestDriver,
-    ReadBinaryTest,
-    ::testing::Values(
-      ReadBinaryTestParam(0),
-      ReadBinaryTestParam(1),
-      ReadBinaryTestParam(2),
-      ReadBinaryTestParam(3),
-      ReadBinaryTestParam(4),
-      ReadBinaryTestParam(5),
-      ReadBinaryTestParam(6),
-      ReadBinaryTestParam(7),
-      ReadBinaryTestParam(8),
-      ReadBinaryTestParam(9),
-      ReadBinaryTestParam(10)
-    )
+  TestDriver,
+  ReadBinaryTest,
+  ::testing::Values(
+    ReadBinaryTestParam(0),
+    ReadBinaryTestParam(1),
+    ReadBinaryTestParam(2),
+    ReadBinaryTestParam(3),
+    ReadBinaryTestParam(4),
+    ReadBinaryTestParam(5),
+    ReadBinaryTestParam(6),
+    ReadBinaryTestParam(7),
+    ReadBinaryTestParam(8),
+    ReadBinaryTestParam(9),
+    ReadBinaryTestParam(10)
+  )
 );
 
 class ReadAsciiTest : public testing::TestWithParam<ReadAsciiTestParam> {
@@ -481,19 +497,19 @@ TEST_P(ReadAsciiTest, read_ascii_test) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    TestDriver,
-    ReadAsciiTest,
-    ::testing::Values(
-      ReadAsciiTestParam(0),
-      ReadAsciiTestParam(1),
-      ReadAsciiTestParam(2),
-      ReadAsciiTestParam(3),
-      ReadAsciiTestParam(4),
-      ReadAsciiTestParam(5),
-      ReadAsciiTestParam(6),
-      ReadAsciiTestParam(7),
-      ReadAsciiTestParam(8),
-      ReadAsciiTestParam(9),
-      ReadAsciiTestParam(10)
-    )
+  TestDriver,
+  ReadAsciiTest,
+  ::testing::Values(
+    ReadAsciiTestParam(0),
+    ReadAsciiTestParam(1),
+    ReadAsciiTestParam(2),
+    ReadAsciiTestParam(3),
+    ReadAsciiTestParam(4),
+    ReadAsciiTestParam(5),
+    ReadAsciiTestParam(6),
+    ReadAsciiTestParam(7),
+    ReadAsciiTestParam(8),
+    ReadAsciiTestParam(9),
+    ReadAsciiTestParam(10)
+  )
 );
