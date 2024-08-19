@@ -43,16 +43,10 @@ using rt_usb_9axisimu::SerialPort;
 
 class ReadBinaryTestParam {
 public:
-  short int gyro[3];
-  short int acc[3];
-  short int mag[3];
-  short int temp;
-  double ans_gyro[3];
-  double ans_acc[3];
-  double ans_mag[3];
-  double ans_temp;
+  int16_t gyro[3], acc[3], mag[3], temp;
+  double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
-  void set_data (short int test_val) {
+  void set_data (int16_t test_val) {
       rt_usb_9axisimu::Consts consts;
       const int test_firmfare_ver = 18;
       consts.ChangeConvertor(test_firmfare_ver);
@@ -83,14 +77,8 @@ public:
 
 class ReadAsciiTestParam {
 public:
-  double gyro[3];
-  double acc[3];
-  double mag[3];
-  double temp;
-  double ans_gyro[3];
-  double ans_acc[3];
-  double ans_mag[3];
-  double ans_temp;
+  double gyro[3], acc[3], mag[3], temp;
+  double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
   void set_data (double gyro_val, double acc_val, double mag_val, double temp_val) {
       rt_usb_9axisimu::Consts consts;
@@ -132,14 +120,13 @@ Mock<SerialPort> create_serial_port_mock(void) {
   return mock;
 }
 
-// Expect that short int is 2 bytes.
-unsigned char short_int_to_byte(short int val, bool is_low) {
+unsigned char int16_to_byte(int16_t val, bool is_low) {
   if (is_low) return (val >> 0) & 0xFF;
   else return (val >> 8) & 0xFF;
 }
 
 unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
-                                       short int *gyro, short int *acc, short int *mag, short int temp) {
+                                       int16_t *gyro, int16_t *acc, int16_t *mag, int16_t temp) {
   rt_usb_9axisimu::Consts consts;
   unsigned char dummy_bin_imu_data[consts.IMU_BIN_DATA_SIZE] = {0};
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_FF0] = 0xff;
@@ -155,26 +142,26 @@ unsigned int create_dummy_bin_imu_data(unsigned char *buf, bool is_invalid,
   dummy_bin_imu_data[consts.IMU_BIN_HEADER_ID1] = 0x41;
   dummy_bin_imu_data[consts.IMU_BIN_FIRMWARE] = 0x12;
   dummy_bin_imu_data[consts.IMU_BIN_TIMESTAMP] = 0x00;
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_L] = short_int_to_byte(acc[0], true);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_H] = short_int_to_byte(acc[0], false);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_L] = short_int_to_byte(acc[1], true);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_H] = short_int_to_byte(acc[1], false);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_L] = short_int_to_byte(acc[2], true);
-  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_H] = short_int_to_byte(acc[2], false);
-  dummy_bin_imu_data[consts.IMU_BIN_TEMP_L] = short_int_to_byte(temp, true);
-  dummy_bin_imu_data[consts.IMU_BIN_TEMP_H] = short_int_to_byte(temp, false);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_L] = short_int_to_byte(gyro[0], true);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_H] = short_int_to_byte(gyro[0], false);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_L] = short_int_to_byte(gyro[1], true);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_H] = short_int_to_byte(gyro[1], false);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_L] = short_int_to_byte(gyro[2], true);
-  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_H] = short_int_to_byte(gyro[2], false);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_L] = short_int_to_byte(mag[0], true);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_H] = short_int_to_byte(mag[0], false);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_L] = short_int_to_byte(mag[1], true);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_H] = short_int_to_byte(mag[1], false);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_L] = short_int_to_byte(mag[2], true);
-  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_H] = short_int_to_byte(mag[2], false);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_L] = int16_to_byte(acc[0], true);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_X_H] = int16_to_byte(acc[0], false);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_L] = int16_to_byte(acc[1], true);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Y_H] = int16_to_byte(acc[1], false);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_L] = int16_to_byte(acc[2], true);
+  dummy_bin_imu_data[consts.IMU_BIN_ACC_Z_H] = int16_to_byte(acc[2], false);
+  dummy_bin_imu_data[consts.IMU_BIN_TEMP_L] = int16_to_byte(temp, true);
+  dummy_bin_imu_data[consts.IMU_BIN_TEMP_H] = int16_to_byte(temp, false);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_L] = int16_to_byte(gyro[0], true);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_X_H] = int16_to_byte(gyro[0], false);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_L] = int16_to_byte(gyro[1], true);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Y_H] = int16_to_byte(gyro[1], false);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_L] = int16_to_byte(gyro[2], true);
+  dummy_bin_imu_data[consts.IMU_BIN_GYRO_Z_H] = int16_to_byte(gyro[2], false);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_L] = int16_to_byte(mag[0], true);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_X_H] = int16_to_byte(mag[0], false);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_L] = int16_to_byte(mag[1], true);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Y_H] = int16_to_byte(mag[1], false);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_L] = int16_to_byte(mag[2], true);
+  dummy_bin_imu_data[consts.IMU_BIN_MAG_Z_H] = int16_to_byte(mag[2], false);
   for(int i = 0; i < consts.IMU_BIN_DATA_SIZE; i++) {
     buf[i] = dummy_bin_imu_data[i];
   }
