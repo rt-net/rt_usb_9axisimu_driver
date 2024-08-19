@@ -56,20 +56,6 @@ public:
   int16_t gyro[3], acc[3], mag[3], temp;
   double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
-  void set_data (int16_t test_val) {
-    rt_usb_9axisimu::Consts consts;
-    const int test_firmfare_ver = 18;
-    consts.ChangeConvertor(test_firmfare_ver);
-    gyro[0] = gyro[1] = gyro[2] = test_val;
-    acc[0] = acc[1] = acc[2] = test_val;
-    mag[0] = mag[1] = mag[2] = test_val;
-    temp = test_val;
-    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = (double)(test_val / consts.CONVERTOR_RAW2DPS * consts.CONVERTOR_D2R);
-    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(test_val / consts.CONVERTOR_RAW2G * consts.CONVERTOR_G2A);
-    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(test_val * consts.CONVERTOR_RAW2UT / consts.CONVERTOR_UT2T);
-    ans_temp = (double)(test_val / consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2);
-  }
-
   ReadBinaryTestParam (int case_num) {
     if (case_num == 0) set_data(0); // zero
     else if (case_num == 1) set_data(32767); // max
@@ -83,26 +69,27 @@ public:
     else if (case_num == 9) set_data(12345); // random
     else if (case_num == 10) set_data(-12345); // random
   }
+
+private:
+  void set_data (int16_t test_val) {
+    rt_usb_9axisimu::Consts consts;
+    const int test_firmfare_ver = 18;
+    consts.ChangeConvertor(test_firmfare_ver);
+    gyro[0] = gyro[1] = gyro[2] = test_val;
+    acc[0] = acc[1] = acc[2] = test_val;
+    mag[0] = mag[1] = mag[2] = test_val;
+    temp = test_val;
+    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = (double)(test_val / consts.CONVERTOR_RAW2DPS * consts.CONVERTOR_D2R);
+    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(test_val / consts.CONVERTOR_RAW2G * consts.CONVERTOR_G2A);
+    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(test_val * consts.CONVERTOR_RAW2UT / consts.CONVERTOR_UT2T);
+    ans_temp = (double)(test_val / consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2);
+  }
 };
 
 class ReadAsciiTestParam {
 public:
   double gyro[3], acc[3], mag[3], temp;
   double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
-
-  void set_data (double gyro_val, double acc_val, double mag_val, double temp_val) {
-    rt_usb_9axisimu::Consts consts;
-    const int test_firmfare_ver = 18;
-    consts.ChangeConvertor(test_firmfare_ver);
-    gyro[0] = gyro[1] = gyro[2] = gyro_val;
-    acc[0] = acc[1] = acc[2] = acc_val;
-    mag[0] = mag[1] = mag[2] = mag_val;
-    temp = temp_val;
-    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = gyro_val;
-    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(acc_val * consts.CONVERTOR_G2A);
-    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(mag_val / consts.CONVERTOR_UT2T);
-    ans_temp = temp_val;
-  }
 
   ReadAsciiTestParam (int case_num) {
     if(case_num == 0) set_data(0.0, 0.0, 0.0, 0.0); // zero
@@ -116,6 +103,21 @@ public:
     else if(case_num == 8) set_data(-1.0, -1.0, -1.0, -1.0); // random
     else if(case_num == 9) set_data(12.34567, 12.34567, 12.34567, 12.34567); // random
     else if(case_num == 10) set_data(-12.34567, -12.34567, -12.34567, -12.34567); // random
+  }
+
+private:
+  void set_data (double gyro_val, double acc_val, double mag_val, double temp_val) {
+    rt_usb_9axisimu::Consts consts;
+    const int test_firmfare_ver = 18;
+    consts.ChangeConvertor(test_firmfare_ver);
+    gyro[0] = gyro[1] = gyro[2] = gyro_val;
+    acc[0] = acc[1] = acc[2] = acc_val;
+    mag[0] = mag[1] = mag[2] = mag_val;
+    temp = temp_val;
+    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = gyro_val;
+    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(acc_val * consts.CONVERTOR_G2A);
+    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(mag_val / consts.CONVERTOR_UT2T);
+    ans_temp = temp_val;
   }
 };
 
