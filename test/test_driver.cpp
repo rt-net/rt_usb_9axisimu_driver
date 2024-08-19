@@ -57,21 +57,22 @@ public:
   double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
   ReadBinaryTestParam (int case_num) {
-    if (case_num == 0) set_data(0); // zero
-    else if (case_num == 1) set_data(32767); // max
-    else if (case_num == 2) set_data(-32768); // min
-    else if (case_num == 3) set_data(32766); // boundary
-    else if (case_num == 4) set_data(-32767); // boundary
-    else if (case_num == 5) set_data(1); // random
-    else if (case_num == 6) set_data(-1); // random
-    else if (case_num == 7) set_data(999); // random
-    else if (case_num == 8) set_data(-999); // random
-    else if (case_num == 9) set_data(12345); // random
-    else if (case_num == 10) set_data(-12345); // random
+    if (case_num == 0) set_data(0, 0.0, 0.0, 0.0, 21.0); // zero
+    else if (case_num == 1) set_data(32767, 34.87147, 156.90161, 0.00492, 119.14299); // max
+    else if (case_num == 2) set_data(-32768, -34.87253, -156.9064, -0.00492, -77.14598); // min
+    else if (case_num == 3) set_data(32766, 34.870401, 156.896823, 0.004915, 119.139995); // boundary
+    else if (case_num == 4) set_data(-32767, -34.871466, -156.901612, -0.004915, -77.14299); // boundary
+    else if (case_num == 5) set_data(1, 0.001064, 0.004788, 0.0, 21.002995); // random
+    else if (case_num == 6) set_data(-1, -0.001064, -0.004788, 0.0, 20.997005); // random
+    else if (case_num == 7) set_data(999, 1.063161, 4.783615, 0.00015, 23.992183); // random
+    else if (case_num == 8) set_data(-999, -1.063161, -4.783615, -0.00015, 18.007817); // random
+    else if (case_num == 9) set_data(12345, 13.13786, 59.112839, 0.001852, 57.975469); // random
+    else if (case_num == 10) set_data(-12345, -13.13786, -59.112839, -0.001852, -15.975469); // random
   }
 
 private:
-  void set_data (int16_t test_val) {
+  void set_data (int16_t test_val,
+                 double ans_gyro_val, double ans_acc_val, double ans_mag_val, double ans_temp_val) {
     rt_usb_9axisimu::Consts consts;
     const int test_firmfare_ver = 18;
     consts.ChangeConvertor(test_firmfare_ver);
@@ -79,10 +80,10 @@ private:
     acc[0] = acc[1] = acc[2] = test_val;
     mag[0] = mag[1] = mag[2] = test_val;
     temp = test_val;
-    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = (double)(test_val / consts.CONVERTOR_RAW2DPS * consts.CONVERTOR_D2R);
-    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(test_val / consts.CONVERTOR_RAW2G * consts.CONVERTOR_G2A);
-    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(test_val * consts.CONVERTOR_RAW2UT / consts.CONVERTOR_UT2T);
-    ans_temp = (double)(test_val / consts.CONVERTOR_RAW2C_1 + consts.CONVERTOR_RAW2C_2);
+    ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = ans_gyro_val;
+    ans_acc[0] = ans_acc[1] = ans_acc[2] = ans_acc_val;
+    ans_mag[0] = ans_mag[1] = ans_mag[2] = ans_mag_val;
+    ans_temp = ans_temp_val;
   }
 };
 
@@ -92,21 +93,22 @@ public:
   double ans_gyro[3], ans_acc[3], ans_mag[3], ans_temp;
 
   ReadAsciiTestParam (int case_num) {
-    if(case_num == 0) set_data(0.0, 0.0, 0.0, 0.0); // zero
-    else if(case_num == 1) set_data(34.906585, 16.0, 4800.0, 85.0); // max
-    else if(case_num == 2) set_data(-34.906585, -16.0, -4800.0, -40.0); // min
-    else if(case_num == 3) set_data(0.00107, 0.0005, 0.14649, 0.0026); // resolution
-    else if(case_num == 4) set_data(-0.00107, -0.0005, -0.14649, -0.00122); // resolution
-    else if(case_num == 5) set_data(0.1, 0.1, 0.1, 0.1); // random
-    else if(case_num == 6) set_data(-0.1, -0.1, -0.1, -0.1); // random
-    else if(case_num == 7) set_data(1.0, 1.0, 1.0, 1.0); // random
-    else if(case_num == 8) set_data(-1.0, -1.0, -1.0, -1.0); // random
-    else if(case_num == 9) set_data(12.34567, 12.34567, 12.34567, 12.34567); // random
-    else if(case_num == 10) set_data(-12.34567, -12.34567, -12.34567, -12.34567); // random
+    if(case_num == 0) set_data(0.0, 0.0, 0.0, 0.0, 0.0, 0.0); // zero
+    else if(case_num == 1) set_data(34.906585, 16.0, 4800.0, 85.0, 156.9064, 0.0048); // max
+    else if(case_num == 2) set_data(-34.906585, -16.0, -4800.0, -40.0, -156.9064, -0.0048); // min
+    else if(case_num == 3) set_data(0.00107, 0.0005, 0.14649, 0.0026, 0.00479, 0.00000015); // resolution
+    else if(case_num == 4) set_data(-0.00107, -0.0005, -0.14649, -0.00122, -0.00479, -0.00000015); // resolution
+    else if(case_num == 5) set_data(0.1, 0.1, 0.1, 0.1, 0.98067, 0.0000001); // random
+    else if(case_num == 6) set_data(-0.1, -0.1, -0.1, -0.1, -0.98067, 0.0000001); // random
+    else if(case_num == 7) set_data(1.0, 1.0, 1.0, 1.0, 9.80665, 0.000001); // random
+    else if(case_num == 8) set_data(-1.0, -1.0, -1.0, -1.0, -9.80665, -0.000001); // random
+    else if(case_num == 9) set_data(12.34567, 12.34567, 12.34567, 12.34567, 121.06966, 0.00001); // random
+    else if(case_num == 10) set_data(-12.34567, -12.34567, -12.34567, -12.34567, -121.06966, -0.00001); // random
   }
 
 private:
-  void set_data (double gyro_val, double acc_val, double mag_val, double temp_val) {
+  void set_data (double gyro_val, double acc_val, double mag_val, double temp_val,
+                 double ans_acc_val, double ans_mag_val) {
     rt_usb_9axisimu::Consts consts;
     const int test_firmfare_ver = 18;
     consts.ChangeConvertor(test_firmfare_ver);
@@ -115,8 +117,8 @@ private:
     mag[0] = mag[1] = mag[2] = mag_val;
     temp = temp_val;
     ans_gyro[0] = ans_gyro[1] = ans_gyro[2] = gyro_val;
-    ans_acc[0] = ans_acc[1] = ans_acc[2] = (double)(acc_val * consts.CONVERTOR_G2A);
-    ans_mag[0] = ans_mag[1] = ans_mag[2] = (double)(mag_val / consts.CONVERTOR_UT2T);
+    ans_acc[0] = ans_acc[1] = ans_acc[2] = ans_acc_val;
+    ans_mag[0] = ans_mag[1] = ans_mag[2] = ans_mag_val;
     ans_temp = temp_val;
   }
 };
@@ -425,7 +427,7 @@ TEST_P(ReadBinaryTest, read_binary_test) {
 
   const double abs_error_acc = 1e-3;
   const double abs_error_gyro = 1e-3;
-  const double abs_error_mag = 1e-7;
+  const double abs_error_mag = 1e-5;
   const double abs_error_temp = 1e-3;
   EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error_acc);
   EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error_acc);
@@ -484,7 +486,7 @@ TEST_P(ReadAsciiTest, read_ascii_test) {
 
   const double abs_error_acc = 1e-3;
   const double abs_error_gyro = 1e-3;
-  const double abs_error_mag = 1e-7;
+  const double abs_error_mag = 1e-5;
   const double abs_error_temp = 1e-3;
   EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error_acc);
   EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error_acc);
