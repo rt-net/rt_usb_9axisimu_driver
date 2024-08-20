@@ -535,7 +535,7 @@ TEST(TestDriver, get_latest_data_Binary) {
     rt_usb_9axisimu::Consts consts;
     buf_size = 0;
     for(int i = 0; i < MAX_CASE_NUM; i++) {
-      unsigned char oneset_data[consts.IMU_BIN_DATA_SIZE];
+      unsigned char oneset_data[consts.READ_BUFFER_SIZE];
       ReadBinaryTestParam data(i);
       auto oneset_size = create_dummy_bin_imu_data(oneset_data, false, data.gyro, data.acc, data.mag, data.temp);
       for(unsigned int j = 0; j < oneset_size; j++) {
@@ -584,7 +584,7 @@ TEST(TestDriver, get_latest_data_ASCII) {
     rt_usb_9axisimu::Consts consts;
     buf_size = 0;
     for(int i = 0; i < MAX_CASE_NUM; i++) {
-      unsigned char oneset_data[consts.IMU_ASCII_DATA_SIZE];
+      unsigned char oneset_data[consts.READ_BUFFER_SIZE];
       ReadAsciiTestParam data(i);
       auto oneset_size = create_dummy_ascii_imu_data(oneset_data, false, data.gyro, data.acc, data.mag, data.temp);
       for(unsigned int j = 0; j < oneset_size; j++) {

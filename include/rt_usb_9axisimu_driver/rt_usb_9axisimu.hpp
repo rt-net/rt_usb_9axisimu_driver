@@ -106,7 +106,7 @@ public:
     IMU_ASCII_DATA_SIZE
   };
 
-  static constexpr int READ_BUFFER_SIZE = 256;
+  static constexpr int READ_BUFFER_SIZE = 1024;
 
   // Convertor
   const double CONVERTOR_RAW2G;

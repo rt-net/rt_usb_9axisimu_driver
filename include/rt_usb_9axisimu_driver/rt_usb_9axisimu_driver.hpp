@@ -46,6 +46,34 @@
 
 class RtUsb9axisimuRosDriver
 {
+public:
+  explicit RtUsb9axisimuRosDriver(std::string serialport);
+  RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port);
+  ~RtUsb9axisimuRosDriver();
+
+  enum ReadStatus
+  {
+    SUCCESS = 0,
+    NEED_TO_CONTINUE,
+    FAILURE
+  };
+
+  void setImuFrameIdName(std::string frame_id);
+  void setImuPortName(std::string port);
+  void setImuStdDev(double linear_acceleration, double angular_velocity, double magnetic_field);
+
+  bool startCommunication();
+  void stopCommunication(void);
+  void checkDataFormat(const double timeout = 5.0);
+  bool hasAsciiDataFormat(void);
+  bool hasBinaryDataFormat(void);
+  bool hasRefreshedImuData(void);
+
+  std::unique_ptr<sensor_msgs::msg::Imu> getImuRawDataUniquePtr(const rclcpp::Time timestamp);
+  std::unique_ptr<sensor_msgs::msg::MagneticField> getImuMagUniquePtr(const rclcpp::Time timestamp);
+  std::unique_ptr<std_msgs::msg::Float64> getImuTemperatureUniquePtr(void);
+  ReadStatus readSensorData();
+
 private:
   std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port_;
 
@@ -79,31 +107,10 @@ private:
   // Method to extract binary sensor data from communication buffer
   rt_usb_9axisimu::ImuData<int16_t> extractBinarySensorData(unsigned char * imu_data_buf);
   bool isBinarySensorData(unsigned char * imu_data_buf, unsigned int data_size);
-  bool readBinaryData(void);
+  ReadStatus readBinaryData(void);
   bool isAsciiSensorData(unsigned char * imu_data_buf, unsigned int data_size);
   bool isValidAsciiSensorData(std::vector<std::string> imu_data_vector_buf);
-  bool readAsciiData(void);
-
-public:
-  explicit RtUsb9axisimuRosDriver(std::string serialport);
-  RtUsb9axisimuRosDriver(std::unique_ptr<rt_usb_9axisimu::SerialPort> serial_port);
-  ~RtUsb9axisimuRosDriver();
-
-  void setImuFrameIdName(std::string frame_id);
-  void setImuPortName(std::string port);
-  void setImuStdDev(double linear_acceleration, double angular_velocity, double magnetic_field);
-
-  bool startCommunication();
-  void stopCommunication(void);
-  void checkDataFormat(const double timeout = 5.0);
-  bool hasAsciiDataFormat(void);
-  bool hasBinaryDataFormat(void);
-  bool hasRefreshedImuData(void);
-
-  std::unique_ptr<sensor_msgs::msg::Imu> getImuRawDataUniquePtr(const rclcpp::Time timestamp);
-  std::unique_ptr<sensor_msgs::msg::MagneticField> getImuMagUniquePtr(const rclcpp::Time timestamp);
-  std::unique_ptr<std_msgs::msg::Float64> getImuTemperatureUniquePtr(void);
-  bool readSensorData();
+  ReadStatus readAsciiData(void);
 };
 
 #endif  // RT_USB_9AXISIMU_DRIVER__RT_USB_9AXISIMU_DRIVER_HPP_

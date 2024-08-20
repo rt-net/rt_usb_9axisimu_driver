@@ -65,15 +65,22 @@ Driver::Driver(const rclcpp::NodeOptions & options)
 
 void Driver::on_publish_timer()
 {
-  if (driver_->readSensorData()) {
-    if (driver_->hasRefreshedImuData()) {
+  // Keep reading to get the latest data
+  auto read_result = RtUsb9axisimuRosDriver::ReadStatus::NEED_TO_CONTINUE;
+  while (read_result != RtUsb9axisimuRosDriver::ReadStatus::SUCCESS) {
+    read_result = driver_->readSensorData();
+    if (read_result == RtUsb9axisimuRosDriver::ReadStatus::NEED_TO_CONTINUE) {
+      continue;
+    } else if (read_result == RtUsb9axisimuRosDriver::ReadStatus::SUCCESS) {
       rclcpp::Time timestamp = this->now();
       imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(timestamp)));
       imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(timestamp)));
       imu_temperature_pub_->publish(std::move(driver_->getImuTemperatureUniquePtr()));
+      break;
+    } else if (read_result == RtUsb9axisimuRosDriver::ReadStatus::FAILURE) {
+      RCLCPP_ERROR(this->get_logger(), "readSensorData() returns FAILURE, please check your devices.");
+      return;
     }
-  } else {
-    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
   }
 }
 
@@ -119,8 +126,8 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
-  if (!driver_->readSensorData()) {
-    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns false, please check your devices.");
+  if (driver_->readSensorData() == RtUsb9axisimuRosDriver::ReadStatus::FAILURE) {
+    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns FAILURE, please check your devices.");
     return CallbackReturn::ERROR;
   }
   imu_data_raw_pub_->on_activate();
