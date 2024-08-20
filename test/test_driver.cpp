@@ -521,3 +521,101 @@ INSTANTIATE_TEST_SUITE_P(
     ReadAsciiTestParam(10)
   )
 );
+
+TEST(TestDriver, get_latest_data_Binary) {
+  // Expect to check the latest data is correctly read when binary sequential data is read
+  auto mock = create_serial_port_mock();
+  const int MAX_CASE_NUM = 3;
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  When(Method(mock, readFromDevice)).AlwaysDo([&](
+    unsigned char* buf, unsigned int buf_size) {
+    rt_usb_9axisimu::Consts consts;
+    buf_size = 0;
+    for(int i = 0; i < MAX_CASE_NUM; i++) {
+      unsigned char oneset_data[consts.IMU_BIN_DATA_SIZE];
+      ReadBinaryTestParam data(i);
+      auto oneset_size = create_dummy_bin_imu_data(oneset_data, false, data.gyro, data.acc, data.mag, data.temp);
+      for(unsigned int j = 0; j < oneset_size; j++) {
+        buf[j+buf_size] = oneset_data[j];
+      }
+      buf_size += oneset_size;
+    }
+    return buf_size;
+  });
+
+  driver.checkDataFormat();
+  driver.readSensorData();
+
+  rclcpp::Time timestamp;
+  auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
+  auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
+  auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
+
+  ReadBinaryTestParam data(MAX_CASE_NUM-1);
+  const double abs_error_acc = 1e-3;
+  const double abs_error_gyro = 1e-3;
+  const double abs_error_mag = 1e-5;
+  const double abs_error_temp = 1e-3;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error_gyro);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error_mag);
+  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error_temp);
+}
+
+TEST(TestDriver, get_latest_data_ASCII) {
+  // Expect to check the latest data is correctly read when ascii sequential data is read
+  auto mock = create_serial_port_mock();
+  const int MAX_CASE_NUM = 3;
+
+  RtUsb9axisimuRosDriver driver(
+    std::unique_ptr<SerialPort>(&mock.get()));
+
+  When(Method(mock, readFromDevice)).AlwaysDo([&](
+    unsigned char* buf, unsigned int buf_size) {
+    rt_usb_9axisimu::Consts consts;
+    buf_size = 0;
+    for(int i = 0; i < MAX_CASE_NUM; i++) {
+      unsigned char oneset_data[consts.IMU_ASCII_DATA_SIZE];
+      ReadAsciiTestParam data(i);
+      auto oneset_size = create_dummy_ascii_imu_data(oneset_data, false, data.gyro, data.acc, data.mag, data.temp);
+      for(unsigned int j = 0; j < oneset_size; j++) {
+        buf[j+buf_size] = oneset_data[j];
+      }
+      buf_size += oneset_size;
+    }
+    return buf_size;
+  });
+
+  driver.checkDataFormat();
+  driver.readSensorData();
+
+  rclcpp::Time timestamp;
+  auto imu_data_raw = driver.getImuRawDataUniquePtr(timestamp);
+  auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
+  auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
+
+  ReadBinaryTestParam data(MAX_CASE_NUM-1);
+  const double abs_error_acc = 1e-3;
+  const double abs_error_gyro = 1e-3;
+  const double abs_error_mag = 1e-5;
+  const double abs_error_temp = 1e-3;
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.x, data.ans_acc[0], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.y, data.ans_acc[1], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->linear_acceleration.z, data.ans_acc[2], abs_error_acc);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.x, data.ans_gyro[0], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.y, data.ans_gyro[1], abs_error_gyro);
+  EXPECT_NEAR(imu_data_raw->angular_velocity.z, data.ans_gyro[2], abs_error_gyro);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.x, data.ans_mag[0], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.y, data.ans_mag[1], abs_error_mag);
+  EXPECT_NEAR(imu_data_mag->magnetic_field.z, data.ans_mag[2], abs_error_mag);
+  EXPECT_NEAR(imu_data_temperature->data, data.ans_temp, abs_error_temp);
+}
