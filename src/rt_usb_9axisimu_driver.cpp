@@ -116,8 +116,7 @@ RtUsb9axisimuRosDriver::ReadStatus RtUsb9axisimuRosDriver::readBinaryData(void)
   unsigned char read_data_buf[consts.READ_BUFFER_SIZE];
 
   has_refreshed_imu_data_ = false;
-  int read_data_size = serial_port_->readFromDevice(read_data_buf,
-    consts.IMU_BIN_DATA_SIZE - imu_binary_data_buffer.size());
+  int read_data_size = serial_port_->readFromDevice(read_data_buf, sizeof(read_data_buf));
 
   if(read_data_size == 0){  // The device was unplugged.
     return RtUsb9axisimuRosDriver::ReadStatus::FAILURE;
@@ -131,8 +130,16 @@ RtUsb9axisimuRosDriver::ReadStatus RtUsb9axisimuRosDriver::readBinaryData(void)
     }
   }
 
+  int buf_start_idx = 0;
+  for(int i = 0; i < read_data_size-3; i++) {
+    if(read_data_buf[i] == 0xff && read_data_buf[i+1] == 0xff &&
+       read_data_buf[i+2] == 'R' && read_data_buf[i+3] == 'T') {
+      buf_start_idx = i;
+    }
+  }
+
   for(int i = 0; i < read_data_size; i++){
-    imu_binary_data_buffer.push_back(read_data_buf[i]);
+    imu_binary_data_buffer.push_back(read_data_buf[i+buf_start_idx]);
   }
 
   if (imu_binary_data_buffer.size() < consts.IMU_BIN_DATA_SIZE){
@@ -227,7 +234,14 @@ RtUsb9axisimuRosDriver::ReadStatus RtUsb9axisimuRosDriver::readAsciiData(void)
     }
   }
 
-  for (int char_count = 0; char_count < data_size_of_buf; char_count++) {
+  int buf_start_idx = 0;
+  for (int i = 0; i < data_size_of_buf-consts.IMU_ASCII_DATA_SIZE; i++) {
+    if(imu_data_buf[i] == '\n') {
+      buf_start_idx = i;
+    }
+  }
+
+  for (int char_count = buf_start_idx; char_count < data_size_of_buf; char_count++) {
     if (imu_data_buf[char_count] == ',' || imu_data_buf[char_count] == '\n') {
       imu_data_vector_buf.push_back(imu_data_oneline_buf);
       // If the imu_data_oneline_buf is empty string (such as receiving

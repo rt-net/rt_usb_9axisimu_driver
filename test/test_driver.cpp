@@ -603,7 +603,7 @@ TEST(TestDriver, get_latest_data_ASCII) {
   auto imu_data_mag = driver.getImuMagUniquePtr(timestamp);
   auto imu_data_temperature = driver.getImuTemperatureUniquePtr();
 
-  ReadBinaryTestParam data(MAX_CASE_NUM-1);
+  ReadAsciiTestParam data(MAX_CASE_NUM-1);
   const double abs_error_acc = 1e-3;
   const double abs_error_gyro = 1e-3;
   const double abs_error_mag = 1e-5;
