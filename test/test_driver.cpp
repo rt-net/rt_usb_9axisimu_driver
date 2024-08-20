@@ -73,9 +73,6 @@ public:
 private:
   void set_data (int16_t test_val,
                  double ans_gyro_val, double ans_acc_val, double ans_mag_val, double ans_temp_val) {
-    rt_usb_9axisimu::Consts consts;
-    const int test_firmfare_ver = 18;
-    consts.ChangeConvertor(test_firmfare_ver);
     gyro[0] = gyro[1] = gyro[2] = test_val;
     acc[0] = acc[1] = acc[2] = test_val;
     mag[0] = mag[1] = mag[2] = test_val;
@@ -109,9 +106,6 @@ public:
 private:
   void set_data (double gyro_val, double acc_val, double mag_val, double temp_val,
                  double ans_acc_val, double ans_mag_val) {
-    rt_usb_9axisimu::Consts consts;
-    const int test_firmfare_ver = 18;
-    consts.ChangeConvertor(test_firmfare_ver);
     gyro[0] = gyro[1] = gyro[2] = gyro_val;
     acc[0] = acc[1] = acc[2] = acc_val;
     mag[0] = mag[1] = mag[2] = mag_val;
