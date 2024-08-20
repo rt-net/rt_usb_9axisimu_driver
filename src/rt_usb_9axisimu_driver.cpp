@@ -138,7 +138,7 @@ RtUsb9axisimuRosDriver::ReadStatus RtUsb9axisimuRosDriver::readBinaryData(void)
     }
   }
 
-  for(int i = 0; i < read_data_size; i++){
+  for(int i = 0; i < consts.IMU_BIN_DATA_SIZE; i++){
     imu_binary_data_buffer.push_back(read_data_buf[i+buf_start_idx]);
   }
 
@@ -235,9 +235,16 @@ RtUsb9axisimuRosDriver::ReadStatus RtUsb9axisimuRosDriver::readAsciiData(void)
   }
 
   int buf_start_idx = 0;
-  for (int i = 0; i < data_size_of_buf-consts.IMU_ASCII_DATA_SIZE; i++) {
+  bool newline_flag = false;
+  for (int i = data_size_of_buf-1; i >= 0; i--) {
     if(imu_data_buf[i] == '\n') {
-      buf_start_idx = i;
+      if(newline_flag) {
+        buf_start_idx = i;
+        break;
+      }
+      else if(!newline_flag) {
+        newline_flag = true;
+      }
     }
   }
 
