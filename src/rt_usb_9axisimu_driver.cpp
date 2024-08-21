@@ -131,7 +131,7 @@ RtUsb9axisimuRosDriver::ReadStatus RtUsb9axisimuRosDriver::readBinaryData(void)
   }
 
   int buf_start_idx = 0;
-  for(int i = 0; i < read_data_size-3; i++) {
+  for(int i = 0; i < read_data_size-consts.IMU_BIN_DATA_SIZE+1; i++) {
     if(read_data_buf[i] == 0xff && read_data_buf[i+1] == 0xff &&
        read_data_buf[i+2] == 'R' && read_data_buf[i+3] == 'T') {
       buf_start_idx = i;
