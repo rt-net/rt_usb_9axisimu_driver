@@ -2,6 +2,15 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fix to get the latest data (`#58 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/58>`_)
+* Add test for readSensorData() (`#57 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/57>`_)
+* checkDataFormat() and unit test updates (`#54 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/54>`_)
+* Add unit tests (`#52 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/52>`_)
+  Co-authored-by: ShotaAk <s.aoki@rt-net.jp>
+* Contributors: YusukeKato
+
 2.0.2 (2023-01-26)
 ------------------
 * Support Humble (`#42 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/42>`_)
