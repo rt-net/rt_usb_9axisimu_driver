@@ -14,11 +14,15 @@ jobs:
   industrial_ci:
     strategy:
       matrix:
-        env:
-          - { ROS_DISTRO: jazzy, ROS_REPO: ros, AFTER_SETUP_TARGET_WORKSPACE: 'apt update && apt install -y git' }
+        ROS_DISTRO: [jazzy]
+        ROS_REPO: [ros]
+        AFTER_SETUP_TARGET_WORKSPACE: [apt update && apt install -y git]
 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: "ros-industrial/industrial_ci@master"
-        env: ${{ matrix.env }}
+        env:
+          ROS_DISTRO: ${{matrix.ROS_DISTRO}}
+          ROS_REPO: ${{matrix.ROS_REPO}}
+          AFTER_SETUP_TARGET_WORKSPACE: ${{matrix.AFTER_SETUP_TARGET_WORKSPACE}}
