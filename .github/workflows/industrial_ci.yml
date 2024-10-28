@@ -28,3 +28,6 @@ jobs:
           ROS_DISTRO: ${{matrix.ROS_DISTRO}}
           ROS_REPO: ${{matrix.ROS_REPO}}
           AFTER_SETUP_TARGET_WORKSPACE: ${{matrix.AFTER_SETUP_TARGET_WORKSPACE}}
+          BUILD_TOOL_ARGS: "--event-handlers console_direct+"
+          COLCON_LOG_LEVEL: debug
+          VERBOSE_OUTPUT: true
