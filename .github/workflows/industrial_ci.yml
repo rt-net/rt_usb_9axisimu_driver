@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         ROS_DISTRO: [jazzy]
-        ROS_REPO: [ros]
+        ROS_REPO: [main]
         AFTER_SETUP_TARGET_WORKSPACE: [apt update && apt install -y git gcc-11 g++-11]
     # env:
     #   CCACHE_DIR: "${{ github.workspace }}/.ccache" # ccache directory for debug
