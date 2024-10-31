@@ -3,7 +3,7 @@
  *
  * License: BSD-3-Clause
  *
- * Copyright (c) 2015-2023 RT Corporation <support@rt-net.jp>
+ * Copyright (c) 2015-2024 RT Corporation <support@rt-net.jp>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
