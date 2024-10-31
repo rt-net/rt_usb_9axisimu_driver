@@ -14,11 +14,20 @@ jobs:
   industrial_ci:
     strategy:
       matrix:
-        env:
-          - { ROS_DISTRO: humble, ROS_REPO: ros, AFTER_SETUP_TARGET_WORKSPACE: 'apt update && apt install -y git' }
+        ROS_DISTRO: [jazzy]
+        ROS_REPO: [main]
+        AFTER_SETUP_TARGET_WORKSPACE: [apt update && apt install -y git gcc-11 g++-11]
+    # env:
+    #   CCACHE_DIR: "${{ github.workspace }}/.ccache" # ccache directory for debug
 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: "ros-industrial/industrial_ci@master"
-        env: ${{ matrix.env }}
+        env:
+          ROS_DISTRO: ${{matrix.ROS_DISTRO}}
+          ROS_REPO: ${{matrix.ROS_REPO}}
+          AFTER_SETUP_TARGET_WORKSPACE: ${{matrix.AFTER_SETUP_TARGET_WORKSPACE}}
+          BUILD_TOOL_ARGS: "--event-handlers console_direct+"
+          COLCON_LOG_LEVEL: debug
+          VERBOSE_OUTPUT: true

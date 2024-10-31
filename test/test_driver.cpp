@@ -3,7 +3,7 @@
  *
  * License: BSD-3-Clause
  *
- * Copyright (c) 2015-2023 RT Corporation <support@rt-net.jp>
+ * Copyright (c) 2015-2024 RT Corporation <support@rt-net.jp>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -198,29 +198,30 @@ unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid) {
 unsigned int create_dummy_ascii_imu_data(unsigned char *buf, bool is_invalid,
                                          double *gyro, double *acc, double *mag, double temp) {
   rt_usb_9axisimu::Consts consts;
-  std::vector<const char*> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE); 
+  std::vector<std::string> dummy_ascii_imu_data(consts.IMU_ASCII_DATA_SIZE);
   if (is_invalid) {
     dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0.0";
   } else {
     dummy_ascii_imu_data[consts.IMU_ASCII_TIMESTAMP] = "0";
   }
-  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = double_to_string(gyro[0]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = double_to_string(gyro[1]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = double_to_string(gyro[2]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = double_to_string(acc[0]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = double_to_string(acc[1]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = double_to_string(acc[2]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = double_to_string(mag[0]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = double_to_string(mag[1]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = double_to_string(mag[2]).c_str();
-  dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = double_to_string(temp).c_str();
+  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_X] = double_to_string(gyro[0]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Y] = double_to_string(gyro[1]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_GYRO_Z] = double_to_string(gyro[2]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_X] = double_to_string(acc[0]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Y] = double_to_string(acc[1]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_ACC_Z] = double_to_string(acc[2]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_X] = double_to_string(mag[0]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Y] = double_to_string(mag[1]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_MAG_Z] = double_to_string(mag[2]);
+  dummy_ascii_imu_data[consts.IMU_ASCII_TEMP] = double_to_string(temp);
   const char split_char = ',';
   const char newline_char = '\n';
   buf[0] = (unsigned char)newline_char;
   unsigned int char_count = 1;
   for(int i = 0; i < consts.IMU_ASCII_DATA_SIZE; i++) {
-    for(int j = 0; j < (int)strlen(dummy_ascii_imu_data.at(i)); j++) {
-      buf[char_count] = (unsigned char)dummy_ascii_imu_data.at(i)[j];
+    const char* data_str = dummy_ascii_imu_data.at(i).c_str();
+    for(int j = 0; j < (int)strlen(data_str); j++) {
+      buf[char_count] = (unsigned char)data_str[j];
       char_count++;
     }
     if(i != consts.IMU_ASCII_DATA_SIZE - 1) buf[char_count] = (unsigned char)split_char;

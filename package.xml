@@ -7,6 +7,8 @@
 
   <maintainer email="shop@rt-net.jp">RT Corporation</maintainer>
   <author email="shop@rt-net.jp">RT Corporation</author>
+  <author email="yusuke.kato@rt-net.jp">Yusuke Kato</author>
+  <author email="kurasawa@rt-net.jp">Kazushi Kurasawa</author>
 
   <license>BSD</license>
 
@@ -29,4 +31,3 @@
     <build_type>ament_cmake</build_type>
   </export>
 </package>
-
