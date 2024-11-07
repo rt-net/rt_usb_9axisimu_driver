@@ -2,7 +2,7 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-2.1.0 (2024-08-23)
+3.0.0 (2024-11-07)
 ------------------
 * Update CI for ROS 2 Rolling (`https://github.com/rt-net/rt_usb_9axisimu_driver/pull/62`)
 * Support for ROS 2 Jazzy (`https://github.com/rt-net/rt_usb_9axisimu_driver/pull/61`)
