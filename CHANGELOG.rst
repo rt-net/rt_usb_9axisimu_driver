@@ -4,6 +4,13 @@ Changelog for package rt_usb_9axisimu_driver
 
 2.1.0 (2024-08-23)
 ------------------
+* Update CI for ROS 2 Rolling ([#62](https://github.com/rt-net/rt_usb_9axisimu_driver/pull/62))
+* Support for ROS 2 Jazzy ([#61](https://github.com/rt-net/rt_usb_9axisimu_driver/pull/61))
+* Fix undefined behavior by storing `std::string` objects instead of `const char*` pointers
+* Contributors: Kazushi Kurasawa, YusukeKato
+
+2.1.0 (2024-08-23)
+------------------
 * Fix to get the latest data (`#58 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/58>`_)
 * Add test for readSensorData() (`#57 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/57>`_)
 * checkDataFormat() and unit test updates (`#54 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/54>`_)
