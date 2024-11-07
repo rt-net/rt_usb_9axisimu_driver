@@ -4,8 +4,8 @@ Changelog for package rt_usb_9axisimu_driver
 
 2.1.0 (2024-08-23)
 ------------------
-* Update CI for ROS 2 Rolling ([#62](https://github.com/rt-net/rt_usb_9axisimu_driver/pull/62))
-* Support for ROS 2 Jazzy ([#61](https://github.com/rt-net/rt_usb_9axisimu_driver/pull/61))
+* Update CI for ROS 2 Rolling (`https://github.com/rt-net/rt_usb_9axisimu_driver/pull/62`)
+* Support for ROS 2 Jazzy (`https://github.com/rt-net/rt_usb_9axisimu_driver/pull/61`)
 * Fix undefined behavior by storing `std::string` objects instead of `const char*` pointers
 * Contributors: Kazushi Kurasawa, YusukeKato
 
