@@ -126,8 +126,8 @@ CallbackReturn Driver::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_INFO(this->get_logger(), "on_activate() is called.");
 
-  if (!driver_->checkReadData()) {
-    RCLCPP_ERROR(this->get_logger(), "checkReadData() returns false, please check your devices.");
+  if (driver_->readSensorData() == RtUsb9axisimuRosDriver::ReadStatus::FAILURE) {
+    RCLCPP_ERROR(this->get_logger(), "readSensorData() returns FAILURE, please check your devices.");
     return CallbackReturn::ERROR;
   }
   imu_data_raw_pub_->on_activate();

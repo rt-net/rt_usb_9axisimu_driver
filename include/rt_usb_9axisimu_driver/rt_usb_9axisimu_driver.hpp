@@ -65,7 +65,6 @@ public:
   bool startCommunication();
   void stopCommunication(void);
   void checkDataFormat(const double timeout = 5.0);
-  bool checkReadData(const double timeout = 5.0);
   bool hasAsciiDataFormat(void);
   bool hasBinaryDataFormat(void);
   bool hasRefreshedImuData(void);
