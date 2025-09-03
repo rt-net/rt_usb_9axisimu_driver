@@ -366,6 +366,20 @@ void RtUsb9axisimuRosDriver::checkDataFormat(const double timeout)
   }
 }
 
+bool RtUsb9axisimuRosDriver::checkReadData(const double timeout)
+{
+  const auto start_time = std::chrono::system_clock::now();
+  double time_elapsed = 0.0;
+  while (time_elapsed < timeout) {
+    const auto end_time = std::chrono::system_clock::now();
+    time_elapsed = (double)std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time).count();
+    if (readSensorData() == RtUsb9axisimuRosDriver::ReadStatus::SUCCESS) {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool RtUsb9axisimuRosDriver::hasAsciiDataFormat(void)
 {
   return data_format_ == DataFormat::ASCII;
