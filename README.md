@@ -48,7 +48,7 @@ https://github.com/rt-net/RT-USB-9AXIS-00
 ポートの権限を変更してください。
 
 ```sh
-$ sudo chmod 666 /dev/ttyACM0
+sudo chmod 666 /dev/ttyACM0
 ```
 
 ## 2. インストール
@@ -56,45 +56,40 @@ $ sudo chmod 666 /dev/ttyACM0
 ### 2.1 バイナリをインストールする場合
 
 ```sh
-# ROS 2 Humble
-$ sudo apt install ros-humble-rt-usb-9axisimu-driver
-# ROS 2 Jazzy (ToDo)
-$
+sudo apt install ros-$ROS_DISTRO-rt-usb-9axisimu-driver
 ```
 
 ### 2.2 ソースからインストールする場合
 
 ```sh
-$ cd ~/ros2_ws/src
+cd ~/ros2_ws/src
 # Clone package & checkout ROS 2 branch
-$ git clone -b $ROS_DISTRO https://github.com/rt-net/rt_usb_9axisimu_driver
+git clone -b $ROS_DISTRO https://github.com/rt-net/rt_usb_9axisimu_driver
 
 # Install dependencies
-$ rosdep install -r -y -i --from-paths .
+rosdep install -r -y -i --from-paths .
 
 # Build & Install
-$ cd ~/ros2_ws
-$ colcon build --symlink-install
-$ source ~/ros2_ws/install/setup.bash
+cd ~/ros2_ws
+colcon build --symlink-install
+source ~/ros2_ws/install/setup.bash
 ```
 
 ### 2.3 クイックスタート
 
 ```sh
 # Terminal 1
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
+source ~/ros2_ws/install/setup.bash
+ros2 launch rt_usb_9axisimu_driver rt_usb_9axisimu_driver.launch.py
 ```
 
 ```sh
 # Terminal 2
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 lifecycle set rt_usb_9axisimu_driver configure
-$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+source ~/ros2_ws/install/setup.bash
 # Echo topics (Press Ctrl+C for exit)
-$ ros2 topic echo /imu/data_raw
-$ ros2 topic echo /imu/mag
-$ ros2 topic echo /imu/temperature
+ros2 topic echo /imu/data_raw
+ros2 topic echo /imu/mag
+ros2 topic echo /imu/temperature
 ```
 
 
@@ -180,31 +175,31 @@ rt_usb_9axisimu_driverはUSB出力9軸IMUセンサモジュールの出力を受
 
 ```sh
 # Terminal 1
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
+source ~/ros2_ws/install/setup.bash
+ros2 run rt_usb_9axisimu_driver rt_usb_9axisimu_driver
 ```
 
 ```sh
 # Terminal 2
-$ source ~/ros2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 
 # User can plug-in/out the IMU module at unconfigure state.
 
-$ ros2 lifecycle set rt_usb_9axisimu_driver configure
-$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+ros2 lifecycle set rt_usb_9axisimu_driver configure
+ros2 lifecycle set rt_usb_9axisimu_driver activate
 # The node start publishing the topics.
 
 # Stop publishing
-$ ros2 lifecycle set rt_usb_9axisimu_driver deactivate
-$ ros2 lifecycle set rt_usb_9axisimu_driver cleanup
+ros2 lifecycle set rt_usb_9axisimu_driver deactivate
+ros2 lifecycle set rt_usb_9axisimu_driver cleanup
 
 # User can plug-in/out the IMU module at unconfigure state.
 # User can set parameters of the node.
-$ ros2 param set /rt_usb_9axisimu_driver frame_id "imu2-link"
-$ ros2 param set /rt_usb_9axisimu_driver port "/dev/ttyACM1"
+ros2 param set /rt_usb_9axisimu_driver frame_id "imu2-link"
+ros2 param set /rt_usb_9axisimu_driver port "/dev/ttyACM1"
 
-$ ros2 lifecycle set rt_usb_9axisimu_driver configure
-$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+ros2 lifecycle set rt_usb_9axisimu_driver configure
+ros2 lifecycle set rt_usb_9axisimu_driver activate
 # The node start publishing the topics.
 ```
 
@@ -218,16 +213,16 @@ rt_usb_9axisimu_driver::Driverは
 
 ```sh
 # Terminal 1
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 run rclcpp_components component_container
+source ~/ros2_ws/install/setup.bash
+ros2 run rclcpp_components component_container
 ```
 
 ```sh
 # Terminal 2
-$ source ~/ros2_ws/install/setup.bash
-$ ros2 component load /ComponentManager rt_usb_9axisimu_driver rt_usb_9axisimu_driver::Driver
+source ~/ros2_ws/install/setup.bash
+ros2 component load /ComponentManager rt_usb_9axisimu_driver rt_usb_9axisimu_driver::Driver
 
-$ ros2 lifecycle set rt_usb_9axisimu_driver configure
-$ ros2 lifecycle set rt_usb_9axisimu_driver activate
+ros2 lifecycle set rt_usb_9axisimu_driver configure
+ros2 lifecycle set rt_usb_9axisimu_driver activate
 # The node start publishing the topics.
 ```
