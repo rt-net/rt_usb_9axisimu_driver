@@ -1,4 +1,3 @@
-
 # rt_usb_9axisimu_driver.launch.py
 #
 # License: BSD-3-Clause
@@ -30,17 +29,62 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import launch
-from launch_ros.actions import Node
+from launch import LaunchDescription
+from launch_ros.actions import LifecycleNode
+from launch_ros.events.lifecycle import ChangeState
+from launch_ros.event_handlers import OnStateTransition
+from launch.event_handlers.on_process_start import OnProcessStart
+from launch.events import matches_action
+from launch.actions import EmitEvent, LogInfo, RegisterEventHandler
+from lifecycle_msgs.msg import Transition
 
 
 def generate_launch_description():
     """Generate launch description with multiple components."""
-    driver = Node(
+    imu_driver_node = LifecycleNode(
         name='rt_usb_9axisimu_driver',
+        namespace='',
         package='rt_usb_9axisimu_driver',
         executable='rt_usb_9axisimu_driver',
-        output='screen'
+        output='screen',
     )
 
-    return launch.LaunchDescription([driver])
+    configure_event_handler = RegisterEventHandler(
+        OnProcessStart(
+            target_action=imu_driver_node,
+            on_start=[
+                LogInfo(msg='Transitions from unconfigured to inactive.'),
+                EmitEvent(
+                    event=ChangeState(
+                        lifecycle_node_matcher=matches_action(imu_driver_node),
+                        transition_id=Transition.TRANSITION_CONFIGURE,
+                    )
+                ),
+            ],
+        )
+    )
+
+    activate_event_handler = RegisterEventHandler(
+        OnStateTransition(
+            target_lifecycle_node=imu_driver_node,
+            start_state='configuring',
+            goal_state='inactive',
+            entities=[
+                LogInfo(msg='Transitions from inactive to active.'),
+                EmitEvent(
+                    event=ChangeState(
+                        lifecycle_node_matcher=matches_action(imu_driver_node),
+                        transition_id=Transition.TRANSITION_ACTIVATE,
+                    )
+                ),
+            ],
+        )
+    )
+
+    return LaunchDescription(
+        [
+            imu_driver_node,
+            configure_event_handler,
+            activate_event_handler,
+        ]
+    )
