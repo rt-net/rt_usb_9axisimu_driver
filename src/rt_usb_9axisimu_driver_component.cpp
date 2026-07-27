@@ -32,6 +32,7 @@
  */
 
 #include <memory>
+#include <functional>
 #include <string>
 #include <utility>
 
