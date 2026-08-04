@@ -109,7 +109,7 @@ if(BUILD_TESTING)
     GIT_PROGRESS TRUE)
   FetchContent_MakeAvailable(fakeit)
 
-  find_package(ament_cmake_gtest)
+  find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(test_driver test/test_driver.cpp src/rt_usb_9axisimu_driver.cpp)
   target_include_directories(test_driver
     PRIVATE
