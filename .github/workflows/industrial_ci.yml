@@ -16,7 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         env:
-          - { ROS_DISTRO: rolling, ROS_REPO: main}
           - { ROS_DISTRO: lyrical, ROS_REPO: main}
     env:
       ADDITIONAL_DEBS: 'git'
