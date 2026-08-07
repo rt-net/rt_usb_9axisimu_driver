@@ -2,6 +2,18 @@
 Changelog for package rt_usb_9axisimu_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.0.0 (2026-08-07)
+------------------
+* Support ROS 2 Lyrical (`#67 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/67>`_)
+* Update the CMake configuration, CI workflow, and README for ROS 2 Lyrical
+* Contributors: Kazushi Kurasawa, YusukeKato
+
+3.1.0 (2026-02-06)
+------------------
+* Automatically configure and activate the lifecycle node from the launch file (`#65 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/65>`_)
+* Add a timeout when checking whether sensor data can be read (`#66 <https://github.com/rt-net/rt_usb_9axisimu_driver/issues/66>`_)
+* Contributors:  YusukeKato, Kuwamai
+
 3.0.0 (2024-11-07)
 ------------------
 * Update CI for ROS 2 Rolling (`https://github.com/rt-net/rt_usb_9axisimu_driver/pull/62`)
