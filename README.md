@@ -12,6 +12,7 @@
 
 - ROS 2 Humble ([`humble`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/humble))
 - ROS 2 Jazzy ([`jazzy`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/jazzy))
+- ROS 2 Lyrical ([`lyrical`](https://github.com/rt-net/rt_usb_9axisimu_driver/tree/lyrical))
 
 ## 1. 概要
 
@@ -62,7 +63,7 @@ sudo apt install ros-$ROS_DISTRO-rt-usb-9axisimu-driver
 ### 2.2 ソースからインストールする場合
 
 ```sh
-cd ~/ros2_ws/src
+mkdir -p ~/ros2_ws/src && cd ~/ros2_ws/src
 # Clone package & checkout ROS 2 branch
 git clone -b $ROS_DISTRO https://github.com/rt-net/rt_usb_9axisimu_driver
 

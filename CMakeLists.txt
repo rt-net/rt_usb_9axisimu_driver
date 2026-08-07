@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20)
 project(rt_usb_9axisimu_driver)
 
 # Default to C99
@@ -6,10 +6,12 @@ if(NOT CMAKE_C_STANDARD)
   set(CMAKE_C_STANDARD 99)
 endif()
 
-# Default to C++14
+# Default to C++20
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 20)
 endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -29,26 +31,35 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 
-include_directories(include)
-
 add_library(rt_usb_9axisimu_driver_component SHARED
   src/rt_usb_9axisimu_driver_component.cpp
   src/rt_usb_9axisimu_driver.cpp)
 target_compile_definitions(rt_usb_9axisimu_driver_component
   PRIVATE "RT_USB_9AXISIMU_DRIVER_BUILDING_DLL")
-ament_target_dependencies(rt_usb_9axisimu_driver_component
-  rclcpp
-  rclcpp_components
-  rclcpp_lifecycle
-  sensor_msgs
-  std_msgs
-  std_srvs)
+target_include_directories(rt_usb_9axisimu_driver_component
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
+target_link_libraries(rt_usb_9axisimu_driver_component
+  PUBLIC
+    rclcpp::rclcpp
+    rclcpp_components::component
+    rclcpp_lifecycle::rclcpp_lifecycle
+    sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+    std_msgs::std_msgs__rosidl_typesupport_cpp
+    std_srvs::std_srvs__rosidl_typesupport_cpp)
 rclcpp_components_register_nodes(rt_usb_9axisimu_driver_component "rt_usb_9axisimu_driver::Driver")
 
 add_executable(rt_usb_9axisimu_driver src/rt_usb_9axisimu_driver_node.cpp)
-target_link_libraries(rt_usb_9axisimu_driver rt_usb_9axisimu_driver_component)
-ament_target_dependencies(rt_usb_9axisimu_driver
-  rclcpp)
+target_link_libraries(rt_usb_9axisimu_driver
+  PRIVATE
+    rt_usb_9axisimu_driver_component)
+target_include_directories(rt_usb_9axisimu_driver
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(rt_usb_9axisimu_driver
+  PRIVATE
+    rclcpp::rclcpp)
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
@@ -89,7 +100,7 @@ install(DIRECTORY
 if(BUILD_TESTING)
 #  find_package(ament_lint_auto REQUIRED)
 #  ament_lint_auto_find_test_dependencies()
-  Set(FETCHCONTENT_QUIET FALSE)
+  set(FETCHCONTENT_QUIET FALSE)
   include(FetchContent)
   FetchContent_Declare(
     fakeit
@@ -98,13 +109,16 @@ if(BUILD_TESTING)
     GIT_PROGRESS TRUE)
   FetchContent_MakeAvailable(fakeit)
 
-  find_package(ament_cmake_gtest)
+  find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(test_driver test/test_driver.cpp src/rt_usb_9axisimu_driver.cpp)
-  target_include_directories(test_driver PRIVATE ${fakeit_SOURCE_DIR}/single_header/gtest)
-  ament_target_dependencies(test_driver
-    rclcpp
-    sensor_msgs
-  )
+  target_include_directories(test_driver
+    PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}/include
+      ${fakeit_SOURCE_DIR}/single_header/gtest)
+  target_link_libraries(test_driver
+    rclcpp::rclcpp
+    sensor_msgs::sensor_msgs__rosidl_typesupport_cpp
+    std_msgs::std_msgs__rosidl_typesupport_cpp)
 endif()
 
 ament_package()

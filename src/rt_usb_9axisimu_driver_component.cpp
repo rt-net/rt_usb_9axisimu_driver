@@ -32,6 +32,7 @@
  */
 
 #include <memory>
+#include <functional>
 #include <string>
 #include <utility>
 
@@ -73,9 +74,9 @@ void Driver::on_publish_timer()
       continue;
     } else if (read_result == RtUsb9axisimuRosDriver::ReadStatus::SUCCESS) {
       rclcpp::Time timestamp = this->now();
-      imu_data_raw_pub_->publish(std::move(driver_->getImuRawDataUniquePtr(timestamp)));
-      imu_mag_pub_->publish(std::move(driver_->getImuMagUniquePtr(timestamp)));
-      imu_temperature_pub_->publish(std::move(driver_->getImuTemperatureUniquePtr()));
+      imu_data_raw_pub_->publish(driver_->getImuRawDataUniquePtr(timestamp));
+      imu_mag_pub_->publish(driver_->getImuMagUniquePtr(timestamp));
+      imu_temperature_pub_->publish(driver_->getImuTemperatureUniquePtr());
       break;
     } else if (read_result == RtUsb9axisimuRosDriver::ReadStatus::FAILURE) {
       RCLCPP_ERROR(this->get_logger(), "readSensorData() returns FAILURE, please check your devices.");
