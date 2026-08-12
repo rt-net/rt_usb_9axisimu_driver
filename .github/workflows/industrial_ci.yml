@@ -13,12 +13,12 @@ on:
 jobs:
   industrial_ci:
     strategy:
+      fail-fast: false
       matrix:
         env:
-          - { ROS_DISTRO: rolling, ROS_REPO: main}
           - { ROS_DISTRO: jazzy, ROS_REPO: main}
     env:
-      AFTER_SETUP_TARGET_WORKSPACE: 'apt update && apt install -y git'
+      ADDITIONAL_DEBS: 'git'
 
     runs-on: ubuntu-latest
     steps:
